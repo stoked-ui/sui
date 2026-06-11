@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { Timeline } from '../../../../src';
-import { TimelineFile } from '../../../../src/TimelineFile';
-import { ITimelineTrack } from '../../../../src/TimelineTrack/TimelineTrack.types';
-import { ITimelineAction } from '../../../../src/TimelineAction';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
+import { Timeline } from '../../../../src';
+import { TimelineFile } from '../../../../src/TimelineFile';
+import { ITimelineTrack } from '../../../../src/TimelineTrack/TimelineTrack.types';
+import { ITimelineAction } from '../../../../src/TimelineAction';
 
 export default function CustomControlsTimeline() {
   const [file, setFile] = React.useState<TimelineFile | null>(null);
@@ -73,7 +73,7 @@ export default function CustomControlsTimeline() {
       
       <Timeline 
         file={file} 
-        labels={true}
+        labels
         onClickTrack={handleClickTrack}
         onClickAction={handleClickAction}
         scaleWidth={zoom}

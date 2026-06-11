@@ -1,10 +1,10 @@
 import { namedId} from '@stoked-ui/common';
+import { createAction } from '@stoked-ui/timeline';
 import EditorFile, { IEditorFile } from "./EditorFile";
 import VideoController from "../Controllers/VideoController";
 import AudioController from "../Controllers/AudioController";
 import {IEditorAction, IEditorFileAction} from "../EditorAction";
 import {IEditorFileTrack} from "../EditorTrack";
-import { createAction } from '@stoked-ui/timeline';
 
 const idFunc = () => namedId('track');
 

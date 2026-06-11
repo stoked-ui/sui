@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+ 
 import express from 'express';
 import * as React from 'react';
 import * as ReactDOMServer from 'react-dom/server';

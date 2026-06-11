@@ -77,9 +77,9 @@ interface Client {
 }
 
 function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
+  if (typeof window === 'undefined') {return null;}
   const stored = localStorage.getItem('auth');
-  if (!stored) return null;
+  if (!stored) {return null;}
   try {
     return JSON.parse(stored).access_token;
   } catch {
@@ -93,7 +93,7 @@ async function apiFetch(url: string, options: RequestInit = {}) {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string> || {}),
   };
-  if (token) headers.Authorization = `Bearer ${token}`;
+  if (token) {headers.Authorization = `Bearer ${token}`;}
   const res = await fetch(getApiUrl(url), { ...options, headers });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
@@ -119,11 +119,11 @@ function relativeTime(dateStr: string): string {
   const days = Math.floor(hours / 24);
   const weeks = Math.floor(days / 7);
   const months = Math.floor(days / 30);
-  if (seconds < 60) return 'just now';
-  if (minutes < 60) return `${minutes}m ago`;
-  if (hours < 24) return `${hours}h ago`;
-  if (days < 7) return `${days}d ago`;
-  if (weeks < 5) return `${weeks}w ago`;
+  if (seconds < 60) {return 'just now';}
+  if (minutes < 60) {return `${minutes}m ago`;}
+  if (hours < 24) {return `${hours}h ago`;}
+  if (days < 7) {return `${days}d ago`;}
+  if (weeks < 5) {return `${weeks}w ago`;}
   return `${months}mo ago`;
 }
 
@@ -138,7 +138,7 @@ function groupDeliverables(items: Deliverable[]): DeliverableGroup[] {
   const map = new Map<string, Deliverable[]>();
   for (const d of items) {
     const key = d.title.toLowerCase();
-    if (!map.has(key)) map.set(key, []);
+    if (!map.has(key)) {map.set(key, []);}
     map.get(key)!.push(d);
   }
   const groups: DeliverableGroup[] = [];
@@ -309,9 +309,9 @@ export default function ClientDetailPage({ clientId }: { clientId: string }) {
   const [userEmail, setUserEmail] = React.useState('');
 
   const isAdmin = React.useMemo(() => {
-    if (typeof window === 'undefined') return false;
+    if (typeof window === 'undefined') {return false;}
     const stored = localStorage.getItem('auth');
-    if (!stored) return false;
+    if (!stored) {return false;}
     try {
       return JSON.parse(stored).user?.role === 'admin';
     } catch {
@@ -342,7 +342,7 @@ export default function ClientDetailPage({ clientId }: { clientId: string }) {
   }, [clientId, isAdmin]);
 
   React.useEffect(() => {
-    if (clientId) fetchData();
+    if (clientId) {fetchData();}
   }, [clientId, fetchData]);
 
   const handleAddDeliverable = async (values: { title: string; type: string; url: string; version?: string }) => {
@@ -359,7 +359,7 @@ export default function ClientDetailPage({ clientId }: { clientId: string }) {
   };
 
   const handleEditDeliverable = async (values: { title: string; type: string; url: string; version?: string }) => {
-    if (!editingDeliverable) return;
+    if (!editingDeliverable) {return;}
     try {
       await apiFetch(`/api/deliverables/${editingDeliverable._id}`, {
         method: 'PATCH',
@@ -373,7 +373,7 @@ export default function ClientDetailPage({ clientId }: { clientId: string }) {
   };
 
   const handleDeleteDeliverable = async (id: string) => {
-    if (!window.confirm('Delete this deliverable?')) return;
+    if (!window.confirm('Delete this deliverable?')) {return;}
     try {
       await apiFetch(`/api/deliverables/${id}`, { method: 'DELETE' });
       fetchData();

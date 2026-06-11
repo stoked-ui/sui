@@ -7,8 +7,7 @@ export default function AppTheme(props) {
 
   return (
     <React.Fragment>
-      <Head>
-      </Head>
+      <Head />
       {children}
     </React.Fragment>
   );

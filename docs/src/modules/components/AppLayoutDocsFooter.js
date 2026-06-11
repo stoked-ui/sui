@@ -1,4 +1,4 @@
-/* eslint-disable no-restricted-globals */
+ 
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { styled, useTheme } from '@mui/material/styles';

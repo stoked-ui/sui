@@ -31,7 +31,7 @@ export default function CheckoutPage() {
   const isSuccess = Boolean(sessionId);
 
   const returnUrl = React.useMemo(() => {
-    if (typeof window === 'undefined') return '';
+    if (typeof window === 'undefined') {return '';}
     const base = `${window.location.origin}/consulting/checkout`;
     return `${base}?product=${productId ?? ''}&session_id={CHECKOUT_SESSION_ID}`;
   }, [productId]);

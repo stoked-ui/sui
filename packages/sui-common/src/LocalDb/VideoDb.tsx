@@ -21,7 +21,7 @@ export const storeVideo = async (db: IDBDatabase, videoUrl: string, videoId: str
   const tx = db.transaction("videos", "readwrite");
   const store = tx.objectStore("videos");
   store.put({ id: videoId, data: blob });
-  // eslint-disable-next-line no-return-assign
+   
   await new Promise((resolve) => {(tx.oncomplete = resolve)});
   return blob;
 };

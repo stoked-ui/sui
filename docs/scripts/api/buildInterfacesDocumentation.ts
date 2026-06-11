@@ -111,7 +111,7 @@ const parseInterfaceSymbol = async (
       if (properties[propertySymbol.name]) {
         properties[propertySymbol.name].projects.push(project.name);
       } else {
-        // eslint-disable-next-line no-await-in-loop
+         
         properties[propertySymbol.name] = await parseProperty(propertySymbol, project);
       }
     }
@@ -240,7 +240,7 @@ export async function buildApiInterfacesJson(options: BuildApiInterfacesJsonOpti
         JSON.stringify(json),
         project,
       );
-      // eslint-disable-next-line no-console
+       
       console.log('Built JSON file for', parsedInterface.name);
     }),
   );
@@ -288,7 +288,7 @@ export async function buildInterfacesDocumentationPage(
     documentedInterfaces.entries(),
   )) {
     const project = projects.get(packagesWithThisInterface[0])!;
-    // eslint-disable-next-line no-await-in-loop
+     
     const parsedInterface = await parseInterfaceSymbol(
       interfaceName,
       packagesWithThisInterface,
@@ -356,21 +356,21 @@ export async function buildInterfacesDocumentationPage(
         translations.propertiesDescriptions[name] = { description };
       });
 
-    // eslint-disable-next-line no-await-in-loop
+     
     await writePrettifiedFile(
       path.resolve(apiPagesDirectory, `${slug}.json`),
       JSON.stringify(content),
       project,
     );
 
-    // eslint-disable-next-line no-await-in-loop
+     
     await writePrettifiedFile(
       path.resolve(translationPagesDirectory, `${slug}.json`),
       JSON.stringify(translations),
       project,
     );
 
-    // eslint-disable-next-line no-await-in-loop
+     
     await writePrettifiedFile(
       path.resolve(apiPagesDirectory, `${slug}.js`),
       `import * as React from 'react';
@@ -401,7 +401,7 @@ export async function buildInterfacesDocumentationPage(
       project,
     );
 
-    // eslint-disable-next-line no-console
+     
     console.log('Built API docs for', parsedInterface.name);
   }
 

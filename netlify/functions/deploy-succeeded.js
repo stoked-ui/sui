@@ -9,11 +9,11 @@ exports.handler = async (event) => {
     throw new Error(`No repo found at review_url: ${payload.review_url}`);
   }
 
-  // eslint-disable-next-line no-console
+   
   console.info(`repo:`, repo[1]);
-  // eslint-disable-next-line no-console
+   
   console.info(`PR:`, repo[2]);
-  // eslint-disable-next-line no-console
+   
   console.info(`url:`, payload.deploy_ssl_url);
 
   // for more details > https://circleci.com/docs/2.0/api-developers-guide/#

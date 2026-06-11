@@ -120,7 +120,7 @@ export function NowPlayingIndicator({
   className,
 }: NowPlayingIndicatorProps) {
   // Don't render if not from queue
-  if (!isFromQueue) return null;
+  if (!isFromQueue) {return null;}
 
   const remainingText =
     queueRemaining === 0

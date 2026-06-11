@@ -72,7 +72,7 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
   </BrandingCssVarsProvider>;
 }
 
-let MainView:  React.ComponentType<{}> = function MainView() {
+const MainView:  React.ComponentType<{}> = function MainView() {
 
   return (
     <React.Fragment>

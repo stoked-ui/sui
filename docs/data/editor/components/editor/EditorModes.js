@@ -43,8 +43,8 @@ export default function EditorModes() {
         <EditorProvider controllers={Controllers}>
           <Editor
             mode={mode}
-            labels={true}
-            fileView={true}
+            labels
+            fileView
           />
         </EditorProvider>
       </Box>

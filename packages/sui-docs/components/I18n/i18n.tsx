@@ -1,7 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import {deepmerge} from '@mui/utils';
-import defaultTranslations from '../../components/../components/../components/translations.js';
+import defaultTranslations from "../../components/translations.js";
 
 const TranslationsContext = React.createContext(defaultTranslations);
 

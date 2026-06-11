@@ -2,6 +2,7 @@ import * as React from 'react';
 import {EventHandlers} from '@mui/base/utils';
 import {ITimelineTrack, TimelineSlotProps} from "@stoked-ui/timeline";
 import { IMediaFile } from '@stoked-ui/media';
+import { SxProps } from '@mui/system';
 import type {EditorContextValue} from '../EditorProvider';
 import {
   ConvertSignaturesIntoPlugins,
@@ -11,7 +12,6 @@ import {
   EditorPublicAPI,
   MergeSignaturesProperty,
 } from '../models';
-import { SxProps } from '@mui/system';
 
 
 export interface UseEditorParameters<

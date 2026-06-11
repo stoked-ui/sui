@@ -134,7 +134,7 @@ export default class ScreenshotQueue {
   }
 
   // Simulate the processing of a screenshot series (could be a CPU-intensive task)
-  // eslint-disable-next-line class-methods-use-this
+   
   private async processScreenshotSeries(queueItem: ScreenshotSeries | ScreenshotTimestamps): Promise<void> {
     const { screenshotStore } = queueItem.file.media;
 

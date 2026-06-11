@@ -33,15 +33,15 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     }
     const { name, email, password, role, active, clientId, aliases, agentIds, avatarUrl } = req.body || {};
     const update: Record<string, unknown> = { updatedAt: new Date() };
-    if (name !== undefined) update.name = name;
-    if (email !== undefined) update.email = email.toLowerCase();
-    if (password) update.passwordHash = await bcrypt.hash(password, 10);
-    if (avatarUrl !== undefined) update.avatarUrl = avatarUrl;
+    if (name !== undefined) {update.name = name;}
+    if (email !== undefined) {update.email = email.toLowerCase();}
+    if (password) {update.passwordHash = await bcrypt.hash(password, 10);}
+    if (avatarUrl !== undefined) {update.avatarUrl = avatarUrl;}
     // Only admins can change role, active status, clientId, aliases, and agentIds
     if (req.user.role === 'admin') {
-      if (role !== undefined) update.role = role;
-      if (active !== undefined) update.active = active;
-      if (clientId !== undefined) update.clientId = clientId ? new ObjectId(clientId) : undefined;
+      if (role !== undefined) {update.role = role;}
+      if (active !== undefined) {update.active = active;}
+      if (clientId !== undefined) {update.clientId = clientId ? new ObjectId(clientId) : undefined;}
       if (aliases !== undefined) {
         update.aliases = Array.isArray(aliases)
           ? aliases.map((a: string) => a.toLowerCase().trim()).filter(Boolean)

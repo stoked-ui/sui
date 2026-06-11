@@ -54,8 +54,8 @@ export default function CustomEditor() {
         fullscreen={editorConfig.fullscreen}
         detailMode={editorConfig.detailMode}
         mode={editorConfig.mode}
-        fileView={true}
-        labels={true}
+        fileView
+        labels
       />
     </Box>
   );

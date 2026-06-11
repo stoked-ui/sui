@@ -29,7 +29,7 @@ export default function CheckoutSuccess() {
   // Try to fetch the license key via the public session_id endpoint (no auth needed)
   React.useEffect(() => {
     const sid = Array.isArray(sessionId) ? sessionId[0] : sessionId;
-    if (!sid) return;
+    if (!sid) {return;}
 
     let cancelled = false;
     let attempts = 0;
@@ -65,7 +65,7 @@ export default function CheckoutSuccess() {
   // Fallback: also try authenticated account API
   React.useEffect(() => {
     const id = Array.isArray(productId) ? productId[0] : productId;
-    if (!id) return;
+    if (!id) {return;}
 
     const fetchLicense = async () => {
       try {
@@ -90,7 +90,7 @@ export default function CheckoutSuccess() {
 
   // Auto-open the app when we have the key
   React.useEffect(() => {
-    if (!licenseKey || activatedRef.current) return;
+    if (!licenseKey || activatedRef.current) {return;}
     activatedRef.current = true;
 
     const activateUrl = `flux://activate-license?key=${encodeURIComponent(licenseKey)}`;

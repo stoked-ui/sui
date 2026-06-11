@@ -189,20 +189,20 @@ export default function HeaderNavBar({ auth, managedProducts = [] }: HeaderNavBa
   // Check if client has invoices (for conditional nav link)
   const [hasInvoices, setHasInvoices] = React.useState(false);
   React.useEffect(() => {
-    if (!auth || auth.role !== 'client' || !auth.clientId) return;
+    if (!auth || auth.role !== 'client' || !auth.clientId) {return;}
     const stored = localStorage.getItem('auth');
-    if (!stored) return;
+    if (!stored) {return;}
     let token: string | null = null;
     try {
       token = JSON.parse(stored).access_token;
     } catch { /* ignore */ }
-    if (!token) return;
+    if (!token) {return;}
     fetch(getApiUrl(`/api/invoices/has-invoices?clientId=${auth.clientId}`), {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        if (data?.hasInvoices) setHasInvoices(true);
+        if (data?.hasInvoices) {setHasInvoices(true);}
       })
       .catch(() => {});
   }, [auth]);

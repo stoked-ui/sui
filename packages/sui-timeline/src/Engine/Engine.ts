@@ -153,7 +153,7 @@ export default class Engine<
 
   getSelectedActions() {
     const actionTracks: {action: ActionType, track: TrackType}[] = [];
-    // eslint-disable-next-line no-restricted-syntax
+     
     for (const [key, ] of this._activeIds.entries()) {
       const action = this._actionMap[key];
       if (action.selected) {
@@ -431,7 +431,7 @@ export default class Engine<
       }
       return
     }
-    // eslint-disable-next-line no-restricted-syntax
+     
     this._activeIds.forEach((key, ) => {
       const action = this._actionMap[key];
       const track = this._actionTrackMap[action.id];
@@ -443,7 +443,7 @@ export default class Engine<
     });
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   log(msg: string, ctx?: string) {
     if (!this._logging) {
       return;
@@ -546,7 +546,7 @@ export default class Engine<
 
     // render
 
-    // eslint-disable-next-line no-restricted-syntax
+     
     this._activeIds.forEach((key, ) => {
       const action = this._actionMap[key];
       const track = this._actionTrackMap[action.id];

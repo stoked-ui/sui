@@ -1,9 +1,9 @@
 import * as React from 'react';
 import {useRtl} from '@mui/system/RtlProvider';
 import useEventCallback from '@mui/utils/useEventCallback';
+import {ITimelineAction} from '@stoked-ui/timeline';
 import {EditorPlugin} from '../../models';
 import {EditorFirstCharMap, UseEditorKeyboardSignature,} from './useEditorKeyboard.types';
-import {ITimelineAction} from '@stoked-ui/timeline';
 
 function isPrintableCharacter(string: string) {
   return !!string && string.length === 1 && !!string.match(/\S/);
@@ -44,7 +44,6 @@ export const useEditorKeyboard: EditorPlugin<
     const ctrlPressed = event.ctrlKey || event.metaKey;
     const key = event.key;
 
-    // eslint-disable-next-line default-case
     switch (true) {
       // Select the item when pressing "Space"
       case key === ' ': {

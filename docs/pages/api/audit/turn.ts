@@ -90,7 +90,7 @@ export default async function handler(
 
     if (result.report) {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         await saveReport(sessionId, result.report as any);
       } catch (err) {
         console.error('auditStore saveReport failed', err);

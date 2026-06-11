@@ -74,6 +74,9 @@ Cargo.lock
 **/.stokd/.heartbeat-ts
 **/.stokd/cache/
 **/.stokd/sessions/
+.stokd/meta/recent.jsonl
+.stokd/meta/stats-raw.json
+.stokd/meta/stats.yaml
 
 # Local build/output artifacts
 docs/.open-next/

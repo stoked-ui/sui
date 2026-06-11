@@ -317,9 +317,9 @@ export function createInMemoryKeyboardShortcuts(): IKeyboardShortcuts {
 export function normalizeKeyString(event: KeyboardEvent): string {
   const parts: string[] = [];
 
-  if (event.ctrlKey || event.metaKey) parts.push('Ctrl');
-  if (event.altKey) parts.push('Alt');
-  if (event.shiftKey) parts.push('Shift');
+  if (event.ctrlKey || event.metaKey) {parts.push('Ctrl');}
+  if (event.altKey) {parts.push('Alt');}
+  if (event.shiftKey) {parts.push('Shift');}
 
   // Use event.key for most keys, fallback to event.code
   const key = event.key !== 'Unidentified' ? event.key : event.code;

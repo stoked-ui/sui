@@ -104,7 +104,7 @@ class AudioControl extends Controller<Howl> implements IController {
     this.listenerMap[action.id].rate = rateListener;
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   update(params: ControllerParams) {
     const { action, time, track } = params;
     this.log({ action, time }, 'audio ');
@@ -141,7 +141,7 @@ class AudioControl extends Controller<Howl> implements IController {
     this.stop(params);
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   getActionStyle(action: ITimelineAction, track: ITimelineTrack, scaleWidth: number, scale: number, trackHeight: number): null | BackgroundImageStyle {
     const adjustedScale = scaleWidth / scale;
     if (!action.backgroundImage) {

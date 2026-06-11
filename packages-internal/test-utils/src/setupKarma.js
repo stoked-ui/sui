@@ -9,7 +9,7 @@ const mochaHooks = createMochaHooks(window.Mocha);
 function handleReactProfilerResults(event) {
   // Only own properties are persisted when sending the object.
   const info = { type: event.type, detail: event.detail };
-  // eslint-disable-next-line no-underscore-dangle -- public: http://karma-runner.github.io/5.2/dev/plugins.html
+   
   window.__karma__.info(info);
 }
 

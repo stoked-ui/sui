@@ -32,7 +32,7 @@ export default function findApiPages(relativeFolder: string) {
   try {
     filePaths = getAllFiles(path.join(process.cwd(), relativeFolder));
   } catch (error) {
-    // eslint-disable-next-line no-console
+     
     console.log(error);
     return [];
   }

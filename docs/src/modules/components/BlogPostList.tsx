@@ -66,7 +66,7 @@ export default function BlogPostList() {
   }, [router]);
 
   const fetchPosts = React.useCallback(async () => {
-    if (!token) return;
+    if (!token) {return;}
     setLoading(true);
     setError(null);
     try {
@@ -74,7 +74,7 @@ export default function BlogPostList() {
       const res = await fetch(`${BLOG_API_URL}/blog?limit=100${statusParam}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) throw new Error(`Failed to load posts (${res.status})`);
+      if (!res.ok) {throw new Error(`Failed to load posts (${res.status})`);}
       const json = await res.json();
       setPosts(json.data || []);
     } catch (err: unknown) {
@@ -89,7 +89,7 @@ export default function BlogPostList() {
   }, [fetchPosts]);
 
   const handlePublishToggle = async (post: BlogPostItem) => {
-    if (!token) return;
+    if (!token) {return;}
     const action = post.status === 'published' ? 'unpublish' : 'publish';
     try {
       const res = await fetch(`${BLOG_API_URL}/blog/${post.slug}/${action}`, {
@@ -109,8 +109,8 @@ export default function BlogPostList() {
   };
 
   const handleDelete = async (post: BlogPostItem) => {
-    if (!token) return;
-    if (!window.confirm(`Delete "${post.title}"? This can be undone by an admin.`)) return;
+    if (!token) {return;}
+    if (!window.confirm(`Delete "${post.title}"? This can be undone by an admin.`)) {return;}
     try {
       const res = await fetch(`${BLOG_API_URL}/blog/${post.slug}`, {
         method: 'DELETE',
@@ -128,7 +128,7 @@ export default function BlogPostList() {
     }
   };
 
-  if (!token) return null;
+  if (!token) {return null;}
 
   return (
     <Box sx={{ maxWidth: 960, mx: 'auto', px: 3, py: 4 }}>

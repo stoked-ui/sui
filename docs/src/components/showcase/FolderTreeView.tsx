@@ -1,6 +1,4 @@
 // @ts-nocheck
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
 // TODO: This file uses legacy @mui/x-tree-view API and needs migration to @stoked-ui/file-explorer
 import * as React from 'react';
 import clsx from 'clsx';

@@ -8,13 +8,12 @@ import Divider from '@mui/material/Divider';
 import Chip from '@mui/material/Chip';
 import Box from '@mui/material/Box';
 import Head from 'docs/src/modules/components/Head';
-import { BrandingCssVarsProvider } from '@stoked-ui/docs';
+import { BrandingCssVarsProvider , Link } from '@stoked-ui/docs';
 import AppHeader from 'docs/src/layouts/AppHeader';
 import AppContainer from 'docs/src/modules/components/AppContainer';
 import AppFooter from 'docs/src/layouts/AppFooter';
 import HeroEnd from 'docs/src/components/home/HeroEnd';
 import ROUTES from 'docs/src/route';
-import { Link } from '@stoked-ui/docs';
 import { authors } from 'docs/src/modules/components/TopLayoutBlog';
 
 const BLOG_API_URL = (process.env.BLOG_API_URL || process.env.NEXT_PUBLIC_BLOG_API_URL || 'http://localhost:5199/api').replace(/\/$/, '');
@@ -225,7 +224,6 @@ export default function BlogPostPage({ post }: BlogPostPageProps) {
             className={classes.back}
           >
             <ChevronLeftRoundedIcon fontSize="small" sx={{ mr: 0.5 }} />
-            {/* eslint-disable-next-line material-ui/no-hardcoded-labels */}
             {'Back to blog'}
           </Link>
           {post.date && (

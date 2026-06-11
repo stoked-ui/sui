@@ -2,8 +2,8 @@
  * Quick test to verify multiverse.sue can load video data
  */
 
-import { SueParserService } from './packages/sui-video-renderer/src/render/services/sue-parser.service';
 import * as path from 'path';
+import { SueParserService } from './packages/sui-video-renderer/src/render/services/sue-parser.service';
 
 async function testMultiverse() {
   const sueParser = new SueParserService();

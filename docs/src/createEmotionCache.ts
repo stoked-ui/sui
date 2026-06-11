@@ -1,4 +1,3 @@
-/* eslint-disable default-case */
 import createCache from '@emotion/cache';
 import { prefixer, Element, RULESET } from 'stylis';
 

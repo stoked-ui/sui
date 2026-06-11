@@ -4,7 +4,7 @@
  */
 
 let benchmarkResults = null;
-let wasmModule = null;
+const wasmModule = null;
 
 // Layer configuration for benchmarking
 const LAYER_CONFIG = [

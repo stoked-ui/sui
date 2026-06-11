@@ -21,7 +21,6 @@ interface FileSystemDirectoryReader {
   readEntries(successCallback: FileSystemEntriesCallback, errorCallback?: ErrorCallback): void;
 }
 
-// eslint-disable-next-line no-var,vars-on-top,@typescript-eslint/no-redeclare
 declare const FileSystemDirectoryReader: {
   prototype: FileSystemDirectoryReader;
   new(): FileSystemDirectoryReader;
@@ -37,7 +36,6 @@ interface FileSystemDirectoryEntry extends FileSystemEntry {
   getFile(path?: string | null, options?: FileSystemFlags, successCallback?: FileSystemEntryCallback, errorCallback?: ErrorCallback): void;
 }
 
-// eslint-disable-next-line no-var,vars-on-top,@typescript-eslint/no-redeclare
 declare const FileSystemDirectoryEntry: {
   prototype: FileSystemDirectoryEntry;
   new(): FileSystemDirectoryEntry;
@@ -52,7 +50,6 @@ interface FileSystem {
   readonly root: FileSystemDirectoryEntry;
 }
 
-// eslint-disable-next-line no-var,vars-on-top,@typescript-eslint/no-redeclare
 declare const FileSystem: {
   prototype: FileSystem;
   new(): FileSystem;
@@ -60,7 +57,7 @@ declare const FileSystem: {
 
 
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileSystemEntry) */
-  // eslint-disable-next-line @typescript-eslint/no-redeclare
+   
 interface FileSystemEntry {
   /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileSystemEntry/filesystem) */
   readonly filesystem: FileSystem;
@@ -76,7 +73,6 @@ interface FileSystemEntry {
   getParent(successCallback?: FileSystemEntryCallback, errorCallback?: ErrorCallback): void;
 }
 
-// eslint-disable-next-line no-var,vars-on-top,@typescript-eslint/no-redeclare
 declare const FileSystemEntry: {
   prototype: FileSystemEntry;
   new(): FileSystemEntry;
@@ -88,7 +84,6 @@ interface FileSystemFileEntry extends FileSystemEntry {
   file(successCallback: FileCallback, errorCallback?: ErrorCallback): void;
 }
 
-// eslint-disable-next-line no-var,vars-on-top,@typescript-eslint/no-redeclare
 declare const FileSystemFileEntry: {
   prototype: FileSystemFileEntry;
   new(): FileSystemFileEntry;

@@ -83,7 +83,7 @@ export function useServerThumbnail(
           size,
         );
 
-        if (cancelled) return;
+        if (cancelled) {return;}
 
         setState({
           thumbnailUrl: result.thumbnailUrl,
@@ -92,7 +92,7 @@ export function useServerThumbnail(
           canRetry: false,
         });
       } catch (error) {
-        if (cancelled) return;
+        if (cancelled) {return;}
 
         console.error('Thumbnail generation failed:', error);
 

@@ -132,7 +132,7 @@ packageJson.exports = sortedExports;
 
 // Update build:copy-files script
 const existingCopyFiles = packageJson.scripts['build:copy-files'];
-const newCopyFiles = existingCopyFiles + ' ' + copyCommands.join(' ');
+const newCopyFiles = `${existingCopyFiles  } ${  copyCommands.join(' ')}`;
 packageJson.scripts['build:copy-files'] = newCopyFiles;
 
 // Write updated package.json

@@ -51,9 +51,9 @@ interface UserRecord {
 }
 
 function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
+  if (typeof window === 'undefined') {return null;}
   const stored = localStorage.getItem('auth');
-  if (!stored) return null;
+  if (!stored) {return null;}
   try {
     return JSON.parse(stored).access_token;
   } catch {
@@ -67,7 +67,7 @@ async function apiFetch(url: string, options: RequestInit = {}) {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string> || {}),
   };
-  if (token) headers.Authorization = `Bearer ${token}`;
+  if (token) {headers.Authorization = `Bearer ${token}`;}
   const res = await fetch(getApiUrl(url), { ...options, headers });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
@@ -202,7 +202,7 @@ export default function ClientsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Delete this client? This cannot be undone.')) return;
+    if (!window.confirm('Delete this client? This cannot be undone.')) {return;}
     try {
       await apiFetch(`/api/clients/${id}`, { method: 'DELETE' });
       fetchClients();

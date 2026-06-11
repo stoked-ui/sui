@@ -17,10 +17,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse): void
       ? (level as AllowedLevel)
       : 'log';
   const resolvedArgs = Array.isArray(args) ? args : [];
-  // eslint-disable-next-line no-console
+   
   const consoleMethod: (...callArgs: unknown[]) => void = console[resolvedLevel].bind(console);
 
-  // eslint-disable-next-line no-console
+   
   consoleMethod(
     '[browser-console]',
     {

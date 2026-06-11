@@ -236,7 +236,7 @@ export class BenchmarkSuite {
       threshold: number;
       value: number;
       exceeded: boolean;
-    } | undefined = undefined;
+    } | undefined;
 
     if (test.budget) {
       const exceeded = avgDuration > test.budget.threshold;

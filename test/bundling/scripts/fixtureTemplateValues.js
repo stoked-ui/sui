@@ -374,7 +374,7 @@ import { refType as refType_utils } from '@mui/utils';
 
 // #region usage
 
-/* eslint-disable no-console */
+ 
 console.assert(
   ReactIs.isValidElementType(Accordion_core),
   'Accordion named import is not consumable.',
@@ -1631,5 +1631,5 @@ console.assert(
   'ponyfillGlobal named import is not consumable.',
 );
 console.assert(refType_utils !== undefined, 'refType named import is not consumable.');
-/* eslint-enable no-console */
+ 
 // #endregion

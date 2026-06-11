@@ -70,7 +70,7 @@ class VideoControl extends Controller<HTMLVideoElement> {
     ("webkitAudioDecodedByteCount" in item && (item.webkitAudioDecodedByteCount as number) > 0))
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   async preload(params: EditorPreloadParams): Promise<ITimelineAction> {
     const { action, track, editorId } = params;
     const { file } = track;
@@ -189,7 +189,7 @@ class VideoControl extends Controller<HTMLVideoElement> {
     })
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   canvasSync(engine: IEditorEngine, item: HTMLVideoElement, action: IEditorAction, track: IEditorTrack) {
     const { renderCtx, renderer } = engine;
     if (!renderer || !renderCtx) {
@@ -288,12 +288,12 @@ class VideoControl extends Controller<HTMLVideoElement> {
     return data;
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   isVideoPlaying(video: HTMLVideoElement) {
     return (video.currentTime > 0 && !video.paused && !video.ended && video.readyState > 2);
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   log(params: ControllerParams, msg: string) {
     const { action, time } = params;
     if (this.logging) {
@@ -462,7 +462,7 @@ class VideoControl extends Controller<HTMLVideoElement> {
     this.stop(params);
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   getActionStyle(action: ITimelineAction, track: ITimelineTrack, scaleWidth: number, scale: number, trackHeight: number): null | BackgroundImageStyle {
     const { file } = track;
     if (!file?.media) {

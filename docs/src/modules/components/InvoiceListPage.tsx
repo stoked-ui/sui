@@ -34,9 +34,9 @@ interface Client {
 }
 
 function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
+  if (typeof window === 'undefined') {return null;}
   const stored = localStorage.getItem('auth');
-  if (!stored) return null;
+  if (!stored) {return null;}
   try {
     return JSON.parse(stored).access_token;
   } catch {
@@ -47,7 +47,7 @@ function getToken(): string | null {
 async function apiFetch(url: string) {
   const token = getToken();
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  if (token) headers.Authorization = `Bearer ${token}`;
+  if (token) {headers.Authorization = `Bearer ${token}`;}
   const res = await fetch(getApiUrl(url), { headers });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
@@ -82,9 +82,9 @@ export default function InvoiceListPage({ clientId }: { clientId?: string }) {
   const [error, setError] = React.useState('');
 
   const isAdmin = React.useMemo(() => {
-    if (typeof window === 'undefined') return false;
+    if (typeof window === 'undefined') {return false;}
     const stored = localStorage.getItem('auth');
-    if (!stored) return false;
+    if (!stored) {return false;}
     try {
       return JSON.parse(stored).user?.role === 'admin';
     } catch {

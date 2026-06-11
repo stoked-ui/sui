@@ -76,16 +76,16 @@ function ipv4ToParts(ip: string): number[] | null {
 
 function isPrivateIpv4(parts: number[]): boolean {
   const [a, b] = parts;
-  if (a === 10) return true; // 10.0.0.0/8
-  if (a === 127) return true; // loopback
-  if (a === 0) return true; // "this" network
-  if (a === 169 && b === 254) return true; // link-local / cloud metadata
-  if (a === 172 && b >= 16 && b <= 31) return true; // 172.16.0.0/12
-  if (a === 192 && b === 168) return true; // 192.168.0.0/16
-  if (a === 100 && b >= 64 && b <= 127) return true; // CGNAT 100.64.0.0/10
-  if (a === 192 && b === 0) return true; // 192.0.0.0/24 + 192.0.2.0/24 docs
-  if (a === 198 && (b === 18 || b === 19)) return true; // benchmarking
-  if (a >= 224) return true; // multicast + reserved (224+/255)
+  if (a === 10) {return true;} // 10.0.0.0/8
+  if (a === 127) {return true;} // loopback
+  if (a === 0) {return true;} // "this" network
+  if (a === 169 && b === 254) {return true;} // link-local / cloud metadata
+  if (a === 172 && b >= 16 && b <= 31) {return true;} // 172.16.0.0/12
+  if (a === 192 && b === 168) {return true;} // 192.168.0.0/16
+  if (a === 100 && b >= 64 && b <= 127) {return true;} // CGNAT 100.64.0.0/10
+  if (a === 192 && b === 0) {return true;} // 192.0.0.0/24 + 192.0.2.0/24 docs
+  if (a === 198 && (b === 18 || b === 19)) {return true;} // benchmarking
+  if (a >= 224) {return true;} // multicast + reserved (224+/255)
   return false;
 }
 
@@ -115,10 +115,10 @@ export function isPrivateOrReservedIp(ip: string): boolean {
   // IPv6 literals (strip zone id).
   const v6 = raw.split('%')[0];
   if (v6.includes(':')) {
-    if (v6 === '::1' || v6 === '::') return true; // loopback / unspecified
-    if (v6.startsWith('fe80')) return true; // link-local
-    if (v6.startsWith('fc') || v6.startsWith('fd')) return true; // unique-local fc00::/7
-    if (v6.startsWith('ff')) return true; // multicast
+    if (v6 === '::1' || v6 === '::') {return true;} // loopback / unspecified
+    if (v6.startsWith('fe80')) {return true;} // link-local
+    if (v6.startsWith('fc') || v6.startsWith('fd')) {return true;} // unique-local fc00::/7
+    if (v6.startsWith('ff')) {return true;} // multicast
     return false; // global unicast
   }
 

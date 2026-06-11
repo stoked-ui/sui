@@ -30,7 +30,7 @@ export default async function getPullRequestDetails(params:  { owner: string, re
     //  return res.status(500).json({ message: 'GitHub token not configured' });
     //}
 
-    let headers: any = {
+    const headers: any = {
       'User-Agent': 'brianstoker.com-website',
     };
     if (githubToken) {

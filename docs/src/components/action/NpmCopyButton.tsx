@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import * as React from 'react';
 import copy from 'clipboard-copy';
 import { SxProps } from '@mui/system';

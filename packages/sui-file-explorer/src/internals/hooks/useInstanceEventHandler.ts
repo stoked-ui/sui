@@ -121,7 +121,7 @@ export function createUseInstanceEventHandler(registryContainer: RegistryContain
 
 const registryContainer: RegistryContainer = { registry: null };
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
+ 
 export const unstable_resetCleanupTracking = () => {
   registryContainer.registry?.reset();
   registryContainer.registry = null;

@@ -50,7 +50,7 @@ export const extractPluginParamsFromProps = <
   const forwardedProps = {} as Omit<TProps, keyof PluginParams>;
 
   Object.keys(props).forEach((propName) => {
-    let prop = props[propName as keyof typeof props] as any;
+    const prop = props[propName as keyof typeof props] as any;
     if (paramsLookup[propName as keyof PluginParams]) {
       pluginParams[propName as keyof PluginParams] = prop;
     } else {

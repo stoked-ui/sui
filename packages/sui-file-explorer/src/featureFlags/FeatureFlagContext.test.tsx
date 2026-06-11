@@ -48,9 +48,9 @@ describe('FeatureFlagContext', () => {
   });
 
   const createWrapper = (props?: Partial<FeatureFlagProviderProps>) => {
-    return ({ children }: { children: React.ReactNode }) => (
-      <FeatureFlagProvider {...props}>{children}</FeatureFlagProvider>
-    );
+    return function({ children }: { children: React.ReactNode }) {
+  return <FeatureFlagProvider {...props}>{children}</FeatureFlagProvider>
+};
   };
 
   describe('FeatureFlagProvider', () => {

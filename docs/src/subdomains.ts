@@ -1,4 +1,4 @@
-// eslint-disable-next-line import/prefer-default-export
+ 
 export async function handler(event: any) {
   const path = event.rawPath || "/";
   const host = event.headers?.host || ""; // Get the original domain from request headers

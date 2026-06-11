@@ -462,7 +462,6 @@ export default function Showcase() {
     <React.Fragment>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
         <Typography variant="body2" color="text.secondary" fontWeight="semiBold">
-          {/* eslint-disable-next-line material-ui/no-hardcoded-labels */}
           {'Sort by:'}
         </Typography>
         <ToggleButtonGroup

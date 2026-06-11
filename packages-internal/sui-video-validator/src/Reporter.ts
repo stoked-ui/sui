@@ -164,14 +164,14 @@ export class Reporter {
         `failed=${result.failedValidations}`,
         `pass_rate=${(result.passRate * 100).toFixed(2)}`,
       ].join(' ');
-    } else {
+    } 
       // Single result
       return [
         `passed=${result.passed ? 1 : 0}`,
         `score=${(result.overallScore * 100).toFixed(2)}`,
         `threshold=${(result.threshold * 100).toFixed(2)}`,
       ].join(' ');
-    }
+    
   }
 
   /**

@@ -75,7 +75,7 @@ describeFileExplorer<[UseFileExplorerSelectionSignature, UseFileExplorerExpansio
       });
 
       // TODO: Re-enable this test if we have a way to un-select an item in single selection.
-      // eslint-disable-next-line mocha/no-skipped-tests
+       
       it.skip('should call onSelectedItemsChange callback when the model is updated (single selection and remove selected item', () => {
         const onSelectedItemsChange = spy();
 

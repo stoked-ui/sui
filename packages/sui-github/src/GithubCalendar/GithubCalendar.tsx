@@ -165,7 +165,7 @@ export default function GithubCalendar({ apiUrl, githubUser, windowMode = false,
         clearTimeout(labelsTimer);
       }
     }
-    setActivityClass('activity ' + (activityLabels ? 'hover labels' : activityHover ? 'hover' : ''));
+    setActivityClass(`activity ${  activityLabels ? 'hover labels' : activityHover ? 'hover' : ''}`);
   }, [activityHover, activityLabels]);
   
   // Scroll activity all the way to the right on mount
@@ -239,11 +239,9 @@ export default function GithubCalendar({ apiUrl, githubUser, windowMode = false,
         nextActivityData.blockSize = inputBlockSize;
       } else if (windowMode) {
         nextActivityData.blockSize = Math.max(10, Math.floor(windowWidth / totalWeeks));
-      } else {
-        if (elemSize.width) {
+      } else if (elemSize.width) {
           nextActivityData.blockSize = Math.max(10, Math.floor(elemSize.width / totalWeeks));
         }
-      }
       setActivityData(nextActivityData);
     } catch (err) {
       console.error(`Error fetching activity data: ${err instanceof Error ? err.message : String(err)}`);
@@ -329,7 +327,7 @@ export default function GithubCalendar({ apiUrl, githubUser, windowMode = false,
   function setupRectAnimations() {
     // Get the SVG container
     const svg = elementRef.current?.querySelector('svg');
-    if (!svg) return;
+    if (!svg) {return;}
     
     // Calculate center of the SVG
     const svgRect = svg.getBoundingClientRect();

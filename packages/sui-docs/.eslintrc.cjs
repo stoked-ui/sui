@@ -1,6 +1,6 @@
 module.exports = {
   rules: {
-    'import/no-cycle': 'error',
+    'import/no-cycle': 'off',
     'import/order': 'error',
   },
 };

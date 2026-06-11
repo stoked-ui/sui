@@ -1,4 +1,3 @@
-/* eslint-disable material-ui/straight-quotes */
 import * as React from 'react';
 import { alpha } from '@mui/material/styles';
 import Avatar from '@mui/material/Avatar';

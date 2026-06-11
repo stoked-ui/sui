@@ -4,6 +4,9 @@
  */
 
 // Re-export DTOs from common package (client-safe interfaces)
+// MediaDocument type (client-safe version without Mongoose dependency)
+import type { Media as MediaClass } from '@stoked-ui/common';
+
 export type {
   InitiateUploadDto,
   GetMoreUrlsDto,
@@ -23,9 +26,6 @@ export type {
   UploadPartStatus,
   UploadSessionStatus,
 } from '@stoked-ui/common';
-
-// MediaDocument type (client-safe version without Mongoose dependency)
-import type { Media as MediaClass } from '@stoked-ui/common';
 
 export type MediaDocument = MediaClass & {
   createdAt: Date;

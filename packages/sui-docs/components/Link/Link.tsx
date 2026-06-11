@@ -4,8 +4,8 @@ import {useRouter} from 'next/router.js';
 import NextLink, {LinkProps as NextLinkProps} from 'next/link.js';
 import MuiLink, {LinkProps as MuiLinkProps} from '@mui/material/Link';
 import {styled} from '@mui/material/styles';
-import {useUserLanguage} from '../../components/../components/../components/../components/I18n.js';
-import {useDocsConfig} from '../../components/../components/../components/../components/DocsProvider.js';
+import {useUserLanguage} from "../../components/I18n.js";
+import {useDocsConfig} from "../../components/DocsProvider.js";
 
 /**
  * File to keep in sync with:

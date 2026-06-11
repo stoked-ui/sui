@@ -2,10 +2,10 @@ import * as React from 'react';
 import {Box, Stack, SxProps, TextField} from '@mui/material';
 import {Control, Controller, useFieldArray,
   UseFormSetValue, UseFormGetValues} from "react-hook-form";
-import Volume from '../EditorControls/Volume';
 import AddIcon from "@mui/icons-material/Add";
 import SubtractIcon from "@mui/icons-material/Remove";
 import Fab from "@mui/material/Fab";
+import Volume from '../EditorControls/Volume';
 // import { IEditorActionDetail } from './Detail.types';
 
 function ControlledVolumeInstance(params: {

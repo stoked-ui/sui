@@ -1,5 +1,5 @@
 /* tslint:disable */
-/* eslint-disable */
+ 
 export const memory: WebAssembly.Memory;
 export const __wbg_color_free: (a: number, b: number) => void;
 export const __wbg_get_color_a: (a: number) => number;

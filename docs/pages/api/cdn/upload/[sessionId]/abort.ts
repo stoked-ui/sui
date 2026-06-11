@@ -23,11 +23,11 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   try {
     await abortCdnUpload(req.user.sub, sessionId);
     res.status(204).end();
-    return;
+    
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to abort upload';
     res.status(500).json({ message });
-    return;
+    
   }
 }
 

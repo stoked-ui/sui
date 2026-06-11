@@ -79,8 +79,8 @@ export function useMediaClassPlayback({
 }: UseMediaClassPlaybackOptions): UseMediaClassPlaybackReturn {
   // Determine initial phase based on mediaClass configuration
   const getInitialPhase = useCallback((): PlaybackPhase => {
-    if (!enabled || !mediaClass) return 'main';
-    if (mediaClass.beforeIdent) return 'beforeIdent';
+    if (!enabled || !mediaClass) {return 'main';}
+    if (mediaClass.beforeIdent) {return 'beforeIdent';}
     return 'main';
   }, [enabled, mediaClass]);
 
@@ -130,7 +130,7 @@ export function useMediaClassPlayback({
 
   // Get current ident duration if playing one
   const getCurrentIdentDuration = useCallback((): number | undefined => {
-    if (!enabled || !mediaClass) return undefined;
+    if (!enabled || !mediaClass) {return undefined;}
 
     switch (phase) {
       case 'beforeIdent':

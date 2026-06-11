@@ -88,7 +88,7 @@ export function NextUpHeader({
   show = true,
   onQueueClick,
 }: NextUpHeaderProps) {
-  if (!show) return null;
+  if (!show) {return null;}
 
   const hasQueue = queueCount > 0;
   const isClickable = !!onQueueClick;

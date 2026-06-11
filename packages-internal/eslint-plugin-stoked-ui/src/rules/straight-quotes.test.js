@@ -1,4 +1,4 @@
-/* eslint-disable stoked-ui/straight-quotes */
+ 
 const eslint = require('eslint');
 const rule = require('./straight-quotes');
 

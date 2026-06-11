@@ -286,7 +286,7 @@ export async function getAccountSettings(userId: string): Promise<AccountSetting
   const subscriber = await db.collection<SubscriberDoc>('subscribers').findOne({ email: user.email.toLowerCase() });
 
   return {
-    id: user['_id'].toString(),
+    id: user._id.toString(),
     email: user.email,
     name: user.name,
     role: user.role,
@@ -328,7 +328,7 @@ export async function updateAccountSettings(
     {
       $set: {
         email: user.email.toLowerCase(),
-        userId: user['_id'],
+        userId: user._id,
         active: notificationsEnabled,
         notificationPreferences: nextPreferences,
         updatedAt: now,
@@ -343,7 +343,7 @@ export async function updateAccountSettings(
   );
 
   return {
-    id: user['_id'].toString(),
+    id: user._id.toString(),
     email: user.email,
     name: user.name,
     role: user.role,
@@ -402,7 +402,7 @@ export async function getAccountLicenses(email: string): Promise<AccountLicense[
     const expiresAt = license.expiresAt ? new Date(license.expiresAt) : undefined;
 
     return {
-      id: license['_id']?.toString() || `${license.productId}-${license.key}`,
+      id: license._id?.toString() || `${license.productId}-${license.key}`,
       key: license.key,
       productId: license.productId,
       productName: product?.fullName || product?.name || license.productId,

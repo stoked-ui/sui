@@ -17,7 +17,7 @@ export default function ReactRunner(props: ReactRunnerProps) {
   let scope = scopeProp;
 
   if (process.env.NODE_ENV !== 'production') {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
+     
     scope = React.useMemo(() => {
       const handler = {
         get() {

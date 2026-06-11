@@ -10,7 +10,7 @@ export type EventsQuery = {
 }
 
 function parseLinkHeader(header: string | null): { next?: string; last?: string } {
-  if (!header) return {};
+  if (!header) {return {};}
 
   return header.split(',').reduce((links: { next?: string; last?: string }, part) => {
     const match = part.match(/<(.+)>;\s*rel="([\w]+)"/);

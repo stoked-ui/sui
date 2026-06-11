@@ -3,7 +3,7 @@ import {alpha} from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Typography, {TypographyProps} from '@mui/material/Typography';
-import {Link, LinkProps} from '../../components/../components/../components/Link.js';
+import {Link, LinkProps} from "../../components/Link.js";
 
 interface GlowingIconContainerProps {
   icon: React.ReactNode;

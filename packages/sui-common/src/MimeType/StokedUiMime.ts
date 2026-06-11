@@ -19,7 +19,7 @@ export class SUIMime extends MimeRegistry {
     return SUIMime.instance;
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   createStandardTypes() {
     MimeRegistry.create('image', 'png', '.png', 'PNG Image');
     MimeRegistry.create('video', 'mp4', '.mp4', 'MP4 Video');

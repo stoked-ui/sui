@@ -151,7 +151,7 @@ export const fileExplorer = {
     targetId: string;
     parentIds?: string[];
   }): string[] | undefined {
-    // eslint-disable-next-line no-restricted-syntax
+     
     for (const item of current) {
       if (!item || !item.children || item.children.length === 0) {
         continue;

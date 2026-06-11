@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {styled} from '@mui/material/styles';
 import {useFileExplorerContext} from "../../FileExplorerProvider/useFileExplorerContext";
 import {UseFileExplorerGridSignature} from "./useFileExplorerGrid.types";
 import type {
@@ -11,7 +12,6 @@ import {useFileExplorerGridHeaders} from "./useFileExplorerGridHeaders";
 import {UseFileExplorerGridHeadersParameters} from "./useFileExplorerGridHeaders.types";
 import {UseFileMinimalPlugins} from "../../models";
 import {UseFileExplorerDndSignature} from '../useFileExplorerDnd/useFileExplorerDnd.types';
-import {styled} from '@mui/material/styles';
 import {HeaderCell} from "../../../File/FileLabel";
 
 
@@ -35,7 +35,7 @@ export const FileExplorerGridHeaders = React.forwardRef(function FileExplorerGri
   const headers = instance.getHeaders();
 
   if (!headerData || !instance.gridEnabled() || Object.values(headers).length <= 1)  {
-    // eslint-disable-next-line react/jsx-no-useless-fragment
+     
     return <React.Fragment/>
   }
 

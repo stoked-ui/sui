@@ -9,7 +9,7 @@
 
 // @ts-ignore - Storybook types are optional dev dependency
 import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Box, Button } from '@mui/material';
 import { MediaViewer } from './index';
 import { createMockAuth, noOpRouter, createInMemoryQueue, createInMemoryKeyboardShortcuts } from '../../abstractions';
@@ -157,9 +157,9 @@ function MediaViewerWrapper({
         </Button>
         <Box sx={{ display: 'inline-block', fontSize: '0.875rem', color: '#666' }}>
           {mediaItems.length > 0 && (
-            <>
+            <React.Fragment>
               Current: {currentItem.title} ({currentIndex + 1}/{mediaItems.length})
-            </>
+            </React.Fragment>
           )}
         </Box>
       </Box>
@@ -221,7 +221,7 @@ export const MediaCollection: Story = {
     <MediaViewerWrapper
       initialItem={sampleMediaItems[0]}
       mediaItems={sampleMediaItems}
-      showPreviewCards={true}
+      showPreviewCards
     />
   ),
 };
@@ -252,7 +252,7 @@ export const NormalMode: Story = {
       initialItem={sampleMediaItems[0]}
       mediaItems={sampleMediaItems}
       initialMode={VIEWER_MODES.NORMAL}
-      showPreviewCards={true}
+      showPreviewCards
     />
   ),
 };
@@ -315,7 +315,7 @@ export const WithOwnerControls: Story = {
           initialItem={sampleMediaItems[0]}
           mediaItems={sampleMediaItems}
           auth={ownerAuth}
-          enableOwnerControls={true}
+          enableOwnerControls
           onEdit={(item) => addLog(`✎ Edit: ${item.title}`)}
           onDelete={(item) => addLog(`🗑 Delete: ${item.title}`)}
         />
@@ -365,7 +365,7 @@ export const ViewerMode: Story = {
         initialItem={sampleMediaItems[0]}
         mediaItems={sampleMediaItems}
         auth={viewerAuth}
-        enableOwnerControls={true}
+        enableOwnerControls
       />
     );
   },
@@ -387,8 +387,8 @@ export const WithQueueIntegration: Story = {
         initialItem={sampleMediaItems[0]}
         mediaItems={sampleMediaItems}
         queue={mockQueue}
-        enableQueue={true}
-        showPreviewCards={true}
+        enableQueue
+        showPreviewCards
       />
     );
   },
@@ -411,7 +411,7 @@ export const WithKeyboardShortcuts: Story = {
           initialItem={sampleMediaItems[0]}
           mediaItems={sampleMediaItems}
           keyboard={keyboard}
-          enableKeyboardShortcuts={true}
+          enableKeyboardShortcuts
         />
         <Box
           sx={{
@@ -448,8 +448,8 @@ export const WithAutoplay: Story = {
     <MediaViewerWrapper
       initialItem={sampleMediaItems[0]}
       mediaItems={sampleMediaItems}
-      autoplay={true}
-      showPreviewCards={true}
+      autoplay
+      showPreviewCards
     />
   ),
 };
@@ -462,8 +462,8 @@ export const HideNavbar: Story = {
     <MediaViewerWrapper
       initialItem={sampleMediaItems[0]}
       mediaItems={sampleMediaItems}
-      hideNavbar={true}
-      showPreviewCards={true}
+      hideNavbar
+      showPreviewCards
     />
   ),
 };
@@ -476,8 +476,8 @@ export const InitiallyMuted: Story = {
     <MediaViewerWrapper
       initialItem={sampleMediaItems[0]}
       mediaItems={sampleMediaItems}
-      initialMuted={true}
-      showPreviewCards={true}
+      initialMuted
+      showPreviewCards
     />
   ),
 };
@@ -511,7 +511,7 @@ export const WithRouterIntegration: Story = {
           initialItem={sampleMediaItems[0]}
           mediaItems={sampleMediaItems}
           router={customRouter}
-          showPreviewCards={true}
+          showPreviewCards
         />
         <Box
           sx={{
@@ -560,7 +560,7 @@ export const WithPaidContent: Story = {
         initialItem={paidVideoItem}
         mediaItems={[paidVideoItem, sampleMediaItems[0]]}
         auth={viewerAuth}
-        showPreviewCards={true}
+        showPreviewCards
       />
     );
   },
@@ -605,9 +605,9 @@ export const WithMediaClassBranding: Story = {
         initialItem={sampleMediaItems[0]}
         mediaItems={sampleMediaItems}
         mediaClass={mediaClass}
-        enableMediaClass={true}
-        autoplay={true}
-        showPreviewCards={true}
+        enableMediaClass
+        autoplay
+        showPreviewCards
       />
     );
   },
@@ -659,11 +659,11 @@ export const CompleteIntegration: Story = {
           auth={ownerAuth}
           queue={mockQueue}
           keyboard={keyboard}
-          enableOwnerControls={true}
-          enableQueue={true}
-          enableKeyboardShortcuts={true}
-          showPreviewCards={true}
-          autoplay={true}
+          enableOwnerControls
+          enableQueue
+          enableKeyboardShortcuts
+          showPreviewCards
+          autoplay
           onEdit={(item) => addLog(`✎ Edit: ${item.title}`)}
           onDelete={(item) => addLog(`🗑 Delete: ${item.title}`)}
           onNavigate={(item, index) => addLog(`→ Navigate: ${item.title}`)}
@@ -758,7 +758,7 @@ export const MinimalConfiguration: Story = {
         {open && (
           <MediaViewer
             item={sampleMediaItems[0]}
-            open={true}
+            open
             onClose={() => setOpen(false)}
           />
         )}

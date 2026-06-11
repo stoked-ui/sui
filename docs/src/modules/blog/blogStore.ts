@@ -173,11 +173,11 @@ export async function listBlogPosts(query: BlogQuery): Promise<PaginatedBlogPost
   const skip = (page - 1) * limit;
 
   const filter: Record<string, unknown> = { deleted: { $ne: true } };
-  if (query.status) filter.status = query.status;
-  if (query.tag) filter.tags = query.tag;
-  if (query.author) filter.authors = query.author;
-  if (query.site) filter.targetSites = query.site;
-  if (query.search) filter.$text = { $search: query.search };
+  if (query.status) {filter.status = query.status;}
+  if (query.tag) {filter.tags = query.tag;}
+  if (query.author) {filter.authors = query.author;}
+  if (query.site) {filter.targetSites = query.site;}
+  if (query.search) {filter.$text = { $search: query.search };}
 
   const sortBy = query.sortBy ?? 'date';
   const sort: Record<string, 1 | -1> = sortBy === 'title' ? { title: 1 } : { [sortBy]: -1 };
@@ -207,10 +207,10 @@ export async function listPublicBlogPosts(query: BlogQuery): Promise<PaginatedBl
     status: 'published',
     deleted: { $ne: true },
   };
-  if (query.site) filter.targetSites = query.site;
-  if (query.tag) filter.tags = query.tag;
-  if (query.author) filter.authors = query.author;
-  if (query.search) filter.$text = { $search: query.search };
+  if (query.site) {filter.targetSites = query.site;}
+  if (query.tag) {filter.tags = query.tag;}
+  if (query.author) {filter.authors = query.author;}
+  if (query.search) {filter.$text = { $search: query.search };}
 
   const sortBy = query.sortBy ?? 'date';
   const sort: Record<string, 1 | -1> = sortBy === 'title' ? { title: 1 } : { [sortBy]: -1 };
@@ -250,17 +250,17 @@ export async function updateBlogPost(slug: string, updates: BlogPostUpdate) {
 
   const updateDoc: Record<string, unknown> = { updatedAt: new Date() };
 
-  if (updates.title !== undefined) updateDoc.title = updates.title;
-  if (updates.body !== undefined) updateDoc.body = updates.body;
-  if (updates.description !== undefined) updateDoc.description = updates.description;
-  if (updates.tags !== undefined) updateDoc.tags = normalizeStringArray(updates.tags);
-  if (updates.authors !== undefined) updateDoc.authors = normalizeStringArray(updates.authors);
+  if (updates.title !== undefined) {updateDoc.title = updates.title;}
+  if (updates.body !== undefined) {updateDoc.body = updates.body;}
+  if (updates.description !== undefined) {updateDoc.description = updates.description;}
+  if (updates.tags !== undefined) {updateDoc.tags = normalizeStringArray(updates.tags);}
+  if (updates.authors !== undefined) {updateDoc.authors = normalizeStringArray(updates.authors);}
   if (updates.targetSites !== undefined) {
     const targetSites = normalizeStringArray(updates.targetSites);
     updateDoc.targetSites = targetSites.length > 0 ? targetSites : ['sui.stokd.cloud'];
   }
-  if (updates.image !== undefined) updateDoc.image = updates.image || undefined;
-  if (updates.date !== undefined) updateDoc.date = parseDateOrNow(updates.date);
+  if (updates.image !== undefined) {updateDoc.image = updates.image || undefined;}
+  if (updates.date !== undefined) {updateDoc.date = parseDateOrNow(updates.date);}
 
   if (updates.slug !== undefined && updates.slug !== slug) {
     const nextSlug = updates.slug.trim();

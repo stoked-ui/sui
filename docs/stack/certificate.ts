@@ -3,7 +3,7 @@ import { ACMClient, ListCertificatesCommand, DescribeCertificateCommand, Request
 // Create an ACM client
 const acm = new ACMClient({});
 
-// eslint-disable-next-line import/prefer-default-export
+ 
 export async function handler() {
   const domainNames = process.env.DOMAIN_NAMES?.split(",");  // Get multiple domain names from environment variable
   if (!domainNames || domainNames.length === 0) {

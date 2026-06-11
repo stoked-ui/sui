@@ -60,7 +60,7 @@ function isMediaKind(kind: string): boolean {
 }
 
 function isMediaHeavy(objects: CdnContents['objects']): boolean {
-  if (!objects.length) return false;
+  if (!objects.length) {return false;}
   const mediaCount = objects.filter((obj) => isMediaKind(getFileKind(obj.path))).length;
   return mediaCount / objects.length >= 0.9;
 }
@@ -98,14 +98,14 @@ function isCredentialFailure(error: unknown): boolean {
 }
 
 function shouldForceLogout(authStatus: string, error: unknown): boolean {
-  if (authStatus !== 'authenticated' || !error) return false;
-  if ((error as any).code === 'credentials_unavailable') return true;
-  if (typeof (error as any).status === 'number' && (error as any).status === 401) return true;
+  if (authStatus !== 'authenticated' || !error) {return false;}
+  if ((error as any).code === 'credentials_unavailable') {return true;}
+  if (typeof (error as any).status === 'number' && (error as any).status === 401) {return true;}
   return isCredentialFailure(error);
 }
 
 function describeContentsError(error: unknown, authStatus: string): string {
-  if (!error) return '';
+  if (!error) {return '';}
   if (shouldForceLogout(authStatus, error)) {
     return 'Your CDN access expired. Sign in again to continue.';
   }
@@ -163,11 +163,11 @@ function useDirectoryContents(
 
     fetcher
       .then((data) => {
-        if (cancelled) return;
+        if (cancelled) {return;}
         setState({ status: 'success', data, error: null });
       })
       .catch((error: unknown) => {
-        if (cancelled) return;
+        if (cancelled) {return;}
         setState({ status: 'error', data: { folders: [], objects: [] }, error });
       });
 
@@ -203,14 +203,14 @@ function useAuthSession(authEndpoint: string | undefined): AuthState {
     fetch(authEndpoint, { credentials: 'include' })
       .then(async (response) => {
         if (!response.ok) {
-          if (response.status === 401) return { authenticated: false };
+          if (response.status === 401) {return { authenticated: false };}
           const body = await response.json().catch(() => ({}));
           throw new Error(body.message || `Session check failed with ${response.status}`);
         }
         return response.json();
       })
       .then((payload) => {
-        if (cancelled) return;
+        if (cancelled) {return;}
         if (!payload?.authenticated) {
           setState({ status: 'unauthenticated', user: null, error: null });
           return;
@@ -218,7 +218,7 @@ function useAuthSession(authEndpoint: string | undefined): AuthState {
         setState({ status: 'authenticated', user: payload.user, error: null });
       })
       .catch((error: unknown) => {
-        if (cancelled) return;
+        if (cancelled) {return;}
         setState({ status: 'error', user: null, error });
       });
 
@@ -265,7 +265,7 @@ function GalleryCard({
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video) {return;}
     if (isHovering) {
       video.play().catch(() => {});
     } else {
@@ -335,7 +335,7 @@ function GalleryCard({
             onChange={(e) => onRenameChange(e.target.value)}
             onKeyDown={onRenameKeyDown}
             onBlur={onRenameCommit}
-            // eslint-disable-next-line jsx-a11y/no-autofocus
+             
             autoFocus
           />
         ) : (
@@ -403,7 +403,7 @@ function MediaUploadThumbnail({ file }: { file: File }) {
     return () => URL.revokeObjectURL(url);
   }, [file]);
 
-  if (!src) return null;
+  if (!src) {return null;}
   return <img className="upload-thumbnail" src={src} alt="" aria-hidden="true" />;
 }
 
@@ -477,23 +477,23 @@ export function CdnBrowser(props: CdnBrowserProps) {
   const needsLogout = shouldForceLogout(auth.status, error);
 
   function resolveLoginUrl(returnTo: string): string {
-    if (!loginUrl) return returnTo;
+    if (!loginUrl) {return returnTo;}
     return typeof loginUrl === 'function' ? loginUrl(returnTo) : loginUrl;
   }
 
   function resolveLogoutUrl(returnTo: string): string {
-    if (!logoutUrl) return returnTo;
+    if (!logoutUrl) {return returnTo;}
     return typeof logoutUrl === 'function' ? logoutUrl(returnTo) : logoutUrl;
   }
 
   useEffect(() => {
-    if (!needsLogout || logoutTriggered || typeof window === 'undefined') return;
+    if (!needsLogout || logoutTriggered || typeof window === 'undefined') {return;}
     setLogoutTriggered(true);
     window.location.assign(resolveLogoutUrl(window.location.href));
   }, [logoutTriggered, needsLogout]);
 
   useEffect(() => {
-    if (status !== 'success') return;
+    if (status !== 'success') {return;}
     const stored = readStoredViewMode(prefix);
     if (stored) { setViewMode(stored); return; }
     setViewMode(isMediaHeavy(data.objects) ? 'gallery' : 'list');
@@ -589,7 +589,7 @@ export function CdnBrowser(props: CdnBrowserProps) {
 
   async function handleCreateFolder() {
     const folderName = window.prompt('New folder name');
-    if (!folderName) return;
+    if (!folderName) {return;}
     try {
       await api.createFolder(`${prefix}${folderName}/`);
       refreshContents();
@@ -599,7 +599,7 @@ export function CdnBrowser(props: CdnBrowserProps) {
   }
 
   async function handleDelete(path: string) {
-    if (!window.confirm(`Delete ${path}?`)) return;
+    if (!window.confirm(`Delete ${path}?`)) {return;}
     try {
       await api.deletePath(path);
       setPermissionEditor((current) => (current?.path === path ? null : current));
@@ -618,7 +618,7 @@ export function CdnBrowser(props: CdnBrowserProps) {
     }
 
     const nextPath = `${destinationPrefix}${itemName}${isDirectory ? '/' : ''}`;
-    if (nextPath === sourcePath) return;
+    if (nextPath === sourcePath) {return;}
 
     try {
       await api.movePath(sourcePath, nextPath);
@@ -637,7 +637,7 @@ export function CdnBrowser(props: CdnBrowserProps) {
     try {
       const permission = await api.getPermissions(path);
       setPermissionEditor((current) => {
-        if (!current || current.path !== path) return current;
+        if (!current || current.path !== path) {return current;}
         return {
           path,
           viewRoles: permission?.viewRoles || [],
@@ -649,7 +649,7 @@ export function CdnBrowser(props: CdnBrowserProps) {
       });
     } catch (permissionError: any) {
       setPermissionEditor((current) => {
-        if (!current || current.path !== path) return current;
+        if (!current || current.path !== path) {return current;}
         return { ...current, status: 'error', error: permissionError.message };
       });
     }
@@ -672,7 +672,7 @@ export function CdnBrowser(props: CdnBrowserProps) {
 
   function togglePermissionRole(role: string) {
     setPermissionEditor((current) => {
-      if (!current) return current;
+      if (!current) {return current;}
       const viewRoles = current.viewRoles.includes(role)
         ? current.viewRoles.filter((value) => value !== role)
         : [...current.viewRoles, role];
@@ -681,7 +681,7 @@ export function CdnBrowser(props: CdnBrowserProps) {
   }
 
   async function handlePermissionSave() {
-    if (!permissionEditor) return;
+    if (!permissionEditor) {return;}
     const viewUserIds = parseUserIds(permissionEditor.viewUserIdsText);
     if (!permissionEditor.viewRoles.length && !viewUserIds.length) {
       updatePermissionEditor({ error: 'Choose at least one role or user, or clear the restriction.' });
@@ -698,7 +698,7 @@ export function CdnBrowser(props: CdnBrowserProps) {
   }
 
   async function handlePermissionClear() {
-    if (!permissionEditor) return;
+    if (!permissionEditor) {return;}
     updatePermissionEditor({ status: 'clearing', error: '' });
     try {
       await api.clearPermissions(permissionEditor.path);
@@ -711,7 +711,7 @@ export function CdnBrowser(props: CdnBrowserProps) {
 
   function getDraggedPayload(event: React.DragEvent): { path: string } | null {
     const rawValue = event.dataTransfer.getData('application/x-stoked-path');
-    if (!rawValue) return null;
+    if (!rawValue) {return null;}
     try {
       return JSON.parse(rawValue);
     } catch {
@@ -751,12 +751,12 @@ export function CdnBrowser(props: CdnBrowserProps) {
       wasEscapedRef.current = false;
       return;
     }
-    if (!renamingPath) return;
+    if (!renamingPath) {return;}
     const path = renamingPath;
     const trimmed = renameValue.trim();
     setRenamingPath(null);
     setRenameValue('');
-    if (!trimmed) return;
+    if (!trimmed) {return;}
     const isDirectory = path.endsWith('/');
     const parentPfx = getParentPrefix(path);
     const newPath = `${parentPfx}${trimmed}${isDirectory ? '/' : ''}`;
@@ -789,7 +789,7 @@ export function CdnBrowser(props: CdnBrowserProps) {
     }
     if (event.key === 'Tab') {
       event.preventDefault();
-      if (!renamingPath) return;
+      if (!renamingPath) {return;}
       const currentPath = renamingPath;
       const currentValue = renameValue.trim();
       const idx = allItemPaths.indexOf(currentPath);
@@ -1124,9 +1124,9 @@ export function CdnBrowser(props: CdnBrowserProps) {
                     role="link"
                     tabIndex={0}
                     draggable
-                    onClick={() => { if (renamingPath !== folder.path) openPrefix(folder.path); }}
+                    onClick={() => { if (renamingPath !== folder.path) {openPrefix(folder.path);} }}
                     onKeyDown={(event) => {
-                      if (event.target !== event.currentTarget) return;
+                      if (event.target !== event.currentTarget) {return;}
                       if (renamingPath !== folder.path && (event.key === 'Enter' || event.key === ' ')) {
                         event.preventDefault();
                         openPrefix(folder.path);
@@ -1154,7 +1154,7 @@ export function CdnBrowser(props: CdnBrowserProps) {
                         type="button"
                         onClick={(event) => {
                           event.stopPropagation();
-                          if (renamingPath !== folder.path) openPrefix(folder.path);
+                          if (renamingPath !== folder.path) {openPrefix(folder.path);}
                         }}
                       >
                         <span className="folder-icon" aria-hidden="true">
@@ -1171,7 +1171,7 @@ export function CdnBrowser(props: CdnBrowserProps) {
                             onKeyDown={handleRenameKeyDown}
                             onBlur={handleRenameCommit}
                             onClick={(e) => e.stopPropagation()}
-                            // eslint-disable-next-line jsx-a11y/no-autofocus
+                             
                             autoFocus
                           />
                         ) : (
@@ -1362,7 +1362,7 @@ export function CdnBrowser(props: CdnBrowserProps) {
                                         onChange={(e) => setRenameValue(e.target.value)}
                                         onKeyDown={handleRenameKeyDown}
                                         onBlur={handleRenameCommit}
-                                        // eslint-disable-next-line jsx-a11y/no-autofocus
+                                         
                                         autoFocus
                                       />
                                     ) : (

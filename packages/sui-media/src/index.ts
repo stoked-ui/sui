@@ -39,6 +39,16 @@ import App from './App';
 import Stage from './Stage';
 
 // ============================================================================
+// WebFileFactory Exports - Web File Creation
+// ============================================================================
+
+/**
+ * WebFileFactory for creating WebFile instances
+ * Used internally by WebFile and App for file instantiation
+ */
+import WebFileFactory from './WebFileFactory';
+
+// ============================================================================
 // Default Exports
 // ============================================================================
 
@@ -63,16 +73,6 @@ export * from './MediaFile';
  * Includes WebFile class, WebFileFactory, and related interfaces
  */
 export * from './WebFile';
-
-// ============================================================================
-// WebFileFactory Exports - Web File Creation
-// ============================================================================
-
-/**
- * WebFileFactory for creating WebFile instances
- * Used internally by WebFile and App for file instantiation
- */
-import WebFileFactory from './WebFileFactory';
 export { WebFileFactory };
 
 // ============================================================================

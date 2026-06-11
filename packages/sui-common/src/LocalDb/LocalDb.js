@@ -5,6 +5,7 @@ exports.getVideos = getVideos;
 exports.createFolder = createFolder;
 const idb_1 = require("@tempfix/idb");
 const Ids_1 = require("../Ids");
+
 function getRecordVersions(record) {
     const versions = Object.entries(record.versions).map(([ver, fileVersion]) => {
         const versionNumber = parseInt(ver, 10);

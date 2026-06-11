@@ -24,7 +24,7 @@ interface LegalData {
 
 function parseBold(text: string): React.ReactNode {
   const parts = text.split(/(\*\*[^*]+\*\*)/);
-  if (parts.length === 1) return text;
+  if (parts.length === 1) {return text;}
   return (
     <React.Fragment>
       {parts.map((part, i) => {
@@ -105,7 +105,7 @@ export default function PublicLegalPage({
   );
 
   React.useEffect(() => {
-    if (!productSlug || staticContent) return;
+    if (!productSlug || staticContent) {return;}
     setLoading(true);
     setError('');
 

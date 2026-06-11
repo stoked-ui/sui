@@ -26,7 +26,7 @@ interface ModeProps {
 class Mode extends React.Component<ModeProps> {
   render() {
     // Excess props will come from e.g. enzyme setProps
-    // eslint-disable-next-line @typescript-eslint/naming-convention
+     
     const { __element, __strict, ...other } = this.props;
     const Component = __strict ? React.StrictMode : React.Fragment;
 

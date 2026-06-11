@@ -14,7 +14,7 @@ export default function EditorWithLabels() {
     }}>
       <EditorProvider controllers={Controllers}>
         <Editor
-          labels={true}
+          labels
         />
       </EditorProvider>
     </Box>

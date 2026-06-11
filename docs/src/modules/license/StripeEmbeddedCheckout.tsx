@@ -62,7 +62,7 @@ export default function StripeEmbeddedCheckout({
     })
       .then((res) => res.json())
       .then((data) => {
-        if (cancelled) return;
+        if (cancelled) {return;}
         if (data.clientSecret) {
           setClientSecret(data.clientSecret);
         } else {
@@ -70,10 +70,10 @@ export default function StripeEmbeddedCheckout({
         }
       })
       .catch(() => {
-        if (!cancelled) setError('Network error — please try again');
+        if (!cancelled) {setError('Network error — please try again');}
       })
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {setLoading(false);}
       });
 
     return () => { cancelled = true; };
@@ -95,7 +95,7 @@ export default function StripeEmbeddedCheckout({
     );
   }
 
-  if (!clientSecret) return null;
+  if (!clientSecret) {return null;}
 
   const stripe = getStripe();
 

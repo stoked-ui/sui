@@ -19,11 +19,11 @@ import {containsFiles} from "@atlaskit/pragmatic-drag-and-drop/external/file";
 import {preventUnhandled} from "@atlaskit/pragmatic-drag-and-drop/prevent-unhandled";
 import type {Instruction} from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item";
 import {MediaFile} from "@stoked-ui/media";
-import { FileBase} from "../../../models";
-
 import {
   triggerPostMoveFlash
 } from "@atlaskit/pragmatic-drag-and-drop-flourish/trigger-post-move-flash";
+import { FileBase} from "../../../models";
+
 import {FileExplorerPlugin, FilePlugin, FilePluginOptions} from '../../models/plugin';
 import {
   DndItemState, DropInternalData, ElementDragType, UseFileExplorerDndSignature

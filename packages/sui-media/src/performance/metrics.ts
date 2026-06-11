@@ -83,7 +83,7 @@ export class PerformanceCollector {
    * const metric = perf.markEnd(mark, MetricType.METADATA_EXTRACTION);
    */
   markStart(label: string): string {
-    if (!this.enabled) return '';
+    if (!this.enabled) {return '';}
     const markName = `${label}-start-${Date.now()}`;
     if (typeof performance !== 'undefined' && performance.mark) {
       performance.mark(markName);
@@ -99,7 +99,7 @@ export class PerformanceCollector {
     type: MetricType,
     metadata?: Record<string, any>
   ): PerformanceMetric | null {
-    if (!this.enabled || !startMark) return null;
+    if (!this.enabled || !startMark) {return null;}
 
     try {
       const endMark = `${startMark}-end`;
@@ -201,7 +201,7 @@ export class PerformanceCollector {
    * Add a metric directly
    */
   addMetric(metric: PerformanceMetric): void {
-    if (!this.enabled) return;
+    if (!this.enabled) {return;}
 
     this.metrics.push(metric);
 
@@ -230,7 +230,7 @@ export class PerformanceCollector {
    */
   getStats(type: MetricType): MetricStats | null {
     const metrics = this.getMetricsByType(type);
-    if (metrics.length === 0) return null;
+    if (metrics.length === 0) {return null;}
 
     const durations = metrics.map((m) => m.duration);
     const sorted = durations.sort((a, b) => a - b);

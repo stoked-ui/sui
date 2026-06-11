@@ -1,9 +1,9 @@
-import {useEditorContext} from "../EditorProvider";
 import * as React from "react";
 import {VolumeDown, VolumeMute, VolumeOff, VolumeUp} from "@mui/icons-material";
 import {Slider, Stack, SxProps} from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import PropTypes from "prop-types";
+import {useEditorContext} from "../EditorProvider";
 
 export default function Volume({ disabled, sx, sliderSx, iconSx }: { disabled?: boolean, sx?: SxProps, sliderSx?: SxProps, iconSx?: SxProps }) {
   const { state: { settings } } = useEditorContext();

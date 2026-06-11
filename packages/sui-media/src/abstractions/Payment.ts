@@ -264,7 +264,7 @@ export function createMockPayment(options?: {
       callbacks.push(callback);
       return () => {
         const index = callbacks.indexOf(callback);
-        if (index > -1) callbacks.splice(index, 1);
+        if (index > -1) {callbacks.splice(index, 1);}
       };
     },
     cancelPayment: async (paymentId) => {

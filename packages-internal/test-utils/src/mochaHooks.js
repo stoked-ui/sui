@@ -133,14 +133,14 @@ function createUnexpectedConsoleMessagesHooks(Mocha, methodName, expectedMatcher
    */
   let originalConsoleMethod;
   mochaHooks.beforeAll.push(function registerConsoleStub() {
-    // eslint-disable-next-line no-console
+     
     originalConsoleMethod = console[methodName];
-    // eslint-disable-next-line no-console
+     
     console[methodName] = logUnexpectedConsoleCalls;
   });
 
   mochaHooks.afterAll.push(function registerConsoleStub() {
-    // eslint-disable-next-line no-console
+     
     console[methodName] = originalConsoleMethod;
   });
 
@@ -153,7 +153,7 @@ function createUnexpectedConsoleMessagesHooks(Mocha, methodName, expectedMatcher
     );
     unexpectedCalls.length = 0;
 
-    // eslint-disable-next-line no-console
+     
     if (console[methodName] !== logUnexpectedConsoleCalls) {
       throw new Error(`Did not tear down spy or stub of console.${methodName} in your test.`);
     }

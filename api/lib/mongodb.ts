@@ -7,7 +7,7 @@ const globalWithMongo = globalThis as typeof globalThis & {
 };
 
 const uri = Resource.MONGODB_URI.value;
-if (!uri) throw new Error("MONGODB_URI is not defined");
+if (!uri) {throw new Error("MONGODB_URI is not defined");}
 
 const mongoOptions = {
   appName: "stoked-ui-api",

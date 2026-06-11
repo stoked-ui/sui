@@ -1,4 +1,4 @@
-// eslint-disable-next-line stoked-ui/sui-name-matches-component-name
+ 
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { namedId } from '@stoked-ui/common';
@@ -6,6 +6,7 @@ import composeClasses from '@mui/utils/composeClasses';
 import {useSlotProps} from '@mui/base/utils';
 import {emphasize, styled, useThemeProps} from '@mui/material/styles';
 import { ScrollSync } from "react-virtualized";
+import {Box, Typography} from "@mui/material";
 import {type TimelineComponent, type TimelineProps} from './Timeline.types';
 import {getTimelineUtilityClass} from './timelineClasses';
 import TimelineLabels from '../TimelineLabels/TimelineLabels';
@@ -25,7 +26,6 @@ import { TimelineControlProps } from "./TimelineControlProps";
 import {fitScaleData} from "../TimelineProvider/TimelineProviderFunctions";
 import TimelineTrackActions from "../TimelineLabels/TimelineTrackActions";
 import AddTrackButton from "./AddTrackButton";
-import {Box, Typography} from "@mui/material";
 import {ControlledTrack} from "../TimelineTrack";
 import KeyDownControls from "./KeyDownControls";
 
@@ -411,10 +411,10 @@ Timeline.propTypes = {
   controlSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
   detailRenderer: PropTypes.bool,
   engine: PropTypes.any,
+  internalComponent: PropTypes.bool,
   labels: PropTypes.bool,
   labelsSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
   labelSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
-  internalComponent: PropTypes.bool,
   setTracks: PropTypes.func,
   /**
    * The props used for each component slot.

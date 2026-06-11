@@ -12,11 +12,11 @@ function safeStringify(obj: unknown, indent = 2): string {
   const seen = new WeakSet();
   return JSON.stringify(obj, (_key, value) => {
     if (typeof value === 'object' && value !== null) {
-      if (seen.has(value)) return '[Circular]';
+      if (seen.has(value)) {return '[Circular]';}
       seen.add(value);
     }
-    if (typeof value === 'function') return '[Function]';
-    if (value instanceof HTMLElement) return `[${value.tagName}#${value.id}]`;
+    if (typeof value === 'function') {return '[Function]';}
+    if (value instanceof HTMLElement) {return `[${value.tagName}#${value.id}]`;}
     return value;
   }, indent);
 }

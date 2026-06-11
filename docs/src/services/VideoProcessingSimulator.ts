@@ -108,7 +108,7 @@ export class VideoProcessingSimulator {
   }
 
   private processUploadStage(): void {
-    if (this.isCancelled) return;
+    if (this.isCancelled) {return;}
 
     this.updateProgress({
       stage: 'upload',
@@ -129,7 +129,7 @@ export class VideoProcessingSimulator {
   }
 
   private processProcessingStage(): void {
-    if (this.isCancelled) return;
+    if (this.isCancelled) {return;}
 
     this.updateProgress({
       stage: 'processing',
@@ -149,7 +149,7 @@ export class VideoProcessingSimulator {
   }
 
   private processS3Stage(): void {
-    if (this.isCancelled) return;
+    if (this.isCancelled) {return;}
 
     this.updateProgress({
       stage: 's3',
@@ -169,7 +169,7 @@ export class VideoProcessingSimulator {
   }
 
   private processDownloadStage(): void {
-    if (this.isCancelled) return;
+    if (this.isCancelled) {return;}
 
     this.updateProgress({
       stage: 'download',
@@ -219,7 +219,7 @@ export class VideoProcessingSimulator {
   }
 
   private completeProcessing(): void {
-    if (this.isCancelled) return;
+    if (this.isCancelled) {return;}
 
     this.updateProgress({
       complete: true,

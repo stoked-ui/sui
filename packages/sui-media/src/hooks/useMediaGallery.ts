@@ -30,7 +30,7 @@ export function useMediaGallery(source: MediaGallerySource) {
           // Send as X-API-Key header (common for SUI Media API)
           headers['X-API-Key'] = apiKey;
           // Also send as Bearer token just in case
-          headers['Authorization'] = `Bearer ${apiKey}`;
+          headers.Authorization = `Bearer ${apiKey}`;
         }
 
         const response = await fetch(endpoint, { headers });
@@ -43,9 +43,9 @@ export function useMediaGallery(source: MediaGallerySource) {
         // Handle both raw arrays and paginated responses with a 'data' property
         if (Array.isArray(result)) {
           return result;
-        } else if (result && Array.isArray(result.data)) {
+        } if (result && Array.isArray(result.data)) {
           return result.data;
-        } else if (result && Array.isArray(result.items)) {
+        } if (result && Array.isArray(result.items)) {
           return result.items;
         }
         
@@ -58,9 +58,9 @@ export function useMediaGallery(source: MediaGallerySource) {
       if (s3) {
         const s3Query = new URLSearchParams();
         s3Query.append('bucket', s3.bucket);
-        if (s3.prefix) s3Query.append('prefix', s3.prefix);
-        if (s3.region) s3Query.append('region', s3.region);
-        if (s3.endpoint) s3Query.append('endpoint', s3.endpoint);
+        if (s3.prefix) {s3Query.append('prefix', s3.prefix);}
+        if (s3.region) {s3Query.append('region', s3.region);}
+        if (s3.endpoint) {s3Query.append('endpoint', s3.endpoint);}
         
         // Use default S3 proxy endpoint if not specified
         const s3ApiEndpoint = '/api/media/s3';

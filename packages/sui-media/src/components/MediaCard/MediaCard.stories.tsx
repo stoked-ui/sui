@@ -141,7 +141,7 @@ export const BasicVideo: Story = {
   render: () => (
     <MediaCardWrapper
       item={sampleVideoItem}
-      info={true}
+      info
     />
   ),
 };
@@ -153,7 +153,7 @@ export const BasicImage: Story = {
   render: () => (
     <MediaCardWrapper
       item={sampleImageItem}
-      info={true}
+      info
     />
   ),
 };
@@ -166,18 +166,18 @@ export const SquareMode: Story = {
     <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
       <MediaCardWrapper
         item={sampleVideoItem}
-        squareMode={true}
-        info={true}
+        squareMode
+        info
       />
       <MediaCardWrapper
         item={sampleImageItem}
-        squareMode={true}
-        info={true}
+        squareMode
+        info
       />
       <MediaCardWrapper
         item={paidVideoItem}
-        squareMode={true}
-        info={true}
+        squareMode
+        info
       />
     </Box>
   ),
@@ -211,7 +211,7 @@ export const OwnerContent: Story = {
           modeState={modeState}
           setModeState={setModeState}
           auth={mockAuth}
-          info={true}
+          info
           onViewClick={(item) => console.log('View clicked:', item.title)}
           onEditClick={(item) => console.log('Edit clicked:', item.title)}
           onDeleteClick={(item) => console.log('Delete clicked:', item.title)}
@@ -248,7 +248,7 @@ export const ViewerContent: Story = {
           modeState={modeState}
           setModeState={setModeState}
           auth={mockAuth}
-          info={true}
+          info
           onViewClick={(item) => console.log('View clicked:', item.title)}
         />
         <Box sx={{ fontSize: '0.875rem', color: '#666', mt: 1 }}>
@@ -287,7 +287,7 @@ export const PaidContent: Story = {
           modeState={modeState}
           setModeState={setModeState}
           auth={viewerAuth}
-          info={true}
+          info
         />
         <Box sx={{ fontSize: '0.875rem', color: '#666', mt: 1 }}>
           <p>Paid content - locked thumbnail and price displayed (500 sats)</p>
@@ -320,7 +320,7 @@ export const OwnPaidContent: Story = {
           modeState={modeState}
           setModeState={setModeState}
           auth={ownerAuth}
-          info={true}
+          info
           onEditClick={(item) => console.log('Edit clicked:', item.title)}
         />
         <Box sx={{ fontSize: '0.875rem', color: '#666', mt: 1 }}>
@@ -360,7 +360,7 @@ export const WithPaymentIntegration: Story = {
           setModeState={setModeState}
           auth={viewerAuth}
           payment={mockPayment}
-          info={true}
+          info
           onViewClick={(item) => console.log('Purchase flow initiated for:', item.title)}
         />
         <Box sx={{ fontSize: '0.875rem', color: '#666', mt: 1 }}>
@@ -405,7 +405,7 @@ export const WithQueueIntegration: Story = {
           modeState={modeState}
           setModeState={setModeState}
           queue={mockQueue}
-          info={true}
+          info
           onViewClick={handleViewClick}
         />
         <Box sx={{ fontSize: '0.875rem', color: '#666', mt: 1 }}>
@@ -444,9 +444,9 @@ export const SelectionMode: Story = {
               item={item}
               modeState={modeState}
               setModeState={setModeState}
-              globalSelectionMode={true}
+              globalSelectionMode
               isSelected={modeState.selectState?.selected.includes(item._id!) || false}
-              info={true}
+              info
             />
           </Box>
         ))}
@@ -471,8 +471,8 @@ export const MinimalMode: Story = {
       <Box>
         <MediaCardWrapper
           item={sampleVideoItem}
-          minimalMode={true}
-          info={true}
+          minimalMode
+          info
         />
         <Box sx={{ fontSize: '0.75rem', color: '#666', mt: 1 }}>
           Regular mode
@@ -482,7 +482,7 @@ export const MinimalMode: Story = {
         <MediaCardWrapper
           item={sampleVideoItem}
           minimalMode={false}
-          info={true}
+          info
         />
         <Box sx={{ fontSize: '0.75rem', color: '#666', mt: 1 }}>
           Minimal mode
@@ -491,7 +491,7 @@ export const MinimalMode: Story = {
       <Box>
         <MediaCardWrapper
           item={sampleVideoItem}
-          minimalMode={true}
+          minimalMode
           info={false}
         />
         <Box sx={{ fontSize: '0.75rem', color: '#666', mt: 1 }}>
@@ -514,7 +514,7 @@ export const VideoWithProgressTracking: Story = {
     <Box sx={{ width: 320 }}>
       <MediaCardWrapper
         item={videoWithProgress}
-        info={true}
+        info
       />
       <Box sx={{ fontSize: '0.875rem', color: '#666', mt: 1 }}>
         <p>Hover over video to see progress bar with sprite preview</p>
@@ -535,7 +535,7 @@ export const CustomStyling: Story = {
     <Box sx={{ width: 320 }}>
       <MediaCardWrapper
         item={sampleVideoItem}
-        info={true}
+        info
         sx={{
           borderRadius: '12px',
           boxShadow: '0 8px 16px rgba(0, 0, 0, 0.3)',
@@ -574,8 +574,8 @@ export const GridLayout: Story = {
             item={item}
             modeState={modeState}
             setModeState={setModeState}
-            squareMode={true}
-            info={true}
+            squareMode
+            info
           />
         ))}
       </Box>
@@ -614,7 +614,7 @@ export const WithRouterIntegration: Story = {
           modeState={modeState}
           setModeState={setModeState}
           router={customRouter}
-          info={true}
+          info
         />
         <Box sx={{ fontSize: '0.875rem', color: '#666', mt: 1 }}>
           <p>Last navigation: {lastNavigation || 'None'}</p>
@@ -674,7 +674,7 @@ export const CompleteIntegration: Story = {
           auth={ownerAuth}
           payment={mockPayment}
           queue={mockQueue}
-          info={true}
+          info
           onViewClick={(item) => {
             addLog(`▶ View clicked: ${item.title}`);
           }}
@@ -787,8 +787,8 @@ export const WithAPIIntegration: Story = {
           modeState={modeState}
           setModeState={setModeState}
           apiClient={mockApiClient}
-          enableServerFeatures={true}
-          info={true}
+          enableServerFeatures
+          info
           onMetadataLoaded={(metadata) => {
             addLog(
               `📥 Metadata loaded: ${metadata.width}x${metadata.height}, ${metadata.duration}s`,
@@ -852,7 +852,7 @@ export const BackwardCompatibility: Story = {
             item={sampleVideoItem}
             modeState={modeState}
             setModeState={setModeState}
-            info={true}
+            info
             // No apiClient prop - works in client-only mode
           />
           <Box sx={{ fontSize: '0.75rem', color: '#666', mt: 1, textAlign: 'center' }}>
@@ -864,7 +864,7 @@ export const BackwardCompatibility: Story = {
             item={sampleVideoItem}
             modeState={modeState}
             setModeState={setModeState}
-            info={true}
+            info
             apiClient={undefined}
             enableServerFeatures={false}
           />

@@ -1,5 +1,5 @@
-/* eslint-disable class-methods-use-this */
-/*  eslint-disable @typescript-eslint/naming-convention */
+ 
+ 
 import {
   IMediaFile, MediaFile, AppFile, WebFile
 } from "@stoked-ui/media";
@@ -102,7 +102,7 @@ export default class TimelineFile<
       const actions = track.actions.map((action: ITimelineFileAction, index) => {
         return this.actionInitializer(action as FileActionType, index);
       }) as ActionType[];
-      // eslint-disable-next-line no-await-in-loop
+       
 
       this._tracks.push({
         id: track.id ?? namedId('track'),
@@ -124,7 +124,7 @@ export default class TimelineFile<
     for (let i = 0; i < tracks.length; i += 1) {
       const trackInput = tracks[i];
       if (!trackInput.file && trackInput.url) {
-        // eslint-disable-next-line no-await-in-loop
+         
         trackInput.file = await MediaFile.fromUrl(trackInput.url);
       }
       if (!trackInput.controller) {
@@ -221,7 +221,7 @@ export default class TimelineFile<
 
     // Read the stream in chunks and concatenate the data
     while (!done) {
-      // eslint-disable-next-line no-await-in-loop
+       
       const { value, done: doneReading } = await reader.read();
       done = doneReading;
       if (value) {
@@ -344,7 +344,7 @@ export default class TimelineFile<
           const nameWithoutExt = fileName.replace(/\.[^/.]+$/, '');
           if (track.url.includes(nameWithoutExt)) {
             // Found matching embedded media - create MediaFile from blob
-            // eslint-disable-next-line no-await-in-loop
+             
             track.file = await MediaFile.fromBlob(blob, fileName);
             break;
           }
@@ -353,7 +353,7 @@ export default class TimelineFile<
 
       const mediaFile = track.file;
       if (mediaFile) {
-        // eslint-disable-next-line no-await-in-loop
+         
         await mediaFile.extractMetadata();
       }
     }

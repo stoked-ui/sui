@@ -807,7 +807,7 @@ export default async function generateComponentApi(
   attachPropsTable(reactApi, projectSettings.propsSettings);
   attachTranslations(reactApi, projectSettings.propsSettings);
 
-  // eslint-disable-next-line no-console
+   
   console.log('Built API docs for', reactApi.apiPathname);
 
   if (!componentInfo.skipApiGeneration) {

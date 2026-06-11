@@ -508,7 +508,7 @@ function TimelineAction<
   const [screenshotVersion, setScreenshotVersion] = React.useState(0);
   React.useEffect(() => {
     const fileId = track.file?.id;
-    if (!fileId) return undefined;
+    if (!fileId) {return undefined;}
     const handler = (e: Event) => {
       const detail = (e as CustomEvent).detail;
       if (detail?.fileId === fileId) {
@@ -638,7 +638,6 @@ function TimelineAction<
         trackHeight={trackHeight}
         onKeyDown={(event: any) => {
           event.currentTarget = action;
-          // eslint-disable-next-line default-case
           switch (event.key) {
             case 'Backspace':
             case 'Delete': {

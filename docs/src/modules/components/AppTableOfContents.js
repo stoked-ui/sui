@@ -5,9 +5,8 @@ import throttle from 'lodash/throttle';
 import { styled, alpha } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import NoSsr from '@mui/material/NoSsr';
-import { Link } from '@stoked-ui/docs';
+import { Link , samePageLinkNavigation } from '@stoked-ui/docs';
 import { useTranslate } from '@stoked-ui/docs/i18n';
-import { samePageLinkNavigation } from '@stoked-ui/docs';
 import TableOfContentsBanner from 'docs/src/components/banner/TableOfContentsBanner';
 import featureToggle from 'docs/src/featureToggle';
 import DiamondSponsors from 'docs/src/modules/components/DiamondSponsors';
@@ -292,7 +291,6 @@ export default function AppTableOfContents(props) {
               color="text.secondary"
               sx={{ mt: 0.5 }}
             >
-              {/* eslint-disable-next-line material-ui/no-hardcoded-labels */}
               {"We're looking for React Engineers and other amazing roles－come find out more!"}
             </Typography>
           </Link>

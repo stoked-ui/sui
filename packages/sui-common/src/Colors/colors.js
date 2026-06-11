@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.compositeColors = compositeColors;
 const styles_1 = require("@mui/material/styles");
+
 function parseColorWithAlpha(color) {
     let rgbColor;
     let alpha;

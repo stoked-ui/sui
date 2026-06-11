@@ -268,7 +268,6 @@ const Root = styled('div')(
       },
       '&::before': {
         position: 'absolute',
-        // eslint-disable-next-line material-ui/straight-quotes
         content: '"“"',
         color: `var(--muidocs-palette-grey-300, ${lightTheme.palette.grey[300]})`,
         fontSize: '2.5rem',

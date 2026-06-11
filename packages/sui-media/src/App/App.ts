@@ -1,6 +1,6 @@
+import { IMimeType } from '@stoked-ui/common';
 import AppFile from './AppFile';
 import WebFileFactory from '../WebFileFactory';
-import { IMimeType } from '@stoked-ui/common';
 import AppOutputFile from './AppOutputFile';
 
 export class AppFileFactory extends WebFileFactory<AppFile> {}

@@ -81,7 +81,7 @@ export async function calculateUserRole(email: string): Promise<UserRole> {
     status: { $in: ['active', 'pending'] },
     $or: [{ expiresAt: { $exists: false } }, { expiresAt: { $gt: now } }]
   });
-  if (stokdMembership) return 'stokd member';
+  if (stokdMembership) {return 'stokd member';}
 
   // 3. Subscriber Check (Any valid subscription)
   const anySubscription = await db.collection('licenses').findOne({
@@ -89,7 +89,7 @@ export async function calculateUserRole(email: string): Promise<UserRole> {
     status: { $in: ['active', 'pending'] },
     $or: [{ expiresAt: { $exists: false } }, { expiresAt: { $gt: now } }]
   });
-  if (anySubscription) return 'subscriber';
+  if (anySubscription) {return 'subscriber';}
 
   // 4. Default for Google OAuth users who haven't bought anything
   return 'totally stoked';
@@ -101,7 +101,7 @@ function gravatarUrl(email: string): string {
 }
 
 async function resolveClientSlug(clientId?: ObjectId): Promise<string | undefined> {
-  if (!clientId) return undefined;
+  if (!clientId) {return undefined;}
   const db = await getDb();
   const client = await db.collection('clients').findOne({ _id: clientId }, { projection: { slug: 1 } });
   return client?.slug as string | undefined;

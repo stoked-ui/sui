@@ -33,7 +33,7 @@ function isTypeJSXElementLike(type: ts.Type, project: TypeScriptProject): boolea
 
   if (type.isUnion()) {
     return type.types.every(
-      // eslint-disable-next-line no-bitwise
+       
       (subType) => subType.flags & ts.TypeFlags.Null || isTypeJSXElementLike(subType, project),
     );
   }

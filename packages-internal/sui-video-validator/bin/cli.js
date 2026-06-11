@@ -49,7 +49,7 @@ program
       spinner.stop();
 
       // Print text report
-      console.log('\n' + Reporter.generateTextReport(result));
+      console.log(`\n${  Reporter.generateTextReport(result)}`);
 
       // Save JSON report if requested
       if (options.json) {
@@ -120,7 +120,7 @@ program
       spinner.stop();
 
       // Print batch report
-      console.log('\n' + Reporter.generateBatchTextReport(result));
+      console.log(`\n${  Reporter.generateBatchTextReport(result)}`);
 
       // Save JSON report if requested
       if (options.json) {

@@ -89,9 +89,9 @@ interface DocPage {
 }
 
 function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
+  if (typeof window === 'undefined') {return null;}
   const stored = localStorage.getItem('auth');
-  if (!stored) return null;
+  if (!stored) {return null;}
   try {
     return JSON.parse(stored).access_token;
   } catch {
@@ -105,7 +105,7 @@ async function apiFetch(url: string, options: RequestInit = {}) {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string> || {}),
   };
-  if (token) headers.Authorization = `Bearer ${token}`;
+  if (token) {headers.Authorization = `Bearer ${token}`;}
   const res = await fetch(getApiUrl(url), { ...options, headers });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
@@ -179,7 +179,7 @@ export default function ProductDetailPage({ productSlug }: { productSlug: string
   }, [productSlug]);
 
   React.useEffect(() => {
-    if (productSlug) fetchData();
+    if (productSlug) {fetchData();}
   }, [productSlug, fetchData]);
 
   React.useEffect(() => {
@@ -205,7 +205,7 @@ export default function ProductDetailPage({ productSlug }: { productSlug: string
   }, [product, buildDefaultPromo]);
 
   React.useEffect(() => {
-    if (!product) return;
+    if (!product) {return;}
     setPrivacyEnabled(!!product.privacyPolicy?.enabled);
     setPrivacyContent(product.privacyPolicy?.content ?? '');
     setPrivacyLocalizedContent(product.privacyPolicy?.localizedContent ?? {});
@@ -263,7 +263,7 @@ export default function ProductDetailPage({ productSlug }: { productSlug: string
 
   // --- Feature handlers ---
   const handleSaveFeature = async () => {
-    if (!product) return;
+    if (!product) {return;}
     const features = [...product.features];
     const feature: Feature = { name: featureName, description: featureDescription, id: featureId };
     if (editingFeatureIndex !== null) {
@@ -285,8 +285,8 @@ export default function ProductDetailPage({ productSlug }: { productSlug: string
   };
 
   const handleDeleteFeature = async (index: number) => {
-    if (!product) return;
-    if (!window.confirm('Remove this feature?')) return;
+    if (!product) {return;}
+    if (!window.confirm('Remove this feature?')) {return;}
     const features = product.features.filter((_, i) => i !== index);
     try {
       await apiFetch(`/api/products/${productSlug}`, {
@@ -332,7 +332,7 @@ export default function ProductDetailPage({ productSlug }: { productSlug: string
   };
 
   const handleDeletePage = async (pageIdToDelete: string) => {
-    if (!window.confirm('Delete this page?')) return;
+    if (!window.confirm('Delete this page?')) {return;}
     try {
       await apiFetch(`/api/products/${productSlug}/pages/${pageIdToDelete}`, { method: 'DELETE' });
       fetchData();
@@ -401,7 +401,7 @@ export default function ProductDetailPage({ productSlug }: { productSlug: string
   };
 
   const handleClearPromo = async () => {
-    if (!window.confirm('Remove this promo from rotation?')) return;
+    if (!window.confirm('Remove this promo from rotation?')) {return;}
     try {
       await apiFetch(`/api/products/${productSlug}`, {
         method: 'PATCH',

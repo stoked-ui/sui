@@ -88,11 +88,11 @@ export interface FeatureFlagProviderProps {
  * Load feature flags from storage
  */
 function loadFlagsFromStorage(storageKey: string): Partial<FeatureFlagConfiguration> | null {
-  if (typeof window === 'undefined') return null;
+  if (typeof window === 'undefined') {return null;}
 
   try {
     const stored = window.localStorage.getItem(storageKey);
-    if (!stored) return null;
+    if (!stored) {return null;}
 
     const parsed = JSON.parse(stored);
     if (isValidFeatureFlagConfiguration(parsed)) {
@@ -109,7 +109,7 @@ function loadFlagsFromStorage(storageKey: string): Partial<FeatureFlagConfigurat
  * Save feature flags to storage
  */
 function saveFlagsToStorage(storageKey: string, flags: FeatureFlagConfiguration): void {
-  if (typeof window === 'undefined') return;
+  if (typeof window === 'undefined') {return;}
 
   try {
     window.localStorage.setItem(storageKey, JSON.stringify(flags));

@@ -107,7 +107,7 @@ function setVolumeIndex(action: ITimelineFileAction) {
   return -1;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 export const initTimelineAction = (fileAction: ITimelineFileAction, trackIndex: number) => {
   const newAction = fileAction as ITimelineAction;
   newAction.volumeIndex = setVolumeIndex(newAction)

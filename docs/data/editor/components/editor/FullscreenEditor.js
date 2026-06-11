@@ -35,7 +35,7 @@ export default function FullscreenEditor() {
         <EditorProvider controllers={Controllers}>
           <Editor
             fullscreen={isFullscreen}
-            labels={true}
+            labels
           />
         </EditorProvider>
       </Box>

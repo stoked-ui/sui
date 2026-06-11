@@ -35,7 +35,7 @@ export default function TimelineUsage() {
       <Box sx={{ height: '250px', width: '100%', border: '1px solid #e0e0e0' }}>
         <Timeline 
           tracks={tracks}
-          labels={true}
+          labels
         />
       </Box>
     </Stack>

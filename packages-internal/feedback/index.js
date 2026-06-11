@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+ 
 const ApiBuilder = require('claudia-api-builder');
 const AWS = require('aws-sdk');
 const { v4: uuid } = require('uuid');

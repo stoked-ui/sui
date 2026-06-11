@@ -127,7 +127,7 @@ export default function UnstyledMenuIntroduction() {
 
   const createHandleMenuClick = (menuItem: string) => {
     return () => {
-      // eslint-disable-next-line no-console
+       
       console.log(`Clicked on ${menuItem}`);
     };
   };

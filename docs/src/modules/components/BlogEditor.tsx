@@ -145,7 +145,7 @@ export default function BlogEditor({ initialSlug }: BlogEditorProps) {
       }
     };
     loadPost();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [initialSlug, auth.token]);
 
   // Auto-save every 30 seconds when dirty
@@ -165,7 +165,7 @@ export default function BlogEditor({ initialSlug }: BlogEditorProps) {
         clearInterval(autoSaveTimer.current);
       }
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [auth.token, formData, body]);
 
   const buildPayload = React.useCallback(() => {
@@ -389,7 +389,7 @@ export default function BlogEditor({ initialSlug }: BlogEditorProps) {
             onClick={handlePublish}
             disabled={saving || publishing}
           >
-            {/* eslint-disable-next-line no-nested-ternary */}
+            { }
             {publishing ? 'Processing...' : status === 'published' ? 'Unpublish' : 'Publish'}
           </Button>
         </Box>

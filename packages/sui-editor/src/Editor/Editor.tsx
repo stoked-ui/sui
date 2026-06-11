@@ -483,7 +483,7 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
         viewSelector={`.MuiEditorView-root`}
         sx={noFlagProps.timelineSx}
         onAddFiles={onAddFiles}
-        internalComponent={true}
+        internalComponent
         onContextMenuLabel={handleContextMenuLabel}
         onContextMenuTrack={handleContextMenuTrack}
         onContextMenuAction={handleContextMenuAction}

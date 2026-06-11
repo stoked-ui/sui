@@ -197,7 +197,7 @@ export function MediaViewer({
 
   // Queue integration (if enabled)
   const queueCount = React.useMemo(() => {
-    if (!_enableQueue) return 0;
+    if (!_enableQueue) {return 0;}
     return queue.items.length;
   }, [_enableQueue, queue]);
 
@@ -243,7 +243,7 @@ export function MediaViewer({
       try {
         const mediaData = await apiClient.getMedia(safeInitialItem.id);
 
-        if (cancelled) return;
+        if (cancelled) {return;}
 
         // Map API response to MediaItem interface
         const loadedItem: MediaItem = {
@@ -279,7 +279,7 @@ export function MediaViewer({
           });
         }
       } catch (error) {
-        if (cancelled) return;
+        if (cancelled) {return;}
 
         console.error('Failed to load media from API:', error);
         setMediaLoadError(error instanceof Error ? error.message : 'Failed to load media');
@@ -302,7 +302,7 @@ export function MediaViewer({
 
   // Keyboard shortcuts (if enabled)
   React.useEffect(() => {
-    if (!_enableKeyboardShortcuts || !open) return;
+    if (!_enableKeyboardShortcuts || !open) {return;}
 
     const shortcuts: Record<string, () => void | boolean> = {
       'ArrowLeft': () => { handlePrev(); return true; },
@@ -310,7 +310,7 @@ export function MediaViewer({
       'Escape': () => { transition('EXIT_TO_NORMAL'); return true; },
       'f': () => { transition('CYCLE'); return true; },
       'q': () => {
-        if (!isAdaptiveActive) return true;
+        if (!isAdaptiveActive) {return true;}
         if (qualityState.mode === 'auto') {
           // Switch to first track (manual)
           selectTrack(0);
@@ -441,7 +441,7 @@ export function MediaViewer({
             {/* Queue integration */}
             {_enableQueue && showPreviewCards && legacyState === 0 && mediaItems.length > 1 && (
               <Box sx={{ position: 'absolute', bottom: 16, width: '90%', maxWidth: '1200px' }}>
-                <NextUpHeader queueCount={queueCount} show={true} />
+                <NextUpHeader queueCount={queueCount} show />
               </Box>
             )}
           </MediaContainer>

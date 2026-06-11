@@ -7,15 +7,15 @@ import GradientText from 'docs/src/components/typography/GradientText';
 import { PRODUCTS } from 'docs/src/products';
 import { BrandingCssVarsProvider } from '@stoked-ui/docs';
 import dynamic from 'next/dynamic';
+import { styled } from '@mui/material/styles';
+import { useRouter } from 'next/router';
+import CheckoutSuccess from 'docs/src/modules/license/CheckoutSuccess';
 import AppFooter from "../src/layouts/AppFooter";
 import Head from "../src/modules/components/Head";
 import NewsletterToast from "../src/components/home/NewsletterToast";
 import AppHeaderBanner from "../src/components/banner/AppHeaderBanner";
 import AppHeader from "../src/layouts/AppHeader";
-import { styled } from '@mui/material/styles';
 
-import { useRouter } from 'next/router';
-import CheckoutSuccess from 'docs/src/modules/license/CheckoutSuccess';
 
 const EditorHero = dynamic(() => import('../src/components/showcase/EditorHero'), {ssr: false });
 

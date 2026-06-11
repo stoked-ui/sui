@@ -77,19 +77,19 @@ export class SortedList<T> extends Array<T> {
     return new SortedList(this.compareFn, [...this, ...flattenedItems] as T[]);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   override sort(compareFn?: (a: T, b: T) => number): this {
     // Ignore external sort attempts; re-sort using the internal compareFn
     super.sort(this.compareFn);
     return this;
   }
 
-  // eslint-disable-next-line class-methods-use-this,@typescript-eslint/no-unused-vars
+   
   override copyWithin(target: number, start: number, end?: number): this {
     throw new Error("The copyWithin method is not supported in SortedList as it breaks sorted order.");
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   override reverse(): this {
     throw new Error("The reverse method is not supported in SortedList as it breaks sorted order.");
   }

@@ -67,7 +67,7 @@ function sortTracks(tracks: ResolutionTrack[]): ResolutionTrack[] {
 /** Pick a default track index — prefer 720p-equivalent or middle */
 function pickDefaultIndex(sorted: ResolutionTrack[]): number {
   const idx720 = sorted.findIndex((t) => t.height >= 720);
-  if (idx720 !== -1) return idx720;
+  if (idx720 !== -1) {return idx720;}
   return Math.floor(sorted.length / 2);
 }
 
@@ -174,7 +174,7 @@ export function useAdaptiveBitrate({
   const performSwitch = React.useCallback(
     (newIndex: number) => {
       const video = videoRef.current;
-      if (!video || newIndex === activeIndexRef.current || isSwitchingRef.current) return;
+      if (!video || newIndex === activeIndexRef.current || isSwitchingRef.current) {return;}
 
       isSwitchingRef.current = true;
       setIsSwitching(true);
@@ -209,15 +209,15 @@ export function useAdaptiveBitrate({
 
   // ── Bandwidth Measurement via progress events ─────────────────────────
   React.useEffect(() => {
-    if (!isActive) return;
+    if (!isActive) {return;}
     const video = videoRef.current;
-    if (!video) return;
+    if (!video) {return;}
 
     const handleProgress = () => {
-      if (modeRef.current !== 'auto') return;
+      if (modeRef.current !== 'auto') {return;}
 
       const buffered = video.buffered;
-      if (buffered.length === 0) return;
+      if (buffered.length === 0) {return;}
 
       const bufferedEnd = buffered.end(buffered.length - 1);
       const now = performance.now();
@@ -240,7 +240,7 @@ export function useAdaptiveBitrate({
 
       // Estimate: seconds of video buffered in real-time seconds → throughput in bits
       const currentTrack = sorted[activeIndexRef.current];
-      if (!currentTrack) return;
+      if (!currentTrack) {return;}
 
       const bitsBuffered = bytesDelta * currentTrack.bitrate;
       const throughput = bitsBuffered / timeDelta;
@@ -248,7 +248,7 @@ export function useAdaptiveBitrate({
       // Update EWMA
       const samples = samplesRef.current;
       samples.push(throughput);
-      if (samples.length > MAX_SAMPLES) samples.shift();
+      if (samples.length > MAX_SAMPLES) {samples.shift();}
 
       const newBw = ewma(bandwidthRef.current, throughput);
       bandwidthRef.current = newBw;
@@ -276,7 +276,7 @@ export function useAdaptiveBitrate({
   // ── Public API ─────────────────────────────────────────────────────────
   const selectTrack = React.useCallback(
     (index: number) => {
-      if (index < 0 || index >= sorted.length) return;
+      if (index < 0 || index >= sorted.length) {return;}
       setMode('manual');
       modeRef.current = 'manual';
       performSwitch(index);

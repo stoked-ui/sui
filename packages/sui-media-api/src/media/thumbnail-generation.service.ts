@@ -6,9 +6,9 @@ import * as os from 'os';
 import { S3Service } from '../s3/s3.service';
 
 // CommonJS modules require require() for proper typing
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+ 
 const ffmpeg = require('fluent-ffmpeg');
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+ 
 const sharp = require('sharp');
 
 /**

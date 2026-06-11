@@ -15,8 +15,8 @@ const consultingPublicProductIds = new Set(CONSULTING_PUBLIC_PRODUCT_IDS);
 const consultingAppSegments = new Set(CONSULTING_APP_SEGMENTS);
 
 function normalizePath(path: string) {
-  if (!path) return '/';
-  if (/^https?:\/\//i.test(path)) return path;
+  if (!path) {return '/';}
+  if (/^https?:\/\//i.test(path)) {return path;}
   return path.startsWith('/') ? path : `/${path}`;
 }
 
@@ -77,7 +77,7 @@ export function normalizePublicProductUrl(productId: string, url?: string) {
 
 export function toConsultingPublicPath(path: string) {
   const normalized = normalizePath(path);
-  if (/^https?:\/\//i.test(normalized)) return normalized;
+  if (/^https?:\/\//i.test(normalized)) {return normalized;}
   if (normalized === '/consulting' || normalized === '/consulting/') {
     return '/';
   }
@@ -86,7 +86,7 @@ export function toConsultingPublicPath(path: string) {
 
 export function toConsultingInternalPath(path: string) {
   const normalized = normalizePath(path);
-  if (/^https?:\/\//i.test(normalized)) return normalized;
+  if (/^https?:\/\//i.test(normalized)) {return normalized;}
   if (normalized === '/' || normalized === '') {
     return '/consulting/';
   }
@@ -103,7 +103,7 @@ export function toConsultingInternalPath(path: string) {
 
 export function toAbsoluteSitePath(site: PublicSite, path: string) {
   const normalized = normalizePath(path);
-  if (/^https?:\/\//i.test(normalized)) return normalized;
+  if (/^https?:\/\//i.test(normalized)) {return normalized;}
   
   const isConsulting = site === 'consulting';
   const internalPath = isConsulting ? toConsultingInternalPath(normalized) : normalized;

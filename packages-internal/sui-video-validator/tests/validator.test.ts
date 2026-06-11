@@ -4,9 +4,9 @@
  * Note: These tests require FFmpeg to be installed and test video files to be present
  */
 
-import { VideoValidator, BatchValidator, Reporter } from '../src';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { VideoValidator, BatchValidator, Reporter } from '../src';
 
 const TEST_VIDEOS_DIR = path.join(__dirname, 'fixtures');
 const OUTPUT_DIR = path.join(__dirname, 'output');
@@ -22,7 +22,7 @@ async function setupTestEnvironment() {
     return true;
   } catch {
     console.warn('⚠️  Test videos not found. Skipping integration tests.');
-    console.warn('   Place test videos in: ' + TEST_VIDEOS_DIR);
+    console.warn(`   Place test videos in: ${  TEST_VIDEOS_DIR}`);
     return false;
   }
 }
@@ -52,7 +52,7 @@ async function testBasicValidation() {
   }
 
   if (result.overallScore < 0 || result.overallScore > 1) {
-    throw new Error('Invalid overall score: ' + result.overallScore);
+    throw new Error(`Invalid overall score: ${  result.overallScore}`);
   }
 
   console.log('✅ Basic validation test passed\n');

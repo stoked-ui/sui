@@ -1,7 +1,9 @@
 /.git
 /.yarn
-/benchmark/**/dist
+**/dist
 /coverage
+/any
+/examples/material-ui-nextjs-ts-v4-v5-migration
 /docs/export
 /docs/pages/playground/
 /examples/stoked-ui-cra*/src/serviceWorker.js
@@ -27,6 +29,7 @@
 /packages/pigment-css-nextjs-plugin/loader.js
 # Ignore fixtures
 /packages-internal/scripts/typescript-to-proptypes/test/*/*
+/packages-internal/proptypes/typescript-to-proptypes/test
 /test/bundling/fixtures/**/*.fixture.js
 # just an import that reports eslint errors depending on whether the fixture (which is not checked in) exists
 /test/bundling/fixtures/create-react-app/src/index.js
@@ -34,8 +37,13 @@
 /test/bundling/fixtures/gatsby/public
 /tmp
 .next
+.open-next
 build
 node_modules
+packages/sui-media-api/scripts/
+packages/sui-media-api/lambda.entry.ts
+packages/sui-media-api/**/*.spec.ts
+packages/sui-media-api/sst-env.d.ts
 .nyc_output
 pnpm-lock.yaml
 

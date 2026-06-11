@@ -116,7 +116,7 @@ export const createTypeScriptProjectBuilder = (
       return cachedProject;
     }
 
-    // eslint-disable-next-line no-console
+     
     console.log(`Building new TS project: ${projectName}`);
 
     const project = createTypeScriptProject({

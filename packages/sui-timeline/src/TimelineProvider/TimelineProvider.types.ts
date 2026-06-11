@@ -29,7 +29,7 @@ import {
   ITimelineFileAction
 } from "../TimelineAction/TimelineAction.types";
 import {DetailData, getDetail, SelectionTypeName} from "./TimelineDetail";
-// eslint-disable-next-line import/no-cycle
+ 
 import {
   createActionEvent,
   fitScaleData,

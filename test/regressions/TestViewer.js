@@ -30,7 +30,7 @@ function TestViewer(props) {
     document.fonts.addEventListener('loadingdone', handleFontsEvent);
 
     // Use a "real timestamp" so that we see a useful date instead of "00:00"
-    // eslint-disable-next-line react-hooks/rules-of-hooks -- not a React hook
+     
     const clock = useFakeTimers({
       now: new Date('Mon Aug 18 14:11:54 2014 -0500'),
       toFake: ['Date'],

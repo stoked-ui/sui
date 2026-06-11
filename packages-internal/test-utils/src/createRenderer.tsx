@@ -88,10 +88,10 @@ interface Profiler {
 class NoopProfiler implements Profiler {
   id = 'noop';
 
-  // eslint-disable-next-line class-methods-use-this
+   
   onRender() {}
 
-  // eslint-disable-next-line class-methods-use-this
+   
   report() {}
 }
 

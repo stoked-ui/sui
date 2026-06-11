@@ -65,7 +65,7 @@ export const useFileExplorerModels = <TSignatures extends readonly FileExplorerA
   ) as MergeSignaturesProperty<TSignatures, 'models'>;
 
   // We know that `modelsRef` do not vary across renders.
-  /* eslint-disable react-hooks/rules-of-hooks, react-hooks/exhaustive-deps */
+   
   if (process.env.NODE_ENV !== 'production') {
     Object.entries(modelsRef.current).forEach(([modelName, model]) => {
       const controlled = props[modelName as keyof DefaultizedParams];
@@ -104,7 +104,7 @@ export const useFileExplorerModels = <TSignatures extends readonly FileExplorerA
       }, [JSON.stringify(newDefaultValue)]);
     });
   }
-  /* eslint-enable react-hooks/rules-of-hooks, react-hooks/exhaustive-deps */
+   
 
   return models;
 };

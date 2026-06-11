@@ -31,13 +31,13 @@ export async function findExistingCert(
     );
 
     for (const summary of list.CertificateSummaryList ?? []) {
-      if (!summary.CertificateArn) continue;
+      if (!summary.CertificateArn) {continue;}
 
       const desc = await acm.send(
         new DescribeCertificateCommand({ CertificateArn: summary.CertificateArn }),
       );
       const cert = desc.Certificate;
-      if (!cert) continue;
+      if (!cert) {continue;}
 
       const sans = new Set(
         (cert.SubjectAlternativeNames ?? []).map((s) => s.toLowerCase()),
@@ -47,7 +47,7 @@ export async function findExistingCert(
       const coversAll = [...required].every((d) =>
         [...sans].some((san) => doesSanCoverDomain(san, d)),
       );
-      if (!coversAll) continue;
+      if (!coversAll) {continue;}
 
       // If SST already manages this certificate for the current stack, keep the
       // resource under SST ownership so deploys do not try to delete an active cert.

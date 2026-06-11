@@ -47,11 +47,11 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     }
     const { title, slug, content, order, published } = req.body || {};
     const update: Record<string, unknown> = { updatedAt: new Date() };
-    if (title !== undefined) update.title = title;
-    if (slug !== undefined) update.slug = slug;
-    if (content !== undefined) update.content = content;
-    if (order !== undefined) update.order = order;
-    if (published !== undefined) update.published = published;
+    if (title !== undefined) {update.title = title;}
+    if (slug !== undefined) {update.slug = slug;}
+    if (content !== undefined) {update.content = content;}
+    if (order !== undefined) {update.order = order;}
+    if (published !== undefined) {update.published = published;}
 
     const result = await pagesCollection.findOneAndUpdate(
       { _id: pageObjectId, productId: productKey },

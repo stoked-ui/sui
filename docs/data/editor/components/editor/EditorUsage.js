@@ -22,8 +22,8 @@ export default function EditorUsage() {
       }}>
         <EditorProvider controllers={Controllers}>
           <Editor
-            fileView={true}
-            labels={true}
+            fileView
+            labels
           />
         </EditorProvider>
       </Box>

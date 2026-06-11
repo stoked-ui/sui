@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+ 
 const path = require('path');
 const fse = require('fs-extra');
 const { createRender } = require('@stoked-ui/docs-markdown');

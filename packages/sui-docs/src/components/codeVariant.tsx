@@ -5,7 +5,7 @@ import { CODE_VARIANTS } from './constants';
 
 const CodeVariantContext = React.createContext({
   codeVariant: CODE_VARIANTS.TS,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   setCodeVariant: (...args: any[]) => {},
   noSsrCodeVariant: CODE_VARIANTS.TS,
 });

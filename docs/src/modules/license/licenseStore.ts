@@ -157,7 +157,7 @@ function normalizeMachineName(machineName?: string): string | null {
   }
 
   const trimmed = machineName.trim();
-  return trimmed ? trimmed : null;
+  return trimmed || null;
 }
 
 function getLicenseStatusError(doc: LicenseDoc): LicenseStoreError | null {

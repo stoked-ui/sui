@@ -139,7 +139,7 @@ export default async function parseTest(componentFilename: string): Promise<Pars
 
   let descriptor: ReturnType<typeof findConformanceDescriptor> = null;
 
-  // eslint-disable-next-line no-restricted-syntax
+   
   for await (const testFilename of testFilenames) {
     if (descriptor === null) {
       const babelParseResult = await parseWithConfig(testFilename, babelConfigPath);

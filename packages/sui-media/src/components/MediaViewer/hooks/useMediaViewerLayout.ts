@@ -126,7 +126,7 @@ function calculatePreviewGrid(
     const usableWidth = containerWidth - PREVIEW_CONTAINER_PADDING;
     const cardWidth = (usableWidth - (cols - 1) * CARD_GAP) / cols;
 
-    if (cardWidth < MIN_CARD_WIDTH) continue;
+    if (cardWidth < MIN_CARD_WIDTH) {continue;}
 
     const cardHeight = Math.max(cardWidth / CARD_ASPECT_RATIO, MIN_CARD_WIDTH / CARD_ASPECT_RATIO);
     const rowHeight = cardHeight + CARD_GAP;
@@ -134,7 +134,7 @@ function calculatePreviewGrid(
     const usableHeight = availableHeight - PREVIEW_HEADER_HEIGHT - PREVIEW_CONTAINER_PADDING - SAFETY_BUFFER;
     const rowsThatFit = Math.floor(usableHeight / rowHeight);
 
-    if (rowsThatFit < 1) continue;
+    if (rowsThatFit < 1) {continue;}
 
     const maxRowsNeeded = Math.ceil(itemCount / cols);
     const actualRows = Math.min(rowsThatFit, maxRowsNeeded);
@@ -321,7 +321,7 @@ export function useMediaViewerLayout(
     let resizeTimer: NodeJS.Timeout | null = null;
 
     const handleResize = () => {
-      if (resizeTimer) clearTimeout(resizeTimer);
+      if (resizeTimer) {clearTimeout(resizeTimer);}
       resizeTimer = setTimeout(() => {
         setLayout(calculateLayout(propsRef.current));
       }, 50);
@@ -335,7 +335,7 @@ export function useMediaViewerLayout(
       if (typeof window !== 'undefined') {
         window.removeEventListener('resize', handleResize);
       }
-      if (resizeTimer) clearTimeout(resizeTimer);
+      if (resizeTimer) {clearTimeout(resizeTimer);}
     };
   }, []);
 

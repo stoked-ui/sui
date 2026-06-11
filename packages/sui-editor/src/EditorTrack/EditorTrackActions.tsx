@@ -5,9 +5,9 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import LockIcon from "@mui/icons-material/Lock";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 import {ToggleButtonGroupEx, ToggleVolume, ToggleLock } from "@stoked-ui/timeline";
-import { useEditorContext } from "../EditorProvider/EditorContext";
 import VolumeOff from "@mui/icons-material/VolumeOff";
 import VolumeUp from "@mui/icons-material/VolumeUp";
+import { useEditorContext } from "../EditorProvider/EditorContext";
 
 export function ToggleHidden({ track, file, toggleClick, dispatch, hide, children, engine }: { track: any, file: any, toggleClick: any, dispatch: any, hide: any, children: any, engine: any }) {
   if (hide) {

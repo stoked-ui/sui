@@ -101,7 +101,7 @@ export function useHybridMetadata(
 
         const result = await apiClient.extractMetadata(item._id, controller.signal);
 
-        if (cancelled) return;
+        if (cancelled) {return;}
 
         const newMetadata: MetadataState = {
           duration: result.duration ?? item.duration,
@@ -126,7 +126,7 @@ export function useHybridMetadata(
           });
         }
       } catch (error) {
-        if (cancelled) return;
+        if (cancelled) {return;}
 
         console.error('Server metadata extraction failed:', error);
 

@@ -6,9 +6,9 @@ import Head from 'docs/src/modules/components/Head';
 import Alert from '@mui/material/Alert';
 import { useRouter } from 'next/router';
 import { useSearchParams } from 'next/navigation';
+import { BrandingCssVarsProvider } from '@stoked-ui/docs';
 import AppHeader from '../src/layouts/AppHeader';
 import AppFooter from '../src/layouts/AppFooter';
-import { BrandingCssVarsProvider } from '@stoked-ui/docs';
 import Section from '../src/layouts/Section';
 
 export default function Components() {

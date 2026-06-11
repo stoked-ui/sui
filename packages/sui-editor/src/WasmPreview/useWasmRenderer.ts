@@ -162,7 +162,7 @@ export function useWasmRenderer(width: number, height: number) {
           wasmAvailable = false;
         }
 
-        if (cancelled) return;
+        if (cancelled) {return;}
 
         wasmModuleRef.current = wasmModule;
 

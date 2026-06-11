@@ -32,7 +32,6 @@ function mergeWith<T, U>(
   return Array.from(mergedMap.values());
 }
 
-// eslint-disable-next-line no-extend-native
 Array.prototype.mergeWith = mergeWith;
 
 export { mergeWith };

@@ -62,7 +62,7 @@ export function getTrackFromMediaFile(mediaFile: IMediaFile, currentTime: number
     console.info('No controller found for', mediaFile.mediaType, mediaFile);
     return undefined;
   }
-  // eslint-disable-next-line no-await-in-loop
+   
   // await controller.preload({ action, file: mediaFile})
   return {
     id: namedId('track'),

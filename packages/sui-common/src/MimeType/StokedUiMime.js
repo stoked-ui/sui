@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SUIMime = void 0;
 const IMimeType_1 = require("./IMimeType");
+
 class SUIMime extends IMimeType_1.MimeRegistry {
     constructor() {
         super();

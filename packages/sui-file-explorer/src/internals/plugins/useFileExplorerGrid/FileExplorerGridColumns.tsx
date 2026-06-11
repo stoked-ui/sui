@@ -1,5 +1,7 @@
 import * as React from 'react';
 import {SystemStyleObject, Theme} from "@mui/system";
+import {styled} from "@mui/material/styles";
+import {shouldForwardProp} from "@mui/system/createStyled";
 import {useFileExplorerContext} from "../../FileExplorerProvider/useFileExplorerContext";
 import type {
   UseFileExplorerFilesSignature
@@ -10,8 +12,6 @@ import type {
 import type {GridColumns, UseFileExplorerGridSignature} from "./useFileExplorerGrid.types";
 import {UseFileExplorerDndSignature} from '../useFileExplorerDnd/useFileExplorerDnd.types';
 import {FileLabel} from "../../../File/FileLabel";
-import {styled} from "@mui/material/styles";
-import {shouldForwardProp} from "@mui/system/createStyled";
 
 function FileExplorerGridCell({
                                 sx, last, id, columnName, content, grow, selected

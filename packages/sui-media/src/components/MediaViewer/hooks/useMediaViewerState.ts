@@ -58,7 +58,7 @@ export function useMediaViewerState(
    */
   const requestFullscreen = useCallback(async (): Promise<boolean> => {
     try {
-      if (typeof document === 'undefined') return false;
+      if (typeof document === 'undefined') {return false;}
       if (!document.fullscreenElement) {
         await document.documentElement.requestFullscreen();
         return true;
@@ -75,7 +75,7 @@ export function useMediaViewerState(
    */
   const exitFullscreen = useCallback(async (): Promise<boolean> => {
     try {
-      if (typeof document === 'undefined') return false;
+      if (typeof document === 'undefined') {return false;}
       if (document.fullscreenElement) {
         await document.exitFullscreen();
         return true;
@@ -207,7 +207,7 @@ export function useMediaViewerState(
    * Sync with browser fullscreen changes (user pressed ESC, etc.)
    */
   useEffect(() => {
-    if (typeof document === 'undefined') return;
+    if (typeof document === 'undefined') {return;}
 
     const handleFullscreenChange = () => {
       if (!document.fullscreenElement && state.isFullscreenApiActive) {
@@ -234,7 +234,7 @@ export function useMediaViewerState(
    * Cleanup: exit fullscreen when component unmounts
    */
   useEffect(() => {
-    if (typeof document === 'undefined') return;
+    if (typeof document === 'undefined') {return;}
 
     return () => {
       if (document.fullscreenElement) {

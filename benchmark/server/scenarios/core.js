@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+ 
 import Benchmark from 'benchmark';
 import * as React from 'react';
 import * as ReactDOMServer from 'react-dom/server';

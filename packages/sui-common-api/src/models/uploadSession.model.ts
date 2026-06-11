@@ -158,7 +158,7 @@ UploadSessionSchema.index({ hash: 1, status: 1 });
  * Virtual to calculate upload progress percentage
  */
 UploadSessionSchema.virtual("progress").get(function () {
-  if (this.totalParts === 0) return 0;
+  if (this.totalParts === 0) {return 0;}
   const completedParts = this.parts.filter((p) => p.status === "completed").length;
   return Math.round((completedParts / this.totalParts) * 100);
 });

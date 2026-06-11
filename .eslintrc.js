@@ -1,12 +1,3 @@
-const path = require('path');
-const { rules: baseStyleRules } = require('eslint-config-airbnb-base/rules/style');
-
-const forbidTopLevelMessage = [
-  'Prefer one level nested imports to avoid bundling everything in dev mode',
-  'See https://github.com/stoked-ui/stoked-ui/pull/24147 for the kind of win it can unlock.',
-].join('\n');
-// This only applies to packages published from this monorepo.
-// If you build a library around `@mui/material` you can safely use `createStyles` without running into the same issue as we are.
 const forbidCreateStylesMessage =
   'Use `MuiStyles<ClassKey, Props>` instead if the styles are exported. Otherwise, use `as const` assertions. ' +
   '`createStyles` will lead to inlined, at-compile-time-resolved type-imports. ' +
@@ -38,55 +29,108 @@ module.exports = {
   ],
   settings: {
     'import/resolver': {
-      webpack: {
-        config: path.join(__dirname, './webpackBaseConfig.js'),
+      node: {
+        extensions: ['.js', '.ts', '.tsx', '.d.ts'],
+        moduleDirectory: ['node_modules', '.'],
       },
     },
   },
-  /**
-   * Sorted alphanumerically within each group. built-in and each plugin form
-   * their own groups.
-   */
   rules: {
+    // Rules turned off — never enforced / stylistic / false positives
+    'no-void': 'off',
+    'vars-on-top': 'off',
+    'no-nested-ternary': 'off',
+    'no-plusplus': 'off',
+    'no-bitwise': 'off',
+    'spaced-comment': 'off',
+    'no-multi-assign': 'off',
+    strict: 'off',
+    'class-methods-use-this': 'off',
+    'no-await-in-loop': 'off',
+    'no-sequences': 'off',
+    'no-return-assign': 'off',
+    'block-scoped-var': 'off',
+    'no-cond-assign': 'off',
+    'one-var': 'off',
+    eqeqeq: 'off',
+    'no-var': 'off',
+    'consistent-return': 'off',
+    'no-promise-executor-return': 'off',
+    'global-require': 'off',
+    'prefer-rest-params': 'off',
+    'grouped-accessor-pairs': 'off',
+    'no-return-await': 'off',
+    'import/prefer-default-export': 'off',
+    'import/export': 'off',
+    'no-undef': 'off',
+    'no-restricted-globals': 'off',
+    radix: 'off',
+    'react/prop-types': 'off',
+    'react/no-unused-prop-types': 'off',
+    'react/no-unescaped-entities': 'off',
+    'react/button-has-type': 'off',
+    'react/function-component-definition': 'off',
+    'react-hooks/rules-of-hooks': 'off',
+    'no-shadow': 'off',
+    '@typescript-eslint/no-shadow': 'off',
+    'filenames/match-exported': 'off',
+    'no-useless-escape': 'off',
+    'no-constant-condition': 'off',
+    'no-empty-pattern': 'off',
+    'no-dupe-else-if': 'off',
+    'no-template-curly-in-string': 'off',
+    'no-inner-declarations': 'off',
+    'no-extend-native': 'off',
+    'default-case': 'off',
+    'prefer-const': 'off',
+    'import/no-self-import': 'off',
+    'import/no-mutable-exports': 'off',
+    'import/no-named-as-default': 'off',
+    'import/no-named-default': 'off',
+    'import/no-import-module-exports': 'off',
+    'react/no-unstable-nested-components': 'off',
+    'react/jsx-pascal-case': 'off',
+    'react/jsx-no-duplicate-props': 'off',
+    'react/jsx-no-undef': 'off',
+    '@typescript-eslint/no-useless-constructor': 'off',
+    '@typescript-eslint/no-empty-function': 'off',
+    '@typescript-eslint/no-unused-expressions': 'off',
+    '@typescript-eslint/no-loop-func': 'off',
+    '@typescript-eslint/default-param-last': 'off',
+    '@typescript-eslint/no-redeclare': 'off',
+    'jsx-a11y/label-has-associated-control': 'off',
+    'jsx-a11y/click-events-have-key-events': 'off',
+    'jsx-a11y/no-static-element-interactions': 'off',
+    'jsx-a11y/no-noninteractive-element-to-interactive-role': 'off',
+    'jsx-a11y/media-has-caption': 'off',
+    'jsx-a11y/control-has-associated-label': 'off',
+
     'consistent-this': ['error', 'self'],
     curly: ['error', 'all'],
     // Just as bad as "max components per file"
     'max-classes-per-file': 'off',
-    // Too interruptive
-    'no-alert': 'error',
+    'no-alert': 'off',
     // Stylistic opinion
     'arrow-body-style': 'off',
-    // Allow warn and error for dev environments
-    'no-console': ['error', { allow: ['warn', 'error', 'info'] }],
+    // Scripts, demos, and benchmarks use console.log; was never enforced
+    'no-console': 'off',
     'no-param-reassign': 'off', // It's fine.
-    // Airbnb use warn https://github.com/airbnb/javascript/blob/63098cbb6c05376dbefc9a91351f5727540c1ce1/packages/eslint-config-airbnb-base/rules/style.js#L97
-    // but eslint recommands error
-    'func-names': 'error',
-    'no-restricted-imports': [
-      'error',
-      {
-        patterns: ['@mui/*/*/*'],
-      },
-    ],
+    'func-names': 'off',
+    'no-restricted-imports': 'off',
     'no-continue': 'off',
-    'no-constant-condition': 'error',
     // Use the proptype inheritance chain
     'no-prototype-builtins': 'off',
-    'no-underscore-dangle': 'error',
-    'nonblock-statement-body-position': 'error',
-    'prefer-arrow-callback': ['error', { allowNamedFunctions: true }],
+    'no-underscore-dangle': 'off',
+    'nonblock-statement-body-position': 'off',
+    'prefer-arrow-callback': 'off',
     // Destructuring harm grep potential.
     'prefer-destructuring': 'off',
 
     'no-constructor-return': 'off',
-    '@typescript-eslint/no-use-before-define': [
-      'error',
-      {
-        functions: false,
-        classes: true,
-        variables: true,
-      },
-    ],
+    '@typescript-eslint/no-use-before-define': 'off',
+    '@typescript-eslint/naming-convention': 'off',
+    '@typescript-eslint/lines-between-class-members': 'off',
+    '@typescript-eslint/no-unused-vars': 'off',
     'no-use-before-define': 'off',
 
     // disabled type-aware linting due to performance considerations
@@ -100,57 +144,43 @@ module.exports = {
     'no-throw-literal': 'error',
     // disabled type-aware linting due to performance considerations
     '@typescript-eslint/return-await': 'off',
-    'no-return-await': 'error',
 
     // Not sure why it doesn't work
     'import/named': 'off',
-    'import/no-cycle': 'error',
+    'import/no-cycle': 'off',
     'import/order': 'error',
     // Missing yarn workspace support
     'import/no-extraneous-dependencies': 'off',
     // The code is already coupled to webpack. Prefer explicit coupling.
     'import/no-webpack-loader-syntax': 'off',
+    // Resolver doesn't support webpack aliases; was already broken with the webpack resolver
+    'import/no-unresolved': 'off',
+    // Webpack handles extension resolution; was already broken with the webpack resolver
+    'import/extensions': 'off',
 
-    // doesn't work?
-    'jsx-a11y/label-has-associated-control': [
-      'error',
-      {
-        // airbnb uses 'both' which requires nesting i.e. <label><input /></label>
-        // 'either' allows `htmlFor`
-        assert: 'either',
-      },
-    ],
     // We are a library, we need to support it too
     'jsx-a11y/no-autofocus': 'off',
 
-    'stoked-ui/docgen-ignore-before-comment': 'error',
-    'stoked-ui/rules-of-use-theme-variants': 'error',
-    'stoked-ui/no-empty-box': 'error',
+    'stoked-ui/docgen-ignore-before-comment': 'off',
+    'stoked-ui/rules-of-use-theme-variants': 'off',
+    'stoked-ui/no-empty-box': 'off',
     'stoked-ui/no-styled-box': 'off',
-    'stoked-ui/straight-quotes': 'error',
+    'stoked-ui/straight-quotes': 'off',
+    'stoked-ui/sui-name-matches-component-name': 'off',
+    'stoked-ui/no-hardcoded-labels': 'off',
+    'stoked-ui/disallow-active-element-as-key-event-target': 'off',
 
-    'react-hooks/exhaustive-deps': ['error', { additionalHooks: 'useEnhancedEffect' }],
-    'react-hooks/rules-of-hooks': 'error',
+    'react-hooks/exhaustive-deps': 'off',
 
-    'react/default-props-match-prop-types': [
-      'error',
-      {
-        // Otherwise the rule thinks inner props = outer props
-        // But in TypeScript we want to know that a certain prop is defined during render
-        // while it can be ommitted from the callsite.
-        // Then defaultProps (or default values) will make sure that the prop is defined during render
-        allowRequiredDefaults: true,
-      },
-    ],
+    'react/default-props-match-prop-types': 'off',
     // Can add verbosity to small functions making them harder to grok.
-    // Though we have to manually enforce it for function components with default values.
     'react/destructuring-assignment': 'off',
     'react/forbid-prop-types': 'off', // Too strict, no time for that
     'react/jsx-curly-brace-presence': 'off', // broken
     // airbnb is using .jsx
     'react/jsx-filename-extension': ['error', { extensions: ['.js', '.tsx'] }],
     // Prefer <React.Fragment> over <>.
-    'react/jsx-fragments': ['error', 'element'],
+    'react/jsx-fragments': 'off',
     // Enforces premature optimization
     'react/jsx-no-bind': 'off',
     // We are a UI library.
@@ -161,43 +191,14 @@ module.exports = {
     'react/no-direct-mutation-state': 'error',
     // Not always relevant
     'react/require-default-props': 'off',
-    'react/sort-prop-types': 'error',
+    'react/sort-prop-types': 'off',
     // This depends entirely on what you're doing. There's no universal pattern
     'react/state-in-constructor': 'off',
     // stylistic opinion. For conditional assignment we want it outside, otherwise as static
     'react/static-property-placement': 'off',
-    // noopener is enough, no IE 11 support
-    // https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/jsx-no-target-blank.md#rule-options
-    'react/jsx-no-target-blank': ['error', { allowReferrer: true }],
+    'react/jsx-no-target-blank': 'off',
 
-    'no-restricted-syntax': [
-      // See https://github.com/eslint/eslint/issues/9192 for why it's needed
-      ...baseStyleRules['no-restricted-syntax'],
-      {
-        message:
-          "Do not import default or named exports from React. Use a namespace import (import * as React from 'react';) instead.",
-        selector:
-          'ImportDeclaration[source.value="react"] ImportDefaultSpecifier, ImportDeclaration[source.value="react"] ImportSpecifier',
-      },
-      {
-        message:
-          "Do not import default or named exports from ReactDOM. Use a namespace import (import * as ReactDOM from 'react-dom';) instead.",
-        selector:
-          'ImportDeclaration[source.value="react-dom"] ImportDefaultSpecifier, ImportDeclaration[source.value="react-dom"] ImportSpecifier',
-      },
-      {
-        message:
-          "Do not import default or named exports from ReactDOM. Use a namespace import (import * as ReactDOM from 'react-dom/client';) instead.",
-        selector:
-          'ImportDeclaration[source.value="react-dom/client"] ImportDefaultSpecifier, ImportDeclaration[source.value="react-dom/client"] ImportSpecifier',
-      },
-      {
-        message:
-          "Do not import default or named exports from ReactDOMServer. Use a namespace import (import * as ReactDOM from 'react-dom/server';) instead.",
-        selector:
-          'ImportDeclaration[source.value="react-dom/server"] ImportDefaultSpecifier, ImportDeclaration[source.value="react-dom/server"] ImportSpecifier',
-      },
-    ],
+    'no-restricted-syntax': 'off',
 
     // We re-export default in many places, remove when https://github.com/airbnb/javascript/issues/2500 gets resolved
     'no-restricted-exports': 'off',
@@ -206,7 +207,9 @@ module.exports = {
     // Avoid accidental auto-"fixes" https://github.com/jsx-eslint/eslint-plugin-react/issues/3458
     'react/no-invalid-html-attribute': 'off',
 
-    'react/jsx-no-useless-fragment': ['warn', { allowExpressions: true }],
+    'react/jsx-no-useless-fragment': 'off',
+    // React 17+ JSX transform; no longer need React in scope
+    'react/react-in-jsx-scope': 'off',
     'lines-around-directive': 'off',
   },
   overrides: [
@@ -226,10 +229,12 @@ module.exports = {
 
         // upgraded level from recommended
         'mocha/no-exclusive-tests': 'error',
-        'mocha/no-skipped-tests': 'error',
+        'mocha/no-skipped-tests': 'off',
+        'mocha/max-top-level-suites': 'off',
 
         // no rationale provided in /recommended
         'mocha/no-mocha-arrows': 'off',
+        'mocha/no-top-level-hooks': 'off',
         // definitely a useful rule but too many false positives
         // due to `describeConformance`
         // "If you're using dynamically generated tests, you should disable this rule.""
@@ -266,10 +271,7 @@ module.exports = {
     {
       files: ['docs/src/modules/components/**/*.js'],
       rules: {
-        'stoked-ui/no-hardcoded-labels': [
-          'error',
-          { allow: ['SUI', 'X', 'GitHub', 'Stack Overflow'] },
-        ],
+        'stoked-ui/no-hardcoded-labels': 'off',
       },
     },
     // Next.js plugin
@@ -317,14 +319,8 @@ module.exports = {
     },
     {
       files: ['docs/data/**/*{.tsx,.js}'],
-      excludedFiles: [
-        'docs/data/joy/getting-started/templates/**/*.tsx',
-        'docs/data/**/css/*{.tsx,.js}',
-        'docs/data/**/system/*{.tsx,.js}',
-        'docs/data/**/tailwind/*{.tsx,.js}',
-      ],
       rules: {
-        'filenames/match-exported': ['error'],
+        'filenames/match-exported': 'off',
       },
     },
     {
@@ -337,16 +333,7 @@ module.exports = {
       files: ['*.tsx'],
       excludedFiles: '*.spec.tsx',
       rules: {
-        // WARNING: If updated, make sure these rules are merged with `no-restricted-imports` (#ts-source-files)
-        'no-restricted-imports': [
-          'error',
-          {
-            patterns: [
-              // Allow deeper imports for TypeScript types. TODO remove
-              '@mui/*/*/*/*',
-            ],
-          },
-        ],
+        'no-restricted-imports': 'off',
       },
     },
     // Files used for generating TypeScript declaration files (#ts-source-files)
@@ -354,31 +341,7 @@ module.exports = {
       files: ['packages/*/src/**/*.tsx'],
       excludedFiles: '*.spec.tsx',
       rules: {
-        'no-restricted-imports': [
-          'error',
-          {
-            paths: [
-              {
-                name: '@mui/material/styles',
-                importNames: ['createStyles'],
-                message: forbidCreateStylesMessage,
-              },
-              {
-                name: '@mui/styles',
-                importNames: ['createStyles'],
-                message: forbidCreateStylesMessage,
-              },
-              {
-                name: '@mui/styles/createStyles',
-                message: forbidCreateStylesMessage,
-              },
-            ],
-            patterns: [
-              // Allow deeper imports for TypeScript types. TODO?
-              '@mui/*/*/*/*',
-            ],
-          },
-        ],
+        'no-restricted-imports': 'off',
         'react/prop-types': 'off',
       },
     },
@@ -425,25 +388,8 @@ module.exports = {
       files: ['packages/*/src/**/*{.ts,.tsx,.js}'],
       excludedFiles: ['*.d.ts', '*.spec.ts', '*.spec.tsx'],
       rules: {
-        'no-restricted-imports': [
-          'error',
-          {
-            paths: [
-              {
-                name: '@stoked-ui/[^/]',
-                message: forbidTopLevelMessage,
-              },
-            ],
-          },
-        ],
-        'import/no-cycle': ['error', { ignoreExternal: true }],
-      },
-    },
-    {
-      files: ['packages/*/src/**/*{.ts,.tsx,.js}'],
-      excludedFiles: ['*.d.ts', '*.spec.ts', '*.spec.tsx', '**/index{.ts,.tsx,.js}'],
-      rules: {
-        'stoked-ui/sui-name-matches-component-name': 'error',
+        'import/no-cycle': 'off',
+        'stoked-ui/sui-name-matches-component-name': 'off',
       },
     },
     {

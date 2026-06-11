@@ -81,7 +81,7 @@ export async function buildApi(projectsSettings: ProjectSettings[], grep: RegExp
   let allBuilds: Array<PromiseSettledResult<ComponentReactApi | null | never[]>> = [];
   for (let i = 0; i < projectsSettings.length; i += 1) {
     const setting = projectsSettings[i];
-    // eslint-disable-next-line no-await-in-loop
+     
     const projectBuilds = await buildSingleProject(setting, buildTypeScriptProject, grep);
 
     // @ts-ignore ignore hooks builds for now

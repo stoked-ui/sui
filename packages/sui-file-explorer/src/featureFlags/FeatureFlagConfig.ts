@@ -209,8 +209,8 @@ export function isValidFeatureFlagConfiguration(value: any): value is FeatureFla
 export function getCurrentEnvironment(): Environment {
   if (typeof process !== 'undefined' && process.env) {
     const nodeEnv = process.env.NODE_ENV?.toLowerCase();
-    if (nodeEnv === 'production') return Environment.PRODUCTION;
-    if (nodeEnv === 'test' || nodeEnv === 'staging') return Environment.STAGING;
+    if (nodeEnv === 'production') {return Environment.PRODUCTION;}
+    if (nodeEnv === 'test' || nodeEnv === 'staging') {return Environment.STAGING;}
     return Environment.DEVELOPMENT;
   }
   return Environment.PRODUCTION; // Default to production for safety
@@ -225,7 +225,7 @@ export function hashUserId(userId: string): number {
   for (let i = 0; i < userId.length; i++) {
     const char = userId.charCodeAt(i);
     hash = (hash << 5) - hash + char;
-    hash = hash & hash; // Convert to 32-bit integer
+    hash &= hash; // Convert to 32-bit integer
   }
   return Math.abs(hash);
 }
@@ -234,8 +234,8 @@ export function hashUserId(userId: string): number {
  * Determine if a user should see a feature based on traffic percentage
  */
 export function shouldShowFeature(userId: string, trafficPercentage: number): boolean {
-  if (trafficPercentage >= 100) return true;
-  if (trafficPercentage <= 0) return false;
+  if (trafficPercentage >= 100) {return true;}
+  if (trafficPercentage <= 0) {return false;}
 
   const hash = hashUserId(userId);
   const bucket = hash % 100;

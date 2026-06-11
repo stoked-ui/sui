@@ -41,7 +41,7 @@ export default async function buildGridEventsDocumentation(
       (gridEventLookupSymbol.declarations![0] as ts.InterfaceDeclaration).name,
     ) as ts.EnumType;
 
-    // eslint-disable-next-line no-await-in-loop
+     
     await Promise.all(
       gridEventLookupType.getProperties().map(async (event) => {
         const tags = getSymbolJSDocTags(event);
@@ -131,6 +131,6 @@ export default async function buildGridEventsDocumentation(
     defaultProject,
   );
 
-  // eslint-disable-next-line no-console
+   
   console.log('Built events file');
 }

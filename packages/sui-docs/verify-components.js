@@ -28,7 +28,7 @@ const results = {
 // 2. Check that each export points to a valid file
 console.log('Checking exports in package.json...');
 Object.entries(exports).forEach(([exportPath, filePath]) => {
-  if (exportPath === '.') return; // Skip main entry
+  if (exportPath === '.') {return;} // Skip main entry
 
   // Check if the file exists
   const resolvedPath = path.join(__dirname, filePath);

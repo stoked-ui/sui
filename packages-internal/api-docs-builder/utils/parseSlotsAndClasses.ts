@@ -230,7 +230,7 @@ function extractSlots(
 }
 
 function removeUndefinedFromType(type: ts.Type) {
-  // eslint-disable-next-line no-bitwise
+   
   if (type.flags & ts.TypeFlags.Union) {
     return (type as ts.UnionType).types.find((subType) => {
       return subType.flags !== ts.TypeFlags.Undefined;

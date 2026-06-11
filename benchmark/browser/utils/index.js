@@ -1,4 +1,4 @@
-/* eslint-disable import/prefer-default-export */
+ 
 
 export const logReactMetrics = (
   id, // the "id" prop of the Profiler tree that has just committed
@@ -8,7 +8,7 @@ export const logReactMetrics = (
   startTime, // when React began rendering this update
   commitTime, // when React committed this update
 ) => {
-  // eslint-disable-next-line no-console
+   
   console.info({
     id,
     phase,

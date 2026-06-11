@@ -139,15 +139,15 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     }
 
     const update: Record<string, unknown> = { updatedAt: new Date() };
-    if (name !== undefined) update.name = name;
-    if (fullName !== undefined) update.fullName = fullName;
-    if (description !== undefined) update.description = description;
-    if (icon !== undefined) update.icon = icon;
-    if (url !== undefined) update.url = url;
-    if (live !== undefined) update.live = live;
-    if (hideProductFeatures !== undefined) update.hideProductFeatures = hideProductFeatures;
-    if (prerelease !== undefined) update.prerelease = prerelease;
-    if (features !== undefined) update.features = features;
+    if (name !== undefined) {update.name = name;}
+    if (fullName !== undefined) {update.fullName = fullName;}
+    if (description !== undefined) {update.description = description;}
+    if (icon !== undefined) {update.icon = icon;}
+    if (url !== undefined) {update.url = url;}
+    if (live !== undefined) {update.live = live;}
+    if (hideProductFeatures !== undefined) {update.hideProductFeatures = hideProductFeatures;}
+    if (prerelease !== undefined) {update.prerelease = prerelease;}
+    if (features !== undefined) {update.features = features;}
     if (promo !== undefined) {
       try {
         update.promo = normalizePromo(promo);
@@ -155,11 +155,11 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
         return res.status(400).json({ message: error.message });
       }
     }
-    if (keyPrefix !== undefined) update.keyPrefix = keyPrefix;
-    if (licenseDurationDays !== undefined) update.licenseDurationDays = licenseDurationDays;
-    if (gracePeriodDays !== undefined) update.gracePeriodDays = gracePeriodDays;
-    if (trialDurationDays !== undefined) update.trialDurationDays = trialDurationDays;
-    if (maxActivations !== undefined) update.maxActivations = maxActivations;
+    if (keyPrefix !== undefined) {update.keyPrefix = keyPrefix;}
+    if (licenseDurationDays !== undefined) {update.licenseDurationDays = licenseDurationDays;}
+    if (gracePeriodDays !== undefined) {update.gracePeriodDays = gracePeriodDays;}
+    if (trialDurationDays !== undefined) {update.trialDurationDays = trialDurationDays;}
+    if (maxActivations !== undefined) {update.maxActivations = maxActivations;}
     if (privacyPolicy !== undefined) {
       if (privacyPolicy === null) {
         update.privacyPolicy = null;
@@ -263,7 +263,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     }
     const productId = existingProduct._id.toString();
     const pagesCollection = db.collection('product_pages');
-    await pagesCollection.deleteMany({ productId: productId });
+    await pagesCollection.deleteMany({ productId });
     const result = await collection.deleteOne({ _id: existingProduct._id });
     if (result.deletedCount === 0) {
       return res.status(404).json({ message: 'Product not found' });

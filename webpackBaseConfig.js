@@ -23,6 +23,10 @@ module.exports = {
       cheerio: 'cheerio/lib/cheerio',
     },
     extensions: ['.js', '.ts', '.tsx', '.d.ts'],
+    fallback: {
+      fs: false,
+      path: false,
+    },
   },
   module: {
     rules: [
@@ -49,11 +53,5 @@ module.exports = {
         },
       },
     ],
-  },
-  resolve: {
-    fallback: {
-      fs: false, // Prevent node-only modules like `fs` from breaking the build
-      path: false,
-    },
   },
 };

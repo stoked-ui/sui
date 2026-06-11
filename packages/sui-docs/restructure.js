@@ -40,8 +40,8 @@ if (!fs.existsSync(COMPONENTS_DIR)) {
 // 2. Read package.json
 console.log('📖 Reading package.json...');
 const packageJson = JSON.parse(fs.readFileSync(PACKAGE_JSON_PATH, 'utf8'));
-let newExports = {};
-let copyCommands = [];
+const newExports = {};
+const copyCommands = [];
 
 // 3. Find all component directories in src folder
 console.log('🔍 Finding components to restructure...');
@@ -147,7 +147,7 @@ srcDirs.forEach(dirName => {
     filesToUpdate.forEach(file => {
       // Update import paths
       const filePath = path.join(componentsPath, file);
-      let content = fs.readFileSync(filePath, 'utf8');
+      const content = fs.readFileSync(filePath, 'utf8');
 
       // Replace imports with correct paths
       let updatedContent = content.replace(
@@ -209,7 +209,7 @@ try {
 
   // Update build:copy-files script
   const existingCopyFiles = packageJson.scripts['build:copy-files'];
-  const newCopyFiles = existingCopyFiles + ' ' + copyCommands.join(' ');
+  const newCopyFiles = `${existingCopyFiles  } ${  copyCommands.join(' ')}`;
   packageJson.scripts['build:copy-files'] = newCopyFiles;
 
   // Write updated package.json
@@ -225,7 +225,7 @@ console.log('\n=== Verification ===');
 
 // Check if exports point to valid files
 Object.entries(packageJson.exports).forEach(([exportPath, filePath]) => {
-  if (exportPath === '.') return; // Skip main entry
+  if (exportPath === '.') {return;} // Skip main entry
 
   const resolvedPath = path.join(__dirname, filePath);
   if (!fs.existsSync(resolvedPath)) {

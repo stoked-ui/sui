@@ -51,11 +51,11 @@ async function attemptGoto(page: playwright.Page, url: string): Promise<boolean>
   let didNavigate = false;
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     try {
-      // eslint-disable-next-line no-await-in-loop
+       
       await page.goto(url);
       didNavigate = true;
     } catch (error) {
-      // eslint-disable-next-line no-await-in-loop
+       
       await sleep(retryTimeoutMS);
     }
   }

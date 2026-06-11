@@ -14,7 +14,7 @@ export default function EditorWithFileView() {
     }}>
       <EditorProvider controllers={Controllers}>
         <Editor
-          fileView={true}
+          fileView
         />
       </EditorProvider>
     </Box>

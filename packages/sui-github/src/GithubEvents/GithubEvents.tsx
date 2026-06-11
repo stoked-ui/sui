@@ -19,6 +19,7 @@ import { toZonedTime } from 'date-fns-tz';
 import { styled, useTheme } from '@mui/material/styles';
 import Autocomplete from '@mui/material/Autocomplete';
 import Pagination from '@mui/material/Pagination';
+import Chip from '@mui/material/Chip';
 import PullRequestEvent from './EventTypes/PullRequest/PullRequestEvent';
 import PushEvent from './EventTypes/PushEvent';
 import DeleteEvent from './EventTypes/DeleteEvent';
@@ -28,7 +29,6 @@ import IssueCommentEvent from './EventTypes/IssueCommentEvent';
 import { EventDetails, GitHubEvent, CachedData } from '../types/github';
 import { githubEventsQuery } from '../apiHandlers/getGithubEvents';
 import type { EventsQuery } from '../apiHandlers/getGithubEvents';
-import Chip from '@mui/material/Chip';
 // Extend the EventDetails interface for internal component use
 interface DisplayEventDetails extends EventDetails {
   dateOnly: string;
@@ -333,7 +333,7 @@ export default function GithubEvents({ apiUrl, eventsPerPage = 40, hideMetadata 
 
   React.useEffect(() => {
     const el = scrollRef.current;
-    if (!el) return;
+    if (!el) {return;}
 
     const onScroll = () => {
       setScrollTop(el.scrollTop);
@@ -388,7 +388,7 @@ export default function GithubEvents({ apiUrl, eventsPerPage = 40, hideMetadata 
     try {
       // Log sample event to debug format
       if (rawEvents.length > 0) {
-        console.log('Sample raw event to process:', JSON.stringify(rawEvents[0]).substring(0, 500) + '...');
+        console.log('Sample raw event to process:', `${JSON.stringify(rawEvents[0]).substring(0, 500)  }...`);
       }
       
       return rawEvents.map((event, index) => {
@@ -411,7 +411,7 @@ export default function GithubEvents({ apiUrl, eventsPerPage = 40, hideMetadata 
           let action = '';
           let description = '';
           let link = '';
-          let id = event.id;
+          const id = event.id;
           
           try {
             switch (event.type) {
@@ -514,7 +514,7 @@ export default function GithubEvents({ apiUrl, eventsPerPage = 40, hideMetadata 
         const filterDate = getFilteredDate(dateFilter);
         if (filterDate) {
           const eventDate = new Date(event.created_at);
-          if (eventDate < filterDate) return false;
+          if (eventDate < filterDate) {return false;}
         }
       }
       
@@ -525,11 +525,11 @@ export default function GithubEvents({ apiUrl, eventsPerPage = 40, hideMetadata 
   const getEventDescription = (event: GitHubEvent): string => {
     if (event.type === 'PushEvent') {
       return `Pushed ${event.payload.commits?.length || 0} commits`;
-    } else if (event.type === 'PullRequestEvent') {
+    } if (event.type === 'PullRequestEvent') {
       return event.payload.pull_request.title;
-    } else if (event.type === 'IssuesEvent') {
+    } if (event.type === 'IssuesEvent') {
       return event.payload.issue.title;
-    } else if (event.type === 'IssueCommentEvent') {
+    } if (event.type === 'IssueCommentEvent') {
       return `Commented on issue: ${event.payload.issue.title}`;
     }
     return '';
@@ -688,7 +688,7 @@ export default function GithubEvents({ apiUrl, eventsPerPage = 40, hideMetadata 
       console.log('Fetching new events since', format(mostRecentDate, 'MMM d, yyyy h:mm a'));
       
       // Fetch all new events
-      let allNewEvents: GitHubEvent[] = [];
+      const allNewEvents: GitHubEvent[] = [];
       let hasMore = true;
       let pageNum = 1;
       const maxPages = 10; // GitHub API typically limits to 10 pages max

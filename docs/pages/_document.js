@@ -23,9 +23,9 @@ const enableServerCssOptimization =
   process.env.NODE_ENV === 'production' && process.env.OPEN_NEXT_BUILD !== 'true';
 
 if (enableServerCssOptimization) {
-  /* eslint-disable global-require */
+   
   const CleanCSS = require('clean-css');
-  /* eslint-enable global-require */
+   
 
   try {
     const postcss = require('postcss');
@@ -52,6 +52,7 @@ export default function MyDocument(props) {
 
         {/* Fix for navigation issues */}
         <script
+          // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{
             __html: `
               document.addEventListener('DOMContentLoaded', function() {

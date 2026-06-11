@@ -28,7 +28,7 @@ const TimelineLabelRoot = styled('div', {
   })
 });
 
-// eslint-disable-next-line stoked-ui/no-styled-box
+ 
 const TimelineLabelContainer = styled(Box, {
   name: 'MuiTimelineLabels',
   slot: 'container',

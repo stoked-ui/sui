@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createProviderState = createProviderState;
 const Settings_1 = require("./Settings");
+
 function createProviderState({ flags = [], settings = {}, }) {
     const instance = {
         flags: {}, flagConfigs: {}, settings: (0, Settings_1.createSettings)(settings),

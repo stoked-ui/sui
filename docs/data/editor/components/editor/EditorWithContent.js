@@ -53,8 +53,8 @@ export default function EditorWithContent() {
       <EditorProvider controllers={Controllers}>
         <Editor
           file={file}
-          fileView={true}
-          labels={true}
+          fileView
+          labels
         />
       </EditorProvider>
     </Box>

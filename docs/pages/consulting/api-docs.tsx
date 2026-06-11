@@ -39,7 +39,7 @@ export default function ApiDocsPage() {
   }, [router]);
 
   React.useEffect(() => {
-    if (!authorized || !accessToken) return;
+    if (!authorized || !accessToken) {return;}
 
     // We use a manual script injection but wait for the component to be mounted
     // and the DOM element to be available.

@@ -46,7 +46,7 @@ type TelegramMessage = {
 };
 
 declare global {
-  // eslint-disable-next-line no-var
+   
   var _telegramChatSyncPromise: Promise<void> | undefined;
 }
 

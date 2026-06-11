@@ -68,7 +68,7 @@ interface MemoryChatState {
 }
 
 declare global {
-  // eslint-disable-next-line no-var
+   
   var _webUserDirectChatMemory: MemoryChatState | undefined;
 }
 

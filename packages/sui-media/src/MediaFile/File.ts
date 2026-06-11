@@ -37,7 +37,6 @@ export interface FilePropertyBag extends BlobPropertyBag {
 // @ts-ignore
 type BlobPart = BufferSource | Blob | string;
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare,no-var,vars-on-top
 declare const File: {
   prototype: File;
   new(fileBits: BlobPart[], fileName: string, options?: FilePropertyBag): File;

@@ -45,9 +45,9 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     const { name, contactEmail, contactUserId, contactUser, active } = req.body || {};
     const update: Record<string, unknown> = { updatedAt: new Date() };
     const unset: Record<string, ''> = {};
-    if (name !== undefined) update.name = name;
-    if (contactEmail !== undefined) update.contactEmail = contactEmail;
-    if (active !== undefined) update.active = active;
+    if (name !== undefined) {update.name = name;}
+    if (contactEmail !== undefined) {update.contactEmail = contactEmail;}
+    if (active !== undefined) {update.active = active;}
 
     try {
       if (contactUser && (!contactUser.name || !contactUser.email)) {

@@ -316,10 +316,10 @@ function readProductPages(productId: string, slugOrder: string[]): ProductPage[]
 
   for (const dir of fs.readdirSync(docsDir)) {
     const dirPath = path.join(docsDir, dir);
-    if (!fs.statSync(dirPath).isDirectory()) continue;
+    if (!fs.statSync(dirPath).isDirectory()) {continue;}
 
     const mdFile = path.join(dirPath, `${dir}.md`);
-    if (!fs.existsSync(mdFile)) continue;
+    if (!fs.existsSync(mdFile)) {continue;}
 
     const raw = fs.readFileSync(mdFile, 'utf-8');
     const { title, content } = parseFrontMatter(raw);

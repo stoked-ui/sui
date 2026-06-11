@@ -47,8 +47,8 @@ export default function EditorWithContent() {
     <Box sx={{ height: '600px', width: '100%', border: '1px solid #e0e0e0' }}>
       <Editor 
         file={file}
-        fileView={true}
-        labels={true}
+        fileView
+        labels
       />
     </Box>
   );

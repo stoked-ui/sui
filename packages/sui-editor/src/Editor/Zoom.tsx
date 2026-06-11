@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-const ZoomCtrl = () => {
+function ZoomCtrl() {
   const [zoomLevel, setZoomLevel] = React.useState(1); // Current zoom level
   const containerRef = React.useRef<HTMLDivElement>(null); // Reference to the zoomable div
 
@@ -76,6 +76,6 @@ const ZoomCtrl = () => {
       </div>
     </div>
   );
-};
+}
 
 export default ZoomCtrl;

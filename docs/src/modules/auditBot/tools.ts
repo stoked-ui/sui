@@ -190,7 +190,7 @@ export async function fetchPublic(
   let current = startUrl;
   for (let hop = 0; hop <= MAX_REDIRECT_HOPS; hop += 1) {
     assertSafeUrlShape(current);
-    // eslint-disable-next-line no-await-in-loop
+     
     const response = await fetchImpl(current.href);
     if (response.status >= 300 && response.status < 400) {
       const location = response.headers.get('location');
@@ -231,7 +231,7 @@ async function readBodyCapped(
       await reader.cancel().catch(() => {});
       break;
     }
-    // eslint-disable-next-line no-await-in-loop
+     
     const { done, value } = await reader.read();
     if (done) {
       break;

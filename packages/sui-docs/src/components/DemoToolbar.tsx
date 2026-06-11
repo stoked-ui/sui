@@ -409,7 +409,7 @@ export default function DemoToolbar(props: DemoToolbarProps) {
 
   const devMenuItems: any[] = [];
   if (process.env.DEPLOY_ENV === 'staging' || process.env.DEPLOY_ENV === 'pull-request') {
-    // eslint-disable-next-line react-hooks/rules-of-hooks -- process.env never changes
+     
     const router = useRouter();
 
     if (process.env.PULL_REQUEST_ID) {

@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 // A completely SSR-safe NProgressBar component
-const NProgressBar = (props) => {
+function NProgressBar(props) {
   // Only run in browser environment
   const isBrowser = typeof window !== 'undefined';
 
@@ -59,7 +59,7 @@ const NProgressBar = (props) => {
 
   // Simply render children, no wrapper elements
   return props.children || null;
-};
+}
 
 // No PropTypes to avoid TypeScript issues
 

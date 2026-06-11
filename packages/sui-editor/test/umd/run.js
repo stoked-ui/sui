@@ -12,7 +12,7 @@ function startServer(app) {
   const server = http.createServer(app);
 
   function close() {
-    // eslint-disable-next-line no-console
+     
     console.info('http: server is stopping');
 
     return new Promise((resolve, reject) => {
@@ -31,7 +31,7 @@ function startServer(app) {
       if (error) {
         reject(error);
       } else {
-        // eslint-disable-next-line no-console
+         
         console.info(`http: ready on http://${server.address().address}:${server.address().port}`);
 
         resolve({ close });
@@ -90,7 +90,7 @@ function App() {
 }
 
 async function startBrowser() {
-  // eslint-disable-next-line no-console
+   
   console.info('browser: start');
   const browser = await playwright.chromium.launch();
   const page = await browser.newPage();
@@ -99,7 +99,7 @@ async function startBrowser() {
   });
 
   function close() {
-    // eslint-disable-next-line no-console
+     
     console.info('browser:server is stopping');
     return browser.close();
   }

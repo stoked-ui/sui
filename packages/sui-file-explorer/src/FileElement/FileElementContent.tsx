@@ -114,7 +114,6 @@ const FileElementContent = React.forwardRef(function FileElementContent(
   };
 
   return (
-    /* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions -- Key event is handled by the FileExplorer */
     <div
       {...other}
       className={clsx(className, classes.root, {

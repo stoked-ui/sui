@@ -383,7 +383,6 @@ export default function AppNavDrawer(props) {
                 return [
                   <Divider key="divider" />,
                   <MenuItem key="all-versions" component="a" href={item.href} onClick={onClose}>
-                    {/* eslint-disable-next-line material-ui/no-hardcoded-labels -- version string is untranslatable */}
                     {`View all versions`}
                   </MenuItem>,
                 ];

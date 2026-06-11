@@ -66,7 +66,7 @@ class ImageControl extends Controller<HTMLImageElement> implements IController {
 
   static applyStyles(action: ITimelineAction, item: HTMLImageElement) {
     if (action?.style) {
-      // eslint-disable-next-line guard-for-in
+       
       const keys = Object.keys(action.style);
       for (let i = 0; i <  keys.length; i += 1) {
         const prop = keys[i];

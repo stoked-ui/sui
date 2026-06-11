@@ -1,6 +1,6 @@
 import { isConsultingPublicProductId } from 'docs/src/modules/utils/siteRouting';
 
-// eslint-disable-next-line import/prefer-default-export
+ 
 export function handler(event: any) {
   const request = event.request;
   const uri = request.uri;

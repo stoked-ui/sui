@@ -2,7 +2,7 @@ import * as React from 'react';
 import { deepmerge } from '@mui/utils';
 import {
   Experimental_CssVarsProvider as CssVarsProvider,
-  extendTheme as extendTheme,
+  extendTheme,
   PaletteColorOptions,
 } from '@mui/material/styles';
 
@@ -10,10 +10,10 @@ import { debounce } from "@mui/material/utils";
 import NProgress from "nprogress";
 import { useRouter } from 'next/router.js';
 import CssBaseline from '@mui/material/CssBaseline';
-import { getDesignTokens, getThemedComponents } from '../../components/../components/../components/../src/branding.js';
-import NProgressBar from '../../components/../components/../components/../src/NProgressBar/NProgressBar.js';
 import SkipLink from '@stoked-ui/docs/BrandingCssVarsProvider/SkipLink.js';
 import MarkdownLinks from '@stoked-ui/docs/BrandingCssVarsProvider/MarkdownLinks.js';
+import { getDesignTokens, getThemedComponents } from "../../src/branding.js";
+import NProgressBar from "../../src/NProgressBar/NProgressBar.js";
 
 declare module '@mui/material/styles' {
   interface PaletteOptions {

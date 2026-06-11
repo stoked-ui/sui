@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { getCookie } from '../utils';
 import { CODE_STYLING, CODE_VARIANTS } from './constants';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 const setCodeStylingStump:  React.Dispatch<React.SetStateAction<string>> = (_: any) => {
 };
 const CodeStylingContext = React.createContext({

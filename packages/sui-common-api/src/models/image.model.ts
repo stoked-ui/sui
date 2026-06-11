@@ -58,7 +58,7 @@ export class Image extends File {
 
 export const ImageSchema = SchemaFactory.createForClass(Image);
 
-ImageSchema.virtual("mediaType").get(function () {
+ImageSchema.virtual("mediaType").get(() => {
   return "image";
 });
 

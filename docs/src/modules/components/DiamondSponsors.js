@@ -72,7 +72,7 @@ export default function DiamondSponsors() {
             textTransform: 'uppercase',
             marginLeft: '10px',
           }}>
-          {/* eslint-disable-next-line stoked-ui/no-hardcoded-labels */}
+          { }
           <div>AI Consulting</div>
         </Typography>
       </NativeLink>

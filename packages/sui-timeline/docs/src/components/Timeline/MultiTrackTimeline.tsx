@@ -38,7 +38,7 @@ export default function MultiTrackTimeline() {
     <Box sx={{ height: '300px', width: '100%', border: '1px solid #e0e0e0' }}>
       <Timeline 
         tracks={tracks}
-        labels={true}
+        labels
         colors={{
           video: '#f44336',
           audio: '#4caf50',

@@ -6,9 +6,8 @@ import Head from 'docs/src/modules/components/Head';
 import AppContainer from 'docs/src/modules/components/AppContainer';
 import AppFooter from 'docs/src/layouts/AppFooter';
 import AppHeader from 'docs/src/layouts/AppHeader';
-import { BrandingCssVarsProvider } from '@stoked-ui/docs';
+import { BrandingCssVarsProvider , Link } from '@stoked-ui/docs';
 import MarkdownElement from 'docs/src/modules/components/MarkdownElement';
-import { Link } from '@stoked-ui/docs';
 
 const StyledDiv = styled('div')({
   flex: '1 0 100%',
@@ -29,8 +28,7 @@ export default function TopLayoutCareers(props) {
   return (
     <BrandingCssVarsProvider>
       <AppHeader />
-      <Head title={`${title} - SUI`} description={description}>
-      </Head>
+      <Head title={`${title} - SUI`} description={description} />
       <StyledDiv>
         <StyledAppContainer component="main" sx={{ py: { xs: 3, sm: 4, md: 8 } }}>
           <Link
@@ -39,7 +37,6 @@ export default function TopLayoutCareers(props) {
             variant="body2"
             sx={{ display: 'block', mb: 2 }}
           >
-            {/* eslint-disable-next-line material-ui/no-hardcoded-labels */}
             {'< Back to open roles'}
           </Link>
           {rendered.map((chunk, index) => {

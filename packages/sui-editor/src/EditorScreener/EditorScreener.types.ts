@@ -1,10 +1,10 @@
 import { IMediaFile } from "@stoked-ui/media";
 import { OutputBlob } from "@stoked-ui/timeline";
 import * as React from "react";
+import {SlotComponentProps} from "@mui/base/utils";
 import {
   EditorControlsProps, EditorControlsPropsBase, EditorControlsSlotProps, EditorControlsSlots
 } from "../EditorControls";
-import {SlotComponentProps} from "@mui/base/utils";
 
 export type VersionProps =  {
   versions: OutputBlob[];

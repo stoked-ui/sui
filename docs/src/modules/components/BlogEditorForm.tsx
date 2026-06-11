@@ -277,7 +277,7 @@ export default function BlogEditorForm({ formData, onChange, isEditing = false, 
           <ToggleButtonGroup
             value={imageMode}
             exclusive
-            onChange={(_, val) => { if (val) setImageMode(val); }}
+            onChange={(_, val) => { if (val) {setImageMode(val);} }}
             size="small"
           >
             <ToggleButton value="url" sx={{ px: 1.5, py: 0.25, textTransform: 'none', fontSize: '0.75rem' }}>

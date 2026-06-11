@@ -1,5 +1,5 @@
 /* tslint:disable */
-/* eslint-disable */
+ 
 
 /**
  * Color representation for WASM

@@ -404,7 +404,7 @@ function TimelineTrack<
       }}
       onKeyDown={(event: any) => {
         event.currentTarget = track;
-        // eslint-disable-next-line default-case
+         
         console.info('event.key', event.key);
         switch (event.key) {
           case 'Backspace':

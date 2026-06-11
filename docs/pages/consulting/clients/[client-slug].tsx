@@ -37,7 +37,7 @@ export default function ClientDetailRoute() {
   const [notFound, setNotFound] = React.useState(false);
 
   React.useEffect(() => {
-    if (!router.isReady || !slug || typeof slug !== 'string') return;
+    if (!router.isReady || !slug || typeof slug !== 'string') {return;}
     const stored = localStorage.getItem('auth');
     if (!stored) {
       setLoading(false);

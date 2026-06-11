@@ -167,13 +167,13 @@ export function MediaViewerHeader({
 
   // Format date helper
   const formatDate = (dateString?: string) => {
-    if (!dateString) return '';
+    if (!dateString) {return '';}
     const date = new Date(dateString);
     return date.toLocaleDateString();
   };
 
   return (
-    <>
+    <React.Fragment>
       {/* Close button - always visible */}
       <TopRightControls fullscreenState={fullscreenState}>
         {fullscreenState >= 1 && (
@@ -251,7 +251,7 @@ export function MediaViewerHeader({
           )}
         </MediaInfo>
       )}
-    </>
+    </React.Fragment>
   );
 }
 

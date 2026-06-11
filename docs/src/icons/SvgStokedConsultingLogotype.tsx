@@ -6,7 +6,7 @@ interface SvgStokedConsultingLogotypeProps extends RootSvgProps {
 }
 
 const logoPaths = (
-  <>
+  <React.Fragment>
     <path
       d="M 110.653 148.643 C 110.653 148.643 110.653 148.635 110.657 148.624 C 110.661 148.616 110.672 148.605 110.691 148.605 C 110.71 148.605 110.729 148.586 110.733 148.567 C 110.737 148.548 110.729 148.529 110.691 148.529 L 88.224 135.601 L 65.757 122.672 C 65.757 122.672 65.757 122.672 65.757 122.665 C 65.757 122.657 65.757 122.638 65.757 122.6 L 65.738 122.6 L 65.719 122.6 C 65.719 122.6 65.711 122.581 65.696 122.562 C 65.68 122.543 65.661 122.524 65.642 122.524 C 65.642 122.524 65.623 122.524 65.604 122.52 C 65.585 122.516 65.566 122.505 65.566 122.486 L 66.366 88.4 L 94.926 104.55 L 121.392 119.972"
       style={{ fill: '#43B0FF', transformBox: 'fill-box', transformOrigin: '50% 50%' }}
@@ -22,7 +22,7 @@ const logoPaths = (
       style={{ fill: '#007FFF' }}
       transform="scale(3.808) translate(-459, -103)"
     />
-  </>
+  </React.Fragment>
 );
 
 const textProps = {
@@ -66,14 +66,14 @@ export default function SvgStokedConsultingLogotype(props: SvgStokedConsultingLo
           STOKED CONSULTING
         </text>
       ) : (
-        <>
+        <React.Fragment>
           <text x="21" y="16" fontSize={16} {...textProps}>
             STOKED
           </text>
           <text x="21" y="32" fontSize={16} {...textProps}>
             CONSULTING
           </text>
-        </>
+        </React.Fragment>
       )}
     </RootSvg>
   );

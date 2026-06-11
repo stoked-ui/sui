@@ -207,12 +207,12 @@ class CompositorControl extends Controller<CompositorLayer> implements IControll
 
     // Update transform properties if action has them (use type assertion for optional properties)
     const actionAny = action as any;
-    if (action.x !== undefined) layer.transform.x = action.x;
-    if (action.y !== undefined) layer.transform.y = action.y;
-    if (actionAny.scaleX !== undefined) layer.transform.scaleX = actionAny.scaleX;
-    if (actionAny.scaleY !== undefined) layer.transform.scaleY = actionAny.scaleY;
-    if (actionAny.rotation !== undefined) layer.transform.rotation = actionAny.rotation;
-    if (actionAny.opacity !== undefined) layer.transform.opacity = actionAny.opacity;
+    if (action.x !== undefined) {layer.transform.x = action.x;}
+    if (action.y !== undefined) {layer.transform.y = action.y;}
+    if (actionAny.scaleX !== undefined) {layer.transform.scaleX = actionAny.scaleX;}
+    if (actionAny.scaleY !== undefined) {layer.transform.scaleY = actionAny.scaleY;}
+    if (actionAny.rotation !== undefined) {layer.transform.rotation = actionAny.rotation;}
+    if (actionAny.opacity !== undefined) {layer.transform.opacity = actionAny.opacity;}
 
     // Update visibility
     layer.visible = !track.hidden;

@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+ 
 import Benchmark from 'benchmark';
 import { unstable_styleFunctionSx as styleFunctionSx } from '@mui/system';
 import styledSystemCss from '@styled-system/css';

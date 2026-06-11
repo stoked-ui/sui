@@ -96,7 +96,6 @@ export const useFileExplorerKeyboardNavigation: FileExplorerPlugin<
     const ctrlPressed = event.ctrlKey || event.metaKey;
     const key = event.key;
 
-    // eslint-disable-next-line default-case
     switch (true) {
       // Select the item when pressing "Space"
       case key === ' ' && canToggleItemSelection(id): {

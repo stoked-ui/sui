@@ -69,7 +69,7 @@ describe('Router Abstraction', () => {
           // Custom implementation
         },
         getQueryParam: (key) => {
-          if (key === 'id') return '123';
+          if (key === 'id') {return '123';}
           return undefined;
         },
         getAllQueryParams: () => ({

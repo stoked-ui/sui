@@ -276,7 +276,7 @@ export function MediaViewerPrimary({
 
       {/* Media display */}
       {isVideo && (item.id || item.url || item.file) ? (
-        <>
+        <React.Fragment>
           {!videoLoaded && (
             <VideoSkeleton
               variant="rectangular"
@@ -375,9 +375,9 @@ export function MediaViewerPrimary({
               />
             )}
           </Box>
-        </>
+        </React.Fragment>
       ) : (
-        <>
+        <React.Fragment>
           {!imageLoaded && (
             <VideoSkeleton
               variant="rectangular"
@@ -402,7 +402,7 @@ export function MediaViewerPrimary({
             onLoad={() => setImageLoaded(true)}
             onError={() => setImageLoaded(true)}
           />
-        </>
+        </React.Fragment>
       )}
     </VideoWithTitleContainer>
   );

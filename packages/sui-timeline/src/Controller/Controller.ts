@@ -36,23 +36,23 @@ abstract class Controller<ControlType> implements IController {
 
   abstract getItem(params: GetItemParams): ControlType;
 
-  // eslint-disable-next-line class-methods-use-this
+   
   isValid(engine: IEngine, track: ITimelineTrack) {
     return !track.dim;
   }
 
   viewerUpdate?: (engine: any) => void;
 
-  // eslint-disable-next-line class-methods-use-this
+   
   destroy(){ };
 
-  // eslint-disable-next-line class-methods-use-this,@typescript-eslint/no-unused-vars
+   
   getActionStyle(action: ITimelineAction, track: ITimelineTrack, scaleWidth: number, scale: number, trackHeight: number): null | BackgroundImageStyle { return null };
 
-  // eslint-disable-next-line class-methods-use-this,@typescript-eslint/no-unused-vars
+   
   start(params: ControllerParams) { }
 
-  // eslint-disable-next-line class-methods-use-this,@typescript-eslint/no-unused-vars
+   
   stop(params: ControllerParams) { }
 
   abstract enter(params: ControllerParams): void;
@@ -61,14 +61,14 @@ abstract class Controller<ControlType> implements IController {
 
   abstract update(params: { action: ITimelineAction, time: number, engine: IEngine }): void
 
-  // eslint-disable-next-line class-methods-use-this
+   
   async preload(params: PreloadParams): Promise<ITimelineAction> { return params.action; }
 
   static getVol(volumePart: [volume: number, start?: number, end?: number]) {
     return { volume: volumePart[0], start: volumePart[1], end: volumePart[2] };
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   log(params: { action: ITimelineAction, time: number }, msg: string) {
     const { action, time } = params;
     if (this.logging) {

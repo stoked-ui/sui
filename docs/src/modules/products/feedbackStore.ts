@@ -2,8 +2,8 @@ import * as crypto from 'crypto';
 import * as bcrypt from 'bcryptjs';
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 import { ObjectId } from 'mongodb';
-import type { AuthTokenPayload } from 'docs/src/modules/auth/authStore';
 import {
+  type AuthTokenPayload,
   calculateUserRole,
   createAuthResultForUser,
   findUserByEmail,

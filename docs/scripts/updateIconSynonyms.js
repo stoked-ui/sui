@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+ 
 import path from 'path';
 import fetch from 'cross-fetch';
 import fse from 'fs-extra';

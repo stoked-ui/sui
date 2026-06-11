@@ -23,7 +23,7 @@ export function humanFileSize(bytes: number, si=false, dp=1) {
 
   do {
     bytes /= thresh;
-    // eslint-disable-next-line no-plusplus
+     
     ++u;
   } while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
 

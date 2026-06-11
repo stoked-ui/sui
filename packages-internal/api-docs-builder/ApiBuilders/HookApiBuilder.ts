@@ -589,7 +589,7 @@ export default async function generateHookApi(
 
   attachTranslations(reactApi);
 
-  // eslint-disable-next-line no-console
+   
   console.log('Built API docs for', reactApi.name);
 
   if (!skipApiGeneration) {

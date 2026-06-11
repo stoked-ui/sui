@@ -1,7 +1,6 @@
 import * as crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
-import { ObjectId } from 'mongodb';
-import clientPromise from './mongodb';
+import clientPromise, { ObjectId } from 'mongodb';
 
 export type UserRole = 'admin' | 'client' | 'agent';
 
@@ -97,7 +96,7 @@ function generateAuthResult(user: User, pictureUrl?: string, impersonatedId?: st
 let indexEnsured = false;
 
 async function ensureUserIndexes(users: import('mongodb').Collection<User>) {
-  if (indexEnsured) return;
+  if (indexEnsured) {return;}
   indexEnsured = true;
   await users.createIndex({ email: 1 }, { unique: true, background: true }).catch(() => {});
 }

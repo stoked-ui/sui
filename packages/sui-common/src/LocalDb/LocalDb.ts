@@ -170,10 +170,10 @@ export default class LocalDb {
     });
 
     for (let i = 0; i < stores.length; i += 1){
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+       
       this.stores[stores[i].name] =  new LocalDbStore(stores[i] as LocalDbStoreProps)
       if (initializeStores.includes(stores[i].name)) {
-        // eslint-disable-next-line no-await-in-loop
+         
         await this.stores[stores[i].name].init();
       }
     }

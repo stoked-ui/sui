@@ -14,8 +14,8 @@ export default function MinimalEditor() {
     }}>
       <EditorProvider controllers={Controllers}>
         <Editor
-          minimal={true}
-          labels={true}
+          minimal
+          labels
         />
       </EditorProvider>
     </Box>

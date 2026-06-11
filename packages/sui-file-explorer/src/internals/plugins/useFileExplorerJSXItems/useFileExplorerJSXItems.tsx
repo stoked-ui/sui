@@ -181,7 +181,7 @@ const useFileExplorerJSXItemsItemPlugin: FilePlugin = ({
 useFileExplorerJSXItems.itemPlugin = useFileExplorerJSXItemsItemPlugin;
 
 useFileExplorerJSXItems.wrapItem = ({ children, id }) => {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+   
   const depthContext = React.useContext(FileDepthContext);
 
   return (

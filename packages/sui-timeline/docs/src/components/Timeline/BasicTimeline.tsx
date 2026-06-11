@@ -33,7 +33,7 @@ export default function BasicTimeline() {
   return (
     <Timeline 
       file={file} 
-      labels={true} 
+      labels 
     />
   );
 } 

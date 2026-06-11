@@ -152,7 +152,7 @@ function loadDependencies() {
 }
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
-  // eslint-disable-next-line no-console
+   
   console.log(
     `%c
 

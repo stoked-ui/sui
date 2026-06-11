@@ -1,4 +1,4 @@
-/* eslint-disable no-await-in-loop */
+ 
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import path from 'path';

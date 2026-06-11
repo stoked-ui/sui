@@ -37,7 +37,6 @@ export default function AdDisplay(props) {
     }
   }, [ad.label]);
 
-  /* eslint-disable material-ui/no-hardcoded-labels, react/no-danger */
   return (
     <Root shape={shape === 'inline' ? 'inline' : adShape} className={className}>
       <a
@@ -57,13 +56,13 @@ export default function AdDisplay(props) {
         </span>
         <span
           className="AdDisplay-description"
+          // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: ad.description }}
         />
       </a>
       <span className="AdDisplay-poweredby">ad by {ad.poweredby}</span>
     </Root>
   );
-  /* eslint-enable material-ui/no-hardcoded-labels, react/no-danger */
 }
 
 AdDisplay.propTypes = {

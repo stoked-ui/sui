@@ -81,7 +81,7 @@ export default function HeroFlux() {
   // Set initial imperative styles once wrapper is mounted in portal
   React.useLayoutEffect(() => {
     const el = wrapperRef.current;
-    if (!el) return;
+    if (!el) {return;}
     el.style.position = 'fixed';
     el.style.zIndex = '10';
     el.style.lineHeight = '0';
@@ -94,7 +94,7 @@ export default function HeroFlux() {
 
   // Sync portal wrapper to placeholder position after every render (idle only)
   React.useLayoutEffect(() => {
-    if (lightboxOpen || !wrapperRef.current || !placeholderRef.current) return;
+    if (lightboxOpen || !wrapperRef.current || !placeholderRef.current) {return;}
     const { top, left, width, height } = placeholderRef.current.getBoundingClientRect();
     const el = wrapperRef.current;
     el.style.top = `${top}px`;
@@ -105,9 +105,9 @@ export default function HeroFlux() {
 
   // Scroll / resize tracking while idle
   React.useEffect(() => {
-    if (lightboxOpen) return;
+    if (lightboxOpen) {return;}
     const sync = () => {
-      if (!wrapperRef.current || !placeholderRef.current) return;
+      if (!wrapperRef.current || !placeholderRef.current) {return;}
       const { top, left, width, height } = placeholderRef.current.getBoundingClientRect();
       const el = wrapperRef.current;
       el.style.top = `${top}px`;
@@ -133,7 +133,7 @@ export default function HeroFlux() {
   };
 
   const handleExpand = () => {
-    if (!wrapperRef.current || lightboxOpen || busyRef.current) return;
+    if (!wrapperRef.current || lightboxOpen || busyRef.current) {return;}
     busyRef.current = true;
     const el = wrapperRef.current;
 
@@ -160,7 +160,7 @@ export default function HeroFlux() {
   };
 
   const handleCollapse = React.useCallback(() => {
-    if (!placeholderRef.current || !wrapperRef.current || !lightboxOpen || busyRef.current) return;
+    if (!placeholderRef.current || !wrapperRef.current || !lightboxOpen || busyRef.current) {return;}
     busyRef.current = true;
     const { top, left, width, height } = placeholderRef.current.getBoundingClientRect();
     const el = wrapperRef.current;
@@ -183,8 +183,8 @@ export default function HeroFlux() {
   }, [lightboxOpen]);
 
   React.useEffect(() => {
-    if (!lightboxOpen) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') handleCollapse(); };
+    if (!lightboxOpen) {return;}
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') {handleCollapse();} };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [lightboxOpen, handleCollapse]);

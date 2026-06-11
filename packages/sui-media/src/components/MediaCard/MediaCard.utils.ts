@@ -19,7 +19,7 @@ export const calculateAspectRatio = (width?: number, height?: number): number =>
  * @returns Formatted time string
  */
 export const formatDuration = (seconds: number): string => {
-  if (!seconds || !isFinite(seconds)) return '0:00';
+  if (!seconds || !isFinite(seconds)) {return '0:00';}
 
   const hrs = Math.floor(seconds / 3600);
   const mins = Math.floor((seconds % 3600) / 60);
@@ -133,7 +133,7 @@ export function blobToDataURL(blob: Blob, callback: (dataURL: string) => void) {
  * @returns Skip amount in seconds
  */
 export const calculateSkipAmount = (duration: number): number => {
-  if (!duration || duration <= 0) return 0;
+  if (!duration || duration <= 0) {return 0;}
   const durationMinutes = duration / 60;
   return durationMinutes < 10 ? duration / 5 : duration / 10;
 };

@@ -114,7 +114,7 @@ export default function SandboxDependencies(
 
     const re = /^import\s'([^']+)'|import\s[\s\S]*?\sfrom\s+'([^']+)/gm;
     let m: RegExpExecArray | null = null;
-    // eslint-disable-next-line no-cond-assign
+     
     while ((m = re.exec(raw))) {
       const fullName = m[2] ?? m[1];
       // handle scope names

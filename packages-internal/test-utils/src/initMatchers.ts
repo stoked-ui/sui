@@ -320,7 +320,6 @@ chai.use((chaiAPI, utils) => {
    * Correct name for `to.be.visible`
    */
   chai.Assertion.addMethod('toBeVisible', function toBeVisible() {
-    // eslint-disable-next-line no-underscore-dangle, @typescript-eslint/no-unused-expressions
     new chai.Assertion(this._obj).to.be.visible;
   });
 
@@ -328,7 +327,6 @@ chai.use((chaiAPI, utils) => {
    * Correct name for `not.to.be.visible`
    */
   chai.Assertion.addMethod('toBeHidden', function toBeHidden() {
-    // eslint-disable-next-line no-underscore-dangle, @typescript-eslint/no-unused-expressions
     new chai.Assertion(this._obj).not.to.be.visible;
   });
 
@@ -506,7 +504,7 @@ chai.use((chaiAPI, utils) => {
      */
     function matcher(this: Chai.AssertionStatic, expectedMessagesInput = []) {
       // documented pattern to get the actual value of the assertion
-      // eslint-disable-next-line no-underscore-dangle
+       
       const callback = this._obj;
 
       if (process.env.NODE_ENV !== 'production') {
@@ -535,7 +533,7 @@ chai.use((chaiAPI, utils) => {
           return messageOrFalse !== false;
         });
 
-        // eslint-disable-next-line no-console
+         
         const originalMethod = console[methodName];
 
         let messagesMatched = 0;
@@ -576,7 +574,7 @@ chai.use((chaiAPI, utils) => {
             unexpectedMessages.push(error);
           }
         };
-        // eslint-disable-next-line no-console
+         
         console[methodName] = consoleMatcher;
 
         try {
@@ -584,7 +582,7 @@ chai.use((chaiAPI, utils) => {
         } catch (error) {
           caughtError = error;
         } finally {
-          // eslint-disable-next-line no-console
+           
           console[methodName] = originalMethod;
 
           // unexpected thrown error takes precedence over unexpected console call

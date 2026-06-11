@@ -32,9 +32,9 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     }
     const { invoiceDate, periodStart, periodEnd, weeks, totalHours, status, notes } = req.body || {};
     const update: Record<string, unknown> = { updatedAt: new Date() };
-    if (invoiceDate !== undefined) update.invoiceDate = new Date(invoiceDate);
-    if (periodStart !== undefined) update.periodStart = new Date(periodStart);
-    if (periodEnd !== undefined) update.periodEnd = new Date(periodEnd);
+    if (invoiceDate !== undefined) {update.invoiceDate = new Date(invoiceDate);}
+    if (periodStart !== undefined) {update.periodStart = new Date(periodStart);}
+    if (periodEnd !== undefined) {update.periodEnd = new Date(periodEnd);}
     if (weeks !== undefined) {
       const normalizedWeeks = Array.isArray(weeks) ? weeks.map(normalizeInvoiceWeek) : [];
       update.weeks = normalizedWeeks;
@@ -42,14 +42,14 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
         update.totalHours = normalizedWeeks.reduce((sum, week) => sum + week.weekTotalHours, 0);
       }
     }
-    if (totalHours !== undefined) update.totalHours = totalHours;
+    if (totalHours !== undefined) {update.totalHours = totalHours;}
     if (status !== undefined) {
       if (!['draft', 'sent', 'paid'].includes(status)) {
         return res.status(400).json({ message: 'status must be draft, sent, or paid' });
       }
       update.status = status;
     }
-    if (notes !== undefined) update.notes = notes;
+    if (notes !== undefined) {update.notes = notes;}
 
     const result = await collection.findOneAndUpdate(
       { _id: objectId },

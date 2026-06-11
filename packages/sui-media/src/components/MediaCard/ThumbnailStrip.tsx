@@ -146,7 +146,7 @@ export interface ThumbnailStripProps {
  * Format seconds to MM:SS or HH:MM:SS
  */
 const formatTime = (seconds: number): string => {
-  if (!seconds || !isFinite(seconds) || seconds < 0) return '0:00';
+  if (!seconds || !isFinite(seconds) || seconds < 0) {return '0:00';}
 
   const hrs = Math.floor(seconds / 3600);
   const mins = Math.floor((seconds % 3600) / 60);
@@ -251,7 +251,7 @@ export const ThumbnailStrip: React.FC<ThumbnailStripProps> = ({
 
   // Sample down to the number of visible thumbnails, evenly across the full frame range
   const visibleThumbnails = React.useMemo(() => {
-    if (visibleCount <= 0) return [];
+    if (visibleCount <= 0) {return [];}
 
     if (visibleCount >= totalFrames) {
       // We can show all frames
@@ -274,7 +274,7 @@ export const ThumbnailStrip: React.FC<ThumbnailStripProps> = ({
   // Use the entire strip area as a scrub/progress bar
   const handleStripSeek = React.useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!onSeek || !duration) return;
+      if (!onSeek || !duration) {return;}
       const rect = e.currentTarget.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const ratio = Math.min(1, Math.max(0, x / rect.width));
@@ -287,7 +287,7 @@ export const ThumbnailStrip: React.FC<ThumbnailStripProps> = ({
   // Allow click + click-drag
   const handleMouseMove = React.useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (e.buttons !== 1) return; // only while mouse button held
+      if (e.buttons !== 1) {return;} // only while mouse button held
       handleStripSeek(e);
     },
     [handleStripSeek],

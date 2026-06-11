@@ -2,12 +2,12 @@ import * as React from 'react';
 import ToggleButton from '@mui/material/ToggleButton';
 import Tooltip from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
+import PropTypes from "prop-types";
+import {SxProps} from "@mui/system";
 import {useTimeline} from "../TimelineProvider";
 import ToggleButtonGroupEx from "../components/ToggleButtonGroupEx";
 import EdgeSnap from "../icons/EdgeSnap";
 import GridSnap from "../icons/GridSnap";
-import PropTypes from "prop-types";
-import {SxProps} from "@mui/system";
 
 const ToolbarToggle = styled(ToggleButton)(() => ({
   background: 'unset',

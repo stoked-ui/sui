@@ -2,6 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import composeClasses from '@mui/utils/composeClasses';
 import { useSlotProps } from '@mui/base/utils';
+import { SxProps } from '@mui/system';
 import { FileBase } from '../models';
 import { getFileExplorerUtilityClass } from './fileExplorerClasses';
 import { FileExplorerProps } from './FileExplorer.types';
@@ -15,7 +16,6 @@ import { FileWrapped } from './FileWrapped';
 import { FileExplorerDndContext } from '../internals/plugins/useFileExplorerDnd/FileExplorerDndContext';
 import { FileDropzone } from '../FileDropzone';
 import { GridColumns } from '../internals/plugins/useFileExplorerGrid/useFileExplorerGrid.types';
-import { SxProps } from '@mui/system';
 import { FileExplorerRoot } from './FileExplorer';
 
 /**

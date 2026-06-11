@@ -335,7 +335,7 @@ async function runScenario(scenario) {
       p99: p99.toFixed(2),
     },
     memory: {
-      avgDelta: (avgMemory / 1024 / 1024).toFixed(2) + ' MB',
+      avgDelta: `${(avgMemory / 1024 / 1024).toFixed(2)  } MB`,
     },
     throughput: {
       framesPerSecond: (1000 / mean).toFixed(2),

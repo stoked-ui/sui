@@ -35,7 +35,7 @@ describe('MediaViewer', () => {
     const { container } = render(
       <MediaViewer
         item={mockItem}
-        open={true}
+        open
         onClose={vi.fn()}
         auth={mockAuth}
         queue={mockQueue}
@@ -68,7 +68,7 @@ describe('MediaViewer', () => {
     render(
       <MediaViewer
         item={mockItem}
-        open={true}
+        open
         onClose={onClose}
         auth={mockAuth}
         queue={mockQueue}
@@ -86,7 +86,7 @@ describe('MediaViewer', () => {
     render(
       <MediaViewer
         item={mockItem}
-        open={true}
+        open
         onClose={vi.fn()}
         auth={mockAuth}
         queue={mockQueue}
@@ -110,7 +110,7 @@ describe('MediaViewer', () => {
         item={mockItem}
         mediaItems={items}
         currentIndex={0}
-        open={true}
+        open
         onClose={vi.fn()}
         onNavigate={onNavigate}
         auth={mockAuth}

@@ -49,9 +49,9 @@ interface ClientRecord {
 }
 
 function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
+  if (typeof window === 'undefined') {return null;}
   const stored = localStorage.getItem('auth');
-  if (!stored) return null;
+  if (!stored) {return null;}
   try {
     return JSON.parse(stored).access_token;
   } catch {
@@ -65,7 +65,7 @@ async function apiFetch(url: string, options: RequestInit = {}) {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string> || {}),
   };
-  if (token) headers.Authorization = `Bearer ${token}`;
+  if (token) {headers.Authorization = `Bearer ${token}`;}
   const res = await fetch(getApiUrl(url), { ...options, headers });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
@@ -123,8 +123,8 @@ export default function UsersPage() {
   const handleCreate = async () => {
     try {
       const body: Record<string, any> = { name: formName, email: formEmail, role: formRole };
-      if (formPassword) body.password = formPassword;
-      if (formClientId) body.clientId = formClientId;
+      if (formPassword) {body.password = formPassword;}
+      if (formClientId) {body.clientId = formClientId;}
       await apiFetch('/api/users', { method: 'POST', body: JSON.stringify(body) });
       setDialogOpen(false);
       setFormName('');
@@ -154,7 +154,7 @@ export default function UsersPage() {
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {return;}
 
     setUploading(true);
     try {
@@ -211,7 +211,7 @@ export default function UsersPage() {
   };
 
   const toggleUserAgent = async (agentId: string) => {
-    if (!agentDialogOpenUser) return;
+    if (!agentDialogOpenUser) {return;}
     const currentIds = agentDialogOpenUser.agentIds || [];
     const isLinked = currentIds.includes(agentId);
     const updated = isLinked ? currentIds.filter(id => id !== agentId) : [...currentIds, agentId];
@@ -239,7 +239,7 @@ export default function UsersPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Delete this user?')) return;
+    if (!window.confirm('Delete this user?')) {return;}
     try {
       await apiFetch(`/api/users/${id}`, { method: 'DELETE' });
       fetchData();
@@ -254,7 +254,7 @@ export default function UsersPage() {
   };
 
   const handleAddAlias = async () => {
-    if (!aliasDialogUser || !aliasInput.trim()) return;
+    if (!aliasDialogUser || !aliasInput.trim()) {return;}
     const updated = [...(aliasDialogUser.aliases || []), aliasInput.trim().toLowerCase()];
     try {
       await apiFetch(`/api/users/${aliasDialogUser._id}`, {
@@ -271,7 +271,7 @@ export default function UsersPage() {
   };
 
   const handleRemoveAlias = async (alias: string) => {
-    if (!aliasDialogUser) return;
+    if (!aliasDialogUser) {return;}
     const updated = (aliasDialogUser.aliases || []).filter((a) => a !== alias);
     try {
       await apiFetch(`/api/users/${aliasDialogUser._id}`, {
@@ -569,7 +569,7 @@ export default function UsersPage() {
               fullWidth
               value={aliasInput}
               onChange={(e) => setAliasInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') handleAddAlias(); }}
+              onKeyDown={(e) => { if (e.key === 'Enter') {handleAddAlias();} }}
             />
             <Button variant="contained" onClick={handleAddAlias} disabled={!aliasInput.trim()}>
               Add

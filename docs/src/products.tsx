@@ -19,6 +19,7 @@ import dynamic from "next/dynamic";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useInView } from "react-intersection-observer";
 import Grid from "@mui/material/Grid";
+import NoSsr from "@mui/material/NoSsr";
 import { getApiUrl } from "./modules/utils/getApiUrl";
 import PageContext from "./modules/components/PageContext";
 import IconImage from "./components/icon/IconImage";
@@ -44,7 +45,6 @@ import {
 
 import TimelineShowcase from "./components/home/TimelineShowcase";
 import EditorShowcase from './components/home/EditorShowcase';
-import NoSsr from "@mui/material/NoSsr";
 
 type RouteType = 'product' | 'doc';
 const routeTypes: RouteType[] = ['product', 'doc'];

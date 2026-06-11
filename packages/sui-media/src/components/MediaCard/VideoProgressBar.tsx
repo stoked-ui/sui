@@ -135,7 +135,7 @@ export interface VideoProgressBarProps {
  * Format seconds to MM:SS or HH:MM:SS
  */
 const formatTime = (seconds: number): string => {
-  if (!seconds || !isFinite(seconds) || seconds < 0) return '0:00';
+  if (!seconds || !isFinite(seconds) || seconds < 0) {return '0:00';}
 
   const hrs = Math.floor(seconds / 3600);
   const mins = Math.floor((seconds % 3600) / 60);
@@ -185,7 +185,7 @@ export const VideoProgressBar: React.FC<VideoProgressBarProps> = ({
   // Handle click to seek
   const handleClick = React.useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!interactive || !onSeek || !containerRef.current || duration <= 0) return;
+      if (!interactive || !onSeek || !containerRef.current || duration <= 0) {return;}
 
       e.stopPropagation();
       e.preventDefault();
@@ -203,7 +203,7 @@ export const VideoProgressBar: React.FC<VideoProgressBarProps> = ({
   // Handle mouse move for hover preview
   const handleMouseMove = React.useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!containerRef.current || duration <= 0) return;
+      if (!containerRef.current || duration <= 0) {return;}
 
       const rect = containerRef.current.getBoundingClientRect();
       const hoverX = e.clientX - rect.left;
@@ -221,7 +221,7 @@ export const VideoProgressBar: React.FC<VideoProgressBarProps> = ({
 
   const handleMouseLeave = React.useCallback(() => {
     // Don't clear hover state while dragging - user may drag outside the bar
-    if (isDraggingRef.current) return;
+    if (isDraggingRef.current) {return;}
     setHoverTime(null);
     setIsHovering(false);
   }, []);
@@ -229,7 +229,7 @@ export const VideoProgressBar: React.FC<VideoProgressBarProps> = ({
   // Calculate seek time from mouse position
   const calculateSeekTime = React.useCallback(
     (clientX: number): number => {
-      if (!containerRef.current || duration <= 0) return 0;
+      if (!containerRef.current || duration <= 0) {return 0;}
       const rect = containerRef.current.getBoundingClientRect();
       const posX = clientX - rect.left;
       const percentage = Math.max(0, Math.min(1, posX / rect.width));
@@ -241,7 +241,7 @@ export const VideoProgressBar: React.FC<VideoProgressBarProps> = ({
   // Handle drag start (mousedown on progress bar)
   const handleMouseDown = React.useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!interactive || !onSeek || duration <= 0) return;
+      if (!interactive || !onSeek || duration <= 0) {return;}
 
       // Prevent native drag behavior and stop propagation to dropzone
       e.preventDefault();
@@ -260,10 +260,10 @@ export const VideoProgressBar: React.FC<VideoProgressBarProps> = ({
 
   // Handle drag move (document-level mousemove while dragging)
   React.useEffect(() => {
-    if (!isDragging) return;
+    if (!isDragging) {return;}
 
     const handleDocumentMouseMove = (e: MouseEvent) => {
-      if (!isDraggingRef.current || !onSeek) return;
+      if (!isDraggingRef.current || !onSeek) {return;}
 
       // Prevent any default behavior
       e.preventDefault();
@@ -283,7 +283,7 @@ export const VideoProgressBar: React.FC<VideoProgressBarProps> = ({
     };
 
     const handleDocumentMouseUp = (e: MouseEvent) => {
-      if (!isDraggingRef.current) return;
+      if (!isDraggingRef.current) {return;}
 
       // Prevent any default behavior
       e.preventDefault();
@@ -310,7 +310,7 @@ export const VideoProgressBar: React.FC<VideoProgressBarProps> = ({
     e.stopPropagation();
   }, []);
 
-  if (!visible) return null;
+  if (!visible) {return null;}
 
   return (
     <ProgressAreaWrapper

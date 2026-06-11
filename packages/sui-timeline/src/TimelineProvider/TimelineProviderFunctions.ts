@@ -103,9 +103,9 @@ export const fitScaleData = (context: TimelineContextType, detailMode: boolean, 
   if (!detailMode && flags.detailMode) {
     console.info('fitScaleData', from, 'detailMode early exit', detailMode, flags.detailMode);
     return null;
-  } else {
+  } 
     console.info('fitScaleData', from, minScaleCount, newWidth);
-  }
+  
 
   const tracks = state.file?.tracks;
   if (!newWidth || (!tracks?.length && videoTrack)) {

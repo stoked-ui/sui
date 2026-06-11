@@ -141,7 +141,7 @@ function getHeaders(markdown) {
     let regexMatches;
     const headers = {};
 
-    // eslint-disable-next-line no-cond-assign
+     
     while ((regexMatches = headerKeyValueRegExp.exec(header)) !== null) {
       const key = regexMatches[1];
       let value = regexMatches[2].replace(/(.*)/, '$1');

@@ -266,7 +266,6 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
           onKeyDown={(event: any) => {
             console.info('test', event);
             event.currentTarget = gridTrack;
-            // eslint-disable-next-line default-case
             switch (event.key) {
               case 'Backspace':
               case 'Delete': {

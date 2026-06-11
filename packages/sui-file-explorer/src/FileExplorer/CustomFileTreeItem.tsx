@@ -4,7 +4,6 @@ import { TreeItem2 } from '@mui/x-tree-view/TreeItem2';
 
 import { TreeItem2DragAndDropOverlay } from '@mui/x-tree-view/TreeItem2DragAndDropOverlay';
 import Box from '@mui/material/Box';
-import { FileBase } from '../models';
 import { MediaType } from '@stoked-ui/media';
 import FolderRounded from '@mui/icons-material/FolderRounded';
 import ImageIcon from '@mui/icons-material/Image';
@@ -14,6 +13,7 @@ import VideoFile from '@mui/icons-material/VideoFile';
 import AudioFile from '@mui/icons-material/AudioFile';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { FileBase } from '../models';
 import StokedUiFile from '../File/StokedUIFile';
 import LottieIcon from '../icons/LottieIcon';
 import { useFileExplorerContext } from '../internals/FileExplorerProvider/useFileExplorerContext';

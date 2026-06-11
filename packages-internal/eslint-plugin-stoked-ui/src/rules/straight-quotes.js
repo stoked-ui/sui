@@ -1,4 +1,4 @@
-// eslint-disable-next-line stoked-ui/straight-quotes
+ 
 const nonStraightQuotes = /[‘’“”]/gm;
 
 /**
@@ -24,7 +24,7 @@ const rule = {
         const value = context.sourceCode.text;
         let match;
 
-        // eslint-disable-next-line no-cond-assign
+         
         while ((match = nonStraightQuotes.exec(value)) !== null) {
           context.report({
             node,

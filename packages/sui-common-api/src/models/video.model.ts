@@ -179,7 +179,7 @@ export class Video extends File {
 
 export const VideoSchema = SchemaFactory.createForClass(Video);
 
-VideoSchema.virtual("mediaType").get(function () {
+VideoSchema.virtual("mediaType").get(() => {
   return "video";
 });
 

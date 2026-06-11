@@ -14,7 +14,7 @@ export async function getKeysStartingWithPrefix(dbName: string, storeName: strin
     if (key.startsWith(prefix)) {
       keys.push(key);
     }
-    // eslint-disable-next-line no-await-in-loop
+     
     cursor = await cursor.continue();
   }
 

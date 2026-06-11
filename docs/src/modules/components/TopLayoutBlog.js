@@ -9,7 +9,7 @@ import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import Avatar from '@mui/material/Avatar';
 import Head from 'docs/src/modules/components/Head';
-import { BrandingCssVarsProvider } from '@stoked-ui/docs';
+import { BrandingCssVarsProvider , Link } from '@stoked-ui/docs';
 import AppHeader from 'docs/src/layouts/AppHeader';
 import AppContainer from 'docs/src/modules/components/AppContainer';
 import AppFooter from 'docs/src/layouts/AppFooter';
@@ -18,7 +18,6 @@ import MarkdownElement from 'docs/src/modules/components/MarkdownElement';
 import RichMarkdownElement from 'docs/src/modules/components/RichMarkdownElement';
 import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
 import ROUTES from 'docs/src/route';
-import { Link } from '@stoked-ui/docs';
 
 export const authors = {
   oliviertassinari: {
@@ -390,7 +389,6 @@ export default function TopLayoutBlog(props) {
             className={classes.back}
           >
             <ChevronLeftRoundedIcon fontSize="small" sx={{ mr: 0.5 }} />
-            {/* eslint-disable-next-line material-ui/no-hardcoded-labels */}
             {'Back to blog'}
           </Link>
           {headers.title ? (

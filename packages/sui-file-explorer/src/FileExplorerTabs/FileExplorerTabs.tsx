@@ -188,7 +188,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 function ExplorerPanel(params: ExplorerPanelProps) {
   const { name, items, onItemDoubleClick, gridColumns, expandedItems, selectedId } = params;
   console.info('@@@@@@@@@@@@@@@@@@@', params);
-  // eslint-disable-next-line jsx-a11y/aria-role
+   
   return (
     <TabPanel sx={{ padding: 0 }} value={name}>
       {items.length && <FileExplorer

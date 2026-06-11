@@ -23,7 +23,7 @@ const FetchBackoff = async (
 
   while (attempt <= retries) {
     try {
-      // eslint-disable-next-line no-await-in-loop
+       
       const response = await fetch(input, init);
 
       // If response is OK or retryCondition is false, return the response
@@ -40,12 +40,11 @@ const FetchBackoff = async (
     }
 
     // Wait for the backoff delay before retrying
-    // eslint-disable-next-line no-await-in-loop,@typescript-eslint/no-loop-func
     await new Promise((resolve) => {
       setTimeout(resolve, delay)
     });
     delay *= backoffFactor;
-    // eslint-disable-next-line no-plusplus
+     
     attempt++;
   }
 

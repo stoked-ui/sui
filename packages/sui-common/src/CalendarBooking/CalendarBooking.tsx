@@ -5,41 +5,40 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useTheme } from '@mui/material/styles';
-import type { CalendarBookingProps, BookingFormData, TimeSlot } from './CalendarBooking.types';
+import type { CalendarBookingProps, BookingFormData } from './CalendarBooking.types';
 
-interface DayState {
-  date: string;
-  dayName: string;
-  dayNum: number;
-  slots: TimeSlot[];
-  loading: boolean;
-  unavailable: boolean;
-}
+// ── Constants ────────────────────────────────────────────────────────────────
 
-interface SelectedSlot {
-  date: string;
-  iso: string;
-  label: string;
-}
+const ROW_HEIGHT = 36; // px per 30-min slot
 
-const WEEK_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+// 10:30 AM to 5:30 PM, 30-min intervals = 15 rows
+const TIME_SLOTS = [
+  { hour: 10, minute: 30 }, { hour: 11, minute: 0 }, { hour: 11, minute: 30 },
+  { hour: 12, minute: 0 }, { hour: 12, minute: 30 }, { hour: 13, minute: 0 },
+  { hour: 13, minute: 30 }, { hour: 14, minute: 0 }, { hour: 14, minute: 30 },
+  { hour: 15, minute: 0 }, { hour: 15, minute: 30 }, { hour: 16, minute: 0 },
+  { hour: 16, minute: 30 }, { hour: 17, minute: 0 }, { hour: 17, minute: 30 },
+] as const;
+
+const GRID_HEIGHT = ROW_HEIGHT * TIME_SLOTS.length;
+
+const WEEK_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
 function toDateStr(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 function getMonday(d: Date): Date {
   const date = new Date(d);
-  const dow = date.getDay(); // 0=Sun
-  const diff = date.getDate() - dow + (dow === 0 ? -6 : 1);
-  date.setDate(diff);
+  const dow = date.getDay();
+  date.setDate(date.getDate() - dow + (dow === 0 ? -6 : 1));
   date.setHours(0, 0, 0, 0);
   return date;
 }
@@ -50,65 +49,58 @@ function addDays(d: Date, n: number): Date {
   return date;
 }
 
-// ── MiniCalendar ────────────────────────────────────────────────────────────
+function formatTimeLabel(hour: number, minute: number): string {
+  const suffix = hour < 12 ? 'AM' : 'PM';
+  const h = hour % 12 === 0 ? 12 : hour % 12;
+  return `${h}:${String(minute).padStart(2, '0')} ${suffix}`;
+}
+
+// ── MiniCalendar ─────────────────────────────────────────────────────────────
 
 interface MiniCalendarProps {
   year: number;
   month: number;
   selectedDate: string | null;
-  onDateClick: (dateStr: string) => void;
+  onDateClick: (d: string) => void;
   onPrevMonth: () => void;
   onNextMonth: () => void;
 }
 
-function MiniCalendar({
-  year, month, selectedDate, onDateClick, onPrevMonth, onNextMonth,
-}: MiniCalendarProps) {
+function MiniCalendar({ year, month, selectedDate, onDateClick, onPrevMonth, onNextMonth }: MiniCalendarProps) {
   const theme = useTheme();
-
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
-  const startDow = (firstDay.getDay() + 6) % 7; // Mon=0
+  const startDow = (firstDay.getDay() + 6) % 7;
 
-  type Cell = { dateStr: string; dayNum: number; current: boolean };
-  const cells: Cell[] = [];
-
+  const cells: { dateStr: string; dayNum: number; current: boolean }[] = [];
   for (let i = startDow - 1; i >= 0; i--) {
     const d = new Date(year, month, -i);
     cells.push({ dateStr: toDateStr(d), dayNum: d.getDate(), current: false });
   }
   for (let d = 1; d <= lastDay.getDate(); d++) {
-    const date = new Date(year, month, d);
-    cells.push({ dateStr: toDateStr(date), dayNum: d, current: true });
+    cells.push({ dateStr: toDateStr(new Date(year, month, d)), dayNum: d, current: true });
   }
-  const remaining = (7 - (cells.length % 7)) % 7;
-  for (let d = 1; d <= remaining; d++) {
-    const date = new Date(year, month + 1, d);
-    cells.push({ dateStr: toDateStr(date), dayNum: d, current: false });
+  const rem = (7 - (cells.length % 7)) % 7;
+  for (let d = 1; d <= rem; d++) {
+    cells.push({ dateStr: toDateStr(new Date(year, month + 1, d)), dayNum: d, current: false });
   }
 
-  const btnBase = {
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    color: theme.palette.text.primary,
-    fontSize: 18,
-    lineHeight: 1,
-    p: '2px 8px',
-    borderRadius: '4px',
+  const btnSx = {
+    background: 'none', border: 'none', cursor: 'pointer',
+    color: theme.palette.text.primary, fontSize: 16, lineHeight: 1,
+    padding: '2px 6px', borderRadius: '4px',
     '&:hover': { backgroundColor: theme.palette.action.hover },
   } as const;
 
   return (
-    <Box data-testid="mini-calendar" sx={{ width: 220, userSelect: 'none', flexShrink: 0 }}>
+    <Box data-testid="mini-calendar" sx={{ width: 220, flexShrink: 0, userSelect: 'none' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-        <Box component="button" onClick={onPrevMonth} sx={btnBase}>‹</Box>
+        <Box component="button" onClick={onPrevMonth} sx={btnSx}>‹</Box>
         <Typography variant="caption" sx={{ fontWeight: 700 }}>
           {MONTH_NAMES[month]} {year}
         </Typography>
-        <Box component="button" onClick={onNextMonth} sx={btnBase}>›</Box>
+        <Box component="button" onClick={onNextMonth} sx={btnSx}>›</Box>
       </Box>
-
       <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', mb: 0.5 }}>
         {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
           <Typography key={i} variant="caption" sx={{ textAlign: 'center', color: 'text.secondary', fontWeight: 600, fontSize: 10 }}>
@@ -116,29 +108,18 @@ function MiniCalendar({
           </Typography>
         ))}
       </Box>
-
       <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '2px' }}>
         {cells.map((cell) => {
-          const isSelected = selectedDate === cell.dateStr;
+          const sel = selectedDate === cell.dateStr;
           return (
             <Box
               key={cell.dateStr}
               onClick={() => onDateClick(cell.dateStr)}
               sx={{
-                textAlign: 'center',
-                cursor: 'pointer',
-                py: '3px',
-                borderRadius: '50%',
-                fontSize: 11,
-                color: cell.current
-                  ? isSelected ? 'primary.contrastText' : 'text.primary'
-                  : 'text.disabled',
-                backgroundColor: isSelected ? 'primary.main' : 'transparent',
-                '&:hover': {
-                  backgroundColor: isSelected
-                    ? 'primary.dark'
-                    : theme.palette.action.hover,
-                },
+                textAlign: 'center', cursor: 'pointer', py: '3px', borderRadius: '50%', fontSize: 11,
+                color: cell.current ? (sel ? 'primary.contrastText' : 'text.primary') : 'text.disabled',
+                backgroundColor: sel ? 'primary.main' : 'transparent',
+                '&:hover': { backgroundColor: sel ? 'primary.dark' : theme.palette.action.hover },
               }}
             >
               {cell.dayNum}
@@ -150,19 +131,22 @@ function MiniCalendar({
   );
 }
 
-// ── Main Component ───────────────────────────────────────────────────────────
+// ── Main Component ────────────────────────────────────────────────────────────
 
-export default function CalendarBooking({
-  apiBaseUrl = '',
-  onSuccess,
-  onError,
-}: CalendarBookingProps) {
+interface DayState {
+  date: string;
+  dayName: string;
+  dayNum: number;
+  availableIsos: Set<string>; // ISO strings from API
+  loading: boolean;
+}
+
+export default function CalendarBooking({ apiBaseUrl = '', onSuccess, onError }: CalendarBookingProps) {
   const theme = useTheme();
 
   const todayRef = useRef<Date | null>(null);
   if (!todayRef.current) {
-    const d = new Date();
-    d.setHours(0, 0, 0, 0);
+    const d = new Date(); d.setHours(0, 0, 0, 0);
     todayRef.current = d;
   }
   const today = todayRef.current;
@@ -172,11 +156,10 @@ export default function CalendarBooking({
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [weekStart, setWeekStart] = useState<Date>(() => getMonday(today));
   const [days, setDays] = useState<DayState[]>([]);
-  const [selectedSlot, setSelectedSlot] = useState<SelectedSlot | null>(null);
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [selectedTimeIndex, setSelectedTimeIndex] = useState(-1);
   const [duration, setDuration] = useState(30);
-  const [formData, setFormData] = useState<BookingFormData>({
-    name: '', email: '', phone: '', company: '', reason: '',
-  });
+  const [formData, setFormData] = useState<BookingFormData>({ name: '', email: '', phone: '', company: '', reason: '' });
   const [submitting, setSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
@@ -184,55 +167,50 @@ export default function CalendarBooking({
   const dragStartY = useRef<number | null>(null);
   const dragStartDuration = useRef(30);
 
-  function buildWeekDays(weekStartDate: Date): DayState[] {
-    return Array.from({ length: 7 }, (_, i) => {
-      const date = addDays(weekStartDate, i);
-      const isPast = date < today;
-      return {
-        date: toDateStr(date),
-        dayName: WEEK_DAYS[i],
-        dayNum: date.getDate(),
-        slots: [],
-        loading: !isPast,
-        unavailable: isPast,
-      };
+  function buildWeekDays(ws: Date): DayState[] {
+    return Array.from({ length: 5 }, (_, i) => {
+      const date = addDays(ws, i);
+      return { date: toDateStr(date), dayName: WEEK_DAYS[i], dayNum: date.getDate(), availableIsos: new Set(), loading: date >= today };
     });
   }
 
-  async function fetchWeekAvailability(weekDays: DayState[]): Promise<DayState[]> {
-    return Promise.all(
-      weekDays.map(async (day) => {
-        if (day.unavailable) return day;
-        try {
-          const res = await fetch(`${apiBaseUrl}/api/calendar/availability?date=${day.date}`);
-          if (!res.ok) return { ...day, loading: false, unavailable: true, slots: [] };
-          const data = await res.json();
-          const slots: TimeSlot[] = (data.slots || []).map((iso: string) => {
-            const d = new Date(iso);
-            return {
-              iso,
-              label: d.toLocaleTimeString('en-US', {
-                hour: '2-digit', minute: '2-digit', hour12: true,
-              }),
-              hour: d.getHours(),
-              minute: d.getMinutes(),
-            };
-          });
-          return { ...day, loading: false, slots, unavailable: slots.length === 0 };
-        } catch {
-          return { ...day, loading: false, unavailable: true, slots: [] };
-        }
-      }),
-    );
+  async function fetchDay(day: DayState): Promise<DayState> {
+    if (!day.loading) {return day;} // past — skip
+    try {
+      const res = await fetch(`${apiBaseUrl}/api/calendar/availability?date=${day.date}`);
+      if (!res.ok) {return { ...day, loading: false };}
+      const data = await res.json();
+      return { ...day, loading: false, availableIsos: new Set(data.slots || []) };
+    } catch {
+      return { ...day, loading: false };
+    }
   }
 
   useEffect(() => {
-    const weekDays = buildWeekDays(weekStart);
-    setDays(weekDays);
-    setSelectedSlot(null);
-    fetchWeekAvailability(weekDays).then(setDays);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const initial = buildWeekDays(weekStart);
+    setDays(initial);
+    setSelectedDay(null);
+    setSelectedTimeIndex(-1);
+    setDuration(30);
+    Promise.all(initial.map(fetchDay)).then(setDays);
+     
   }, [weekStart, apiBaseUrl]);
+
+  // Build ISO string for a given day + time-slot index
+  function slotIso(dateStr: string, idx: number): string {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const dt = new Date(y, m - 1, d, TIME_SLOTS[idx].hour, TIME_SLOTS[idx].minute, 0, 0);
+    return dt.toISOString();
+  }
+
+  function isAvailable(day: DayState, idx: number): boolean {
+    return day.availableIsos.has(slotIso(day.date, idx));
+  }
+
+  function isPastDay(day: DayState): boolean {
+    const [y, m, d] = day.date.split('-').map(Number);
+    return new Date(y, m - 1, d) < today;
+  }
 
   const handleDateClick = (dateStr: string) => {
     setSelectedDate(dateStr);
@@ -240,8 +218,9 @@ export default function CalendarBooking({
     setWeekStart(getMonday(new Date(y, m - 1, d)));
   };
 
-  const handleSlotClick = (slot: TimeSlot, date: string) => {
-    setSelectedSlot({ date, iso: slot.iso, label: slot.label });
+  const handleSlotClick = (dayDate: string, timeIndex: number) => {
+    setSelectedDay(dayDate);
+    setSelectedTimeIndex(timeIndex);
     setDuration(30);
     setSubmitError('');
     setSubmitSuccess(false);
@@ -250,57 +229,48 @@ export default function CalendarBooking({
   const handleDragMouseDown = (e: React.MouseEvent) => {
     dragStartY.current = e.clientY;
     dragStartDuration.current = duration;
-
-    const onMouseMove = (ev: MouseEvent) => {
-      if (dragStartY.current === null) return;
-      const deltaY = ev.clientY - dragStartY.current;
-      const deltaMin = Math.round((deltaY * 0.5) / 15) * 15;
-      setDuration(Math.max(30, Math.min(120, dragStartDuration.current + deltaMin)));
+    const onMove = (ev: MouseEvent) => {
+      if (dragStartY.current === null) {return;}
+      const delta = ev.clientY - dragStartY.current;
+      const snap = Math.round((delta * 0.5) / 15) * 15;
+      setDuration(Math.max(30, Math.min(120, dragStartDuration.current + snap)));
     };
-
-    const onMouseUp = () => {
+    const onUp = () => {
       dragStartY.current = null;
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
     };
-
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
   };
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const isSubmitEnabled = !!(formData.name && formData.email && formData.phone && selectedSlot);
+  const isSubmitEnabled = !!(formData.name && formData.email && formData.phone && selectedDay && selectedTimeIndex >= 0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedSlot) return;
+    if (!selectedDay || selectedTimeIndex < 0) {return;}
     setSubmitting(true);
     setSubmitError('');
-
     try {
       const res = await fetch(`${apiBaseUrl}/api/calendar/book`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          company: formData.company,
-          reason: formData.reason,
-          startTime: selectedSlot.iso,
+          ...formData,
+          startTime: slotIso(selectedDay, selectedTimeIndex),
           durationMinutes: duration,
         }),
       });
-
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to book appointment');
-
+      if (!res.ok) {throw new Error(data.error || 'Failed to book appointment');}
       setSubmitSuccess(true);
-      setSelectedSlot(null);
+      setSelectedDay(null);
+      setSelectedTimeIndex(-1);
       setFormData({ name: '', email: '', phone: '', company: '', reason: '' });
       setDuration(30);
       onSuccess?.(data.eventId, data.eventLink);
@@ -313,227 +283,188 @@ export default function CalendarBooking({
     }
   };
 
-  const prevMonth = () => {
-    if (calMonth === 0) { setCalYear((y) => y - 1); setCalMonth(11); }
-    else setCalMonth((m) => m - 1);
-  };
-  const nextMonth = () => {
-    if (calMonth === 11) { setCalYear((y) => y + 1); setCalMonth(0); }
-    else setCalMonth((m) => m + 1);
-  };
+  const prevMonth = () => { if (calMonth === 0) { setCalYear(y => y - 1); setCalMonth(11); } else {setCalMonth(m => m - 1);} };
+  const nextMonth = () => { if (calMonth === 11) { setCalYear(y => y + 1); setCalMonth(0); } else {setCalMonth(m => m + 1);} };
+
+  const durationRows = duration / 30; // may be fractional (45 min = 1.5)
+  const blockHeight = Math.max(ROW_HEIGHT, durationRows * ROW_HEIGHT);
 
   return (
-    <Box sx={{ width: '100%', maxWidth: 960, mx: 'auto' }}>
+    <Box sx={{ width: '100%', maxWidth: 1000, mx: 'auto' }}>
       <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap', alignItems: 'flex-start' }}>
         {/* Left: mini calendar */}
         <MiniCalendar
-          year={calYear}
-          month={calMonth}
+          year={calYear} month={calMonth}
           selectedDate={selectedDate}
           onDateClick={handleDateClick}
-          onPrevMonth={prevMonth}
-          onNextMonth={nextMonth}
+          onPrevMonth={prevMonth} onNextMonth={nextMonth}
         />
 
         {/* Right: week grid */}
-        <Box
-          data-testid="week-grid"
-          sx={{ flex: 1, minWidth: 0, overflowX: 'auto' }}
-        >
-          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(72px, 1fr))', gap: 0.5 }}>
-            {days.map((day) => (
-              <Box key={day.date} sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Box
-                  data-testid="day-column-header"
-                  sx={{
-                    textAlign: 'center',
-                    py: 0.75,
-                    borderBottom: '1px solid',
-                    borderColor: 'divider',
-                    mb: 0.5,
-                  }}
-                >
-                  <Typography variant="caption" display="block" sx={{ fontWeight: 600, color: 'text.secondary', fontSize: 10 }}>
-                    {day.dayName}
-                  </Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 700, fontSize: 13 }}>
-                    {day.dayNum}
-                  </Typography>
-                </Box>
-
-                {day.loading ? (
-                  <Box sx={{ display: 'flex', justifyContent: 'center', pt: 1 }}>
-                    <CircularProgress size={14} />
-                  </Box>
-                ) : day.unavailable ? (
-                  <Box
-                    data-testid="day-unavailable"
-                    sx={{ textAlign: 'center', color: 'text.disabled', fontSize: 12, pt: 0.5 }}
-                  >
-                    —
-                  </Box>
-                ) : (
-                  <Box>
-                    {day.slots.map((slot) => {
-                      const isSelected =
-                        selectedSlot?.iso === slot.iso && selectedSlot?.date === day.date;
-                      return (
-                        <Box
-                          key={slot.iso}
-                          data-testid="time-slot"
-                          data-selected={isSelected ? 'true' : 'false'}
-                          onClick={() => handleSlotClick(slot, day.date)}
-                          sx={{
-                            textAlign: 'center',
-                            py: '3px',
-                            px: '2px',
-                            mb: '2px',
-                            borderRadius: 1,
-                            fontSize: 10,
-                            cursor: 'pointer',
-                            fontWeight: isSelected ? 700 : 400,
-                            backgroundColor: isSelected
-                              ? 'primary.main'
-                              : theme.palette.mode === 'dark'
-                              ? 'rgba(255,255,255,0.07)'
-                              : 'rgba(0,0,0,0.05)',
-                            color: isSelected ? 'primary.contrastText' : 'text.primary',
-                            '&:hover': {
-                              backgroundColor: isSelected
-                                ? 'primary.dark'
-                                : theme.palette.action.hover,
-                            },
-                          }}
-                        >
-                          {slot.label}
-                        </Box>
-                      );
-                    })}
-                  </Box>
-                )}
+        <Box data-testid="week-grid" sx={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+          {/* Day headers */}
+          <Box sx={{ display: 'grid', gridTemplateColumns: '56px repeat(5, 1fr)', mb: 0 }}>
+            <Box /> {/* time label spacer */}
+            {days.map(day => (
+              <Box
+                key={day.date}
+                data-testid="day-column-header"
+                sx={{ textAlign: 'center', py: 0.75, borderBottom: '1px solid', borderColor: 'divider' }}
+              >
+                <Typography variant="caption" display="block" sx={{ fontWeight: 600, color: 'text.secondary', fontSize: 10 }}>
+                  {day.dayName}
+                </Typography>
+                <Typography variant="body2" sx={{ fontWeight: 700, fontSize: 13 }}>
+                  {day.dayNum}
+                </Typography>
               </Box>
             ))}
+          </Box>
+
+          {/* Time grid body */}
+          <Box sx={{ display: 'grid', gridTemplateColumns: '56px repeat(5, 1fr)' }}>
+            {/* Left time label column */}
+            <Box sx={{ position: 'relative', height: GRID_HEIGHT }}>
+              {TIME_SLOTS.map((slot, i) => (
+                <Box
+                  key={i}
+                  sx={{
+                    position: 'absolute', top: i * ROW_HEIGHT, height: ROW_HEIGHT,
+                    width: '100%', display: 'flex', alignItems: 'flex-start', pt: '2px', pr: '6px',
+                  }}
+                >
+                  <Typography variant="caption" sx={{ fontSize: 9, color: 'text.disabled', lineHeight: 1, whiteSpace: 'nowrap' }}>
+                    {formatTimeLabel(slot.hour, slot.minute)}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+
+            {/* Day columns */}
+            {days.map(day => {
+              const past = isPastDay(day);
+              const isSelected = selectedDay === day.date;
+              return (
+                <Box key={day.date} sx={{ position: 'relative', height: GRID_HEIGHT, borderLeft: '1px solid', borderColor: 'divider' }}>
+                  {/* Background rows */}
+                  {TIME_SLOTS.map((_, i) => {
+                    const avail = !past && isAvailable(day, i);
+                    const rowSelected = isSelected && i === selectedTimeIndex;
+                    return (
+                      <Box
+                        key={i}
+                        data-testid={avail ? 'time-slot' : 'day-unavailable'}
+                        data-selected={rowSelected ? 'true' : 'false'}
+                        onClick={avail ? () => handleSlotClick(day.date, i) : undefined}
+                        sx={{
+                          position: 'absolute', top: i * ROW_HEIGHT, height: ROW_HEIGHT - 1,
+                          width: '100%',
+                          borderBottom: '1px solid',
+                          borderColor: theme.palette.divider,
+                          cursor: avail ? 'pointer' : 'default',
+                          backgroundColor: avail
+                            ? theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)'
+                            : 'transparent',
+                          '&:hover': avail ? { backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.06)' } : {},
+                        }}
+                      />
+                    );
+                  })}
+
+                  {/* Loading overlay */}
+                  {day.loading && (
+                    <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <CircularProgress size={14} />
+                    </Box>
+                  )}
+
+                  {/* Selected event block */}
+                  {isSelected && selectedTimeIndex >= 0 && (
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: selectedTimeIndex * ROW_HEIGHT,
+                        height: blockHeight,
+                        left: 2, right: 2,
+                        backgroundColor: 'primary.main',
+                        borderRadius: '4px 4px 0 0',
+                        zIndex: 2,
+                        overflow: 'hidden',
+                        pointerEvents: 'none',
+                      }}
+                    >
+                      <Typography variant="caption" sx={{ display: 'block', color: 'primary.contrastText', px: 0.5, pt: '2px', fontSize: 10, lineHeight: 1.2 }}>
+                        {formatTimeLabel(TIME_SLOTS[selectedTimeIndex].hour, TIME_SLOTS[selectedTimeIndex].minute)}
+                      </Typography>
+                      <Typography
+                        data-testid="duration-display"
+                        variant="caption"
+                        sx={{ display: 'block', color: 'primary.contrastText', px: 0.5, fontSize: 9, lineHeight: 1 }}
+                      >
+                        {duration} min
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {/* Drag handle — sits below the block, pointer-events enabled */}
+                  {isSelected && selectedTimeIndex >= 0 && (
+                    <Box
+                      data-testid="duration-drag-handle-bottom"
+                      onMouseDown={handleDragMouseDown}
+                      sx={{
+                        position: 'absolute',
+                        top: selectedTimeIndex * ROW_HEIGHT + blockHeight,
+                        left: 2, right: 2,
+                        height: 8,
+                        backgroundColor: 'primary.dark',
+                        borderRadius: '0 0 4px 4px',
+                        cursor: 'ns-resize',
+                        zIndex: 3,
+                        '&:hover': { opacity: 0.8 },
+                      }}
+                    />
+                  )}
+                </Box>
+              );
+            })}
           </Box>
         </Box>
       </Box>
 
-      {/* Success banner */}
+      {/* Success */}
       {submitSuccess && (
-        <Box
-          data-testid="booking-success"
-          sx={{
-            mt: 3, p: 2, borderRadius: 2,
-            backgroundColor: theme.palette.mode === 'dark' ? 'success.dark' : 'success.light',
-            color: 'success.contrastText',
-          }}
-        >
-          <Typography variant="body1" sx={{ fontWeight: 600 }}>
-            Appointment booked! Check your email for confirmation.
-          </Typography>
+        <Box data-testid="booking-success" sx={{ mt: 3, p: 2, borderRadius: 2, backgroundColor: theme.palette.mode === 'dark' ? 'success.dark' : 'success.light', color: 'success.contrastText' }}>
+          <Typography variant="body1" sx={{ fontWeight: 600 }}>Appointment booked! Check your email for confirmation.</Typography>
         </Box>
       )}
 
       {/* Booking form */}
-      {selectedSlot && !submitSuccess && (
+      {selectedDay && selectedTimeIndex >= 0 && !submitSuccess && (
         <Box
           component="form"
           data-testid="booking-form"
           onSubmit={handleSubmit}
-          sx={{
-            mt: 3, p: 3, borderRadius: 2,
-            border: '1px solid', borderColor: 'divider',
-            backgroundColor: theme.palette.mode === 'dark'
-              ? 'rgba(255,255,255,0.03)'
-              : 'rgba(0,0,0,0.02)',
-          }}
+          sx={{ mt: 3, p: 3, borderRadius: 2, border: '1px solid', borderColor: 'divider', backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)' }}
         >
           <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-            {selectedSlot.label} — {selectedSlot.date}
+            {formatTimeLabel(TIME_SLOTS[selectedTimeIndex].hour, TIME_SLOTS[selectedTimeIndex].minute)} — {selectedDay}
           </Typography>
-
-          {/* Duration block with drag handle */}
-          <Box sx={{ mb: 2 }}>
-            <Box
-              sx={{
-                p: 1.5, borderRadius: '4px 4px 0 0',
-                backgroundColor: 'primary.main',
-                color: 'primary.contrastText',
-              }}
-            >
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                {selectedSlot.label}
-              </Typography>
-              <Typography
-                data-testid="duration-display"
-                variant="caption"
-                display="block"
-              >
-                {duration} min
-              </Typography>
-            </Box>
-            <Box
-              data-testid="duration-drag-handle-bottom"
-              onMouseDown={handleDragMouseDown}
-              sx={{
-                height: 10,
-                cursor: 'ns-resize',
-                backgroundColor: 'primary.dark',
-                borderRadius: '0 0 4px 4px',
-                '&:hover': { opacity: 0.8 },
-              }}
-            />
-          </Box>
-
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-              <TextField
-                fullWidth label="Name *" name="name"
-                value={formData.name} onChange={handleFormChange}
-                size="small" required disabled={submitting}
-              />
-              <TextField
-                fullWidth label="Email *" name="email" type="email"
-                value={formData.email} onChange={handleFormChange}
-                size="small" required disabled={submitting}
-              />
+              <TextField fullWidth label="Name" name="name" value={formData.name} onChange={handleFormChange} size="small" required disabled={submitting} />
+              <TextField fullWidth label="Email" name="email" type="email" value={formData.email} onChange={handleFormChange} size="small" required disabled={submitting} />
             </Box>
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-              <TextField
-                fullWidth label="Phone *" name="phone"
-                value={formData.phone} onChange={handleFormChange}
-                size="small" required disabled={submitting}
-              />
-              <TextField
-                fullWidth label="Company" name="company"
-                value={formData.company} onChange={handleFormChange}
-                size="small" disabled={submitting}
-              />
+              <TextField fullWidth label="Phone" name="phone" value={formData.phone} onChange={handleFormChange} size="small" required disabled={submitting} />
+              <TextField fullWidth label="Company" name="company" value={formData.company} onChange={handleFormChange} size="small" disabled={submitting} />
             </Box>
-            <TextField
-              fullWidth label="Reason" name="reason"
-              value={formData.reason} onChange={handleFormChange}
-              size="small" disabled={submitting}
-            />
-
+            <TextField fullWidth label="Reason" name="reason" value={formData.reason} onChange={handleFormChange} size="small" disabled={submitting} />
             {submitError && (
-              <Box
-                data-testid="booking-error"
-                sx={{
-                  p: 1.5, borderRadius: 1,
-                  backgroundColor: theme.palette.mode === 'dark' ? 'error.dark' : 'error.light',
-                  color: 'error.contrastText',
-                }}
-              >
+              <Box data-testid="booking-error" sx={{ p: 1.5, borderRadius: 1, backgroundColor: theme.palette.mode === 'dark' ? 'error.dark' : 'error.light', color: 'error.contrastText' }}>
                 <Typography variant="body2">{submitError}</Typography>
               </Box>
             )}
-
-            <Button
-              type="submit"
-              variant="contained"
-              size="large"
-              disabled={!isSubmitEnabled || submitting}
-            >
+            <Button type="submit" variant="contained" size="large" disabled={!isSubmitEnabled || submitting}>
               {submitting ? <CircularProgress size={20} color="inherit" /> : 'Book Appointment'}
             </Button>
           </Box>

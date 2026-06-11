@@ -1,5 +1,5 @@
-/* eslint-disable no-console */
-/* eslint-disable no-await-in-loop */
+ 
+ 
 const path = require('path');
 const http = require('http');
 const fse = require('fs-extra');

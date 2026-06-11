@@ -192,7 +192,7 @@ function TimelineTime(props: TimelineTimeProps) {
       position: 'absolute',
       zIndex: 300
     }}>
-      {flags && flags.noLabels && <SnapControls size={'small'} hover={true} />}
+      {flags && flags.noLabels && <SnapControls size={'small'} hover />}
       <ZoomControls/>
     </div>
     <AutoSizer>

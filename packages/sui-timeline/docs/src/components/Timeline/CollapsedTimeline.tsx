@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { Timeline } from '../../../../src';
-import { TimelineFile } from '../../../../src/TimelineFile';
 import Box from '@mui/material/Box';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import { TimelineFile } from '../../../../src/TimelineFile';
+import { Timeline } from '../../../../src';
 
 export default function CollapsedTimeline() {
   const [file, setFile] = React.useState<TimelineFile | null>(null);
@@ -61,7 +61,7 @@ export default function CollapsedTimeline() {
       
       <Timeline 
         file={file} 
-        labels={true}
+        labels
         collapsed={collapsed}
       />
     </Box>

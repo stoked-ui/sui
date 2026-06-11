@@ -166,8 +166,8 @@ export default function PullRequestEvent({ event, apiUrl }: PullRequestEventProp
   };
 
   // PR Header component with context info
-  const PrHeader = () => (
-    <Box sx={{ mb: 2 }}>
+  function PrHeader() {
+  return <Box sx={{ mb: 2 }}>
       <Box sx={{ display: 'flex', alignItems: 'top', justifyContent: 'space-between', mb: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
           <Typography variant="caption" color="text.secondary">
@@ -252,7 +252,7 @@ export default function PullRequestEvent({ event, apiUrl }: PullRequestEventProp
         />
       </Box>
     </Box>
-  );
+}
 
   if (loading) {
     return (

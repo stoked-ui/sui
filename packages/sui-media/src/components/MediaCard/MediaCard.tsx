@@ -166,7 +166,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({
     const extractFrame = () => {
       try {
         const ctx = canvas.getContext('2d');
-        if (!ctx) return;
+        if (!ctx) {return;}
         canvas.width = video.videoWidth || video.clientWidth;
         canvas.height = video.videoHeight || video.clientHeight;
         ctx.drawImage(video, 0, 0);
@@ -195,7 +195,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({
 
   // Handle selection toggle
   const handleSelectionToggle = () => {
-    if (!item._id) return;
+    if (!item._id) {return;}
 
     setModeState((prev) => {
       const selected = prev.selectState?.selected || [];
@@ -304,7 +304,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({
 
   // Handle purchase flow
   const handlePurchase = async () => {
-    if (!item._id || !item.price) return;
+    if (!item._id || !item.price) {return;}
 
     try {
       const paymentRequest = await payment.requestPayment({

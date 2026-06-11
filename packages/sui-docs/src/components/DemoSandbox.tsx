@@ -203,7 +203,7 @@ function DemoSandbox(props: any) {
   const Sandbox = iframe ? DemoIframe : React.Fragment;
   const sandboxProps = iframe ? { name, productId, ...other } : {};
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   // const t = useTranslate();
 
   // `childrenProp` needs to be a child of `Sandbox` since the iframe implementation rely on `cloneElement`.

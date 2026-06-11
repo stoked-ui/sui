@@ -1,7 +1,7 @@
 import { Prop, SchemaFactory } from "@nestjs/mongoose";
-import { StdSchema } from "../decorators/stdschema.decorator.js";
 import mongoose from "mongoose";
 import type { PublicityType } from "@stoked-ui/common";
+import { StdSchema } from "../decorators/stdschema.decorator.js";
 
 @StdSchema()
 export class BaseModel {
@@ -80,7 +80,7 @@ BaseModelSchema.methods.like = function (userId: string, save = true) {
 };
 
 BaseModelSchema.methods.view = function (userId: string, save = true) {
-  this.views = this.views + 1;
+  this.views += 1;
   this.addToSet("uniqueViews", userId);
   this.updateScore();
   if (save) {

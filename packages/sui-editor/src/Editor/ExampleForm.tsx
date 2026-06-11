@@ -5,11 +5,11 @@ import * as yup from 'yup';
 
 // Define validation schema
 const schema = yup.object().shape({
-  name: yup.string().required('Name is required'),
   email: yup.string().email('Email must be a valid email').required('Email is required'),
+  name: yup.string().required('Name is required'),
 });
 
-const ExampleForm = ({ initialData, onSubmit }) => {
+function ExampleForm({ initialData, onSubmit }) {
   const {
     register,
     handleSubmit,
@@ -50,6 +50,6 @@ const ExampleForm = ({ initialData, onSubmit }) => {
       </button>
     </form>
   );
-};
+}
 
 export default ExampleForm;

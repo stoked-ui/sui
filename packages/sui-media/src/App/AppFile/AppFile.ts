@@ -168,9 +168,8 @@ export default class AppFile<FileDataType extends IAppFileData = IAppFileData> e
         async function enqueueStream(stream: ReadableStream<Uint8Array>) {
           const reader = stream.getReader();
           try {
-            // eslint-disable-next-line no-constant-condition
             while (true) {
-              // eslint-disable-next-line no-await-in-loop
+               
               const { done, value } = await reader.read();
               if (done) {
                 break;
@@ -188,9 +187,9 @@ export default class AppFile<FileDataType extends IAppFileData = IAppFileData> e
         await enqueueStream(metadataStream);
 
         // Enqueue each file's stream
-        // eslint-disable-next-line no-restricted-syntax
+         
         for (const stream of fileStreams) {
-          // eslint-disable-next-line no-await-in-loop
+           
           await enqueueStream(stream);
         }
 

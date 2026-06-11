@@ -109,7 +109,7 @@ export default class ScreenshotStore {
         throw new Error('Failed to create canvas context.');
       }
       for (let i = 0; i < timestamps.length; i += 1) {
-        // eslint-disable-next-line no-await-in-loop
+         
         const screen = await this.captureScreenshot(timestamps[i], canvas, context, resolution);
         screens.push(screen);
       }
@@ -117,7 +117,7 @@ export default class ScreenshotStore {
     return screens;
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   async generateTimespanScreenshots(count: number, resolution: Resolution, fileTimespan: {start: number, end: number}, onCapture?: (screen: Screenshot) => void): Promise<Screenshot[]> {
     return new Promise((resolve, reject) => {
       const { start, end } = fileTimespan;
@@ -137,7 +137,7 @@ export default class ScreenshotStore {
         (async () => {
           let time = start;
           for (let i = 1; i <= count; i += 1) {
-            // eslint-disable-next-line no-await-in-loop
+             
             const screen = await this.captureScreenshot(time, canvas, context, resolution, onCapture);
             screens.push(screen);
             time += interval;
@@ -192,7 +192,7 @@ export default class ScreenshotStore {
   static loadFromLocalStorage(fileId: string): Screenshot[] | null {
     try {
       const raw = localStorage.getItem(`sui-screenshots-${fileId}`);
-      if (!raw) return null;
+      if (!raw) {return null;}
       return JSON.parse(raw) as Screenshot[];
     } catch {
       return null;
@@ -201,7 +201,7 @@ export default class ScreenshotStore {
 
   loadCachedScreenshots(): boolean {
     const cached = ScreenshotStore.loadFromLocalStorage(this.file.id);
-    if (!cached || cached.length === 0) return false;
+    if (!cached || cached.length === 0) {return false;}
     for (const screen of cached) {
       this.screenshots.push(screen);
     }
@@ -222,7 +222,6 @@ export default class ScreenshotStore {
     const validScreenshots: Screenshot[] = [];
     for (let i = 1; i <= numScreenshots; i += 1) {
 
-      // eslint-disable-next-line no-await-in-loop,@typescript-eslint/no-loop-func
       const screen = screenshots.find((screenshot: Screenshot) => Math.abs(screenshot.timestamp - time) <= this.threshold);
       if (screen) {
         validScreenshots.push(screen);

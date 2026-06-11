@@ -15,7 +15,7 @@ const directory = 'docs/public/static/screenshots';
 const names = new Set(process.argv.slice(2));
 
 (async () => {
-  // eslint-disable-next-line no-console
+   
   console.info('Host:', host);
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1600, height: 800 } });
@@ -38,7 +38,7 @@ const names = new Set(process.argv.slice(2));
         await page.goto(`${host}${aUrl}`, { waitUntil: 'networkidle' });
 
         const filePath = `${directory}${aUrl.replace(/\/$/, '')}.jpg`;
-        // eslint-disable-next-line no-console
+         
         console.info('Saving screenshot to:', filePath);
         await page.screenshot({ path: filePath });
 
@@ -56,7 +56,7 @@ const names = new Set(process.argv.slice(2));
       }, Promise.resolve()),
     );
   } catch (error) {
-    // eslint-disable-next-line no-console
+     
     console.log(error);
   }
 
