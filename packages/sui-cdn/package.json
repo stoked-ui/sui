@@ -1,6 +1,6 @@
 {
   "name": "@stoked-ui/cdn",
-  "version": "0.1.0-alpha.5",
+  "version": "0.1.0",
   "description": "Embeddable CDN browser component for React apps",
   "license": "MIT",
   "keywords": [
