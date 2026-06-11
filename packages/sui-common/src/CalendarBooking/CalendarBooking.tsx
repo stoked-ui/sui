@@ -93,7 +93,7 @@ function MiniCalendar({ year, month, selectedDate, onDateClick, onPrevMonth, onN
   } as const;
 
   return (
-    <Box data-testid="mini-calendar" sx={{ width: 220, flexShrink: 0, userSelect: 'none' }}>
+    <Box data-testid="mini-calendar" sx={{ marginTop: 20, width: 220, flexShrink: 0, userSelect: 'none' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
         <Box component="button" onClick={onPrevMonth} sx={btnSx}>‹</Box>
         <Typography variant="caption" sx={{ fontWeight: 700 }}>
@@ -196,15 +196,18 @@ export default function CalendarBooking({ apiBaseUrl = '', onSuccess, onError }:
      
   }, [weekStart, apiBaseUrl]);
 
-  // Build ISO string for a given day + time-slot index
-  function slotIso(dateStr: string, idx: number): string {
+  // Local Date for a given day + time-slot index
+  function slotDate(dateStr: string, idx: number): Date {
     const [y, m, d] = dateStr.split('-').map(Number);
-    const dt = new Date(y, m - 1, d, TIME_SLOTS[idx].hour, TIME_SLOTS[idx].minute, 0, 0);
-    return dt.toISOString();
+    return new Date(y, m - 1, d, TIME_SLOTS[idx].hour, TIME_SLOTS[idx].minute, 0, 0);
+  }
+
+  function slotIso(dateStr: string, idx: number): string {
+    return slotDate(dateStr, idx).toISOString();
   }
 
   function isAvailable(day: DayState, idx: number): boolean {
-    return day.availableIsos.has(slotIso(day.date, idx));
+    return day.availableIsos.has(slotIso(day.date, idx)) && slotDate(day.date, idx).getTime() > Date.now();
   }
 
   function isPastDay(day: DayState): boolean {
@@ -291,7 +294,7 @@ export default function CalendarBooking({ apiBaseUrl = '', onSuccess, onError }:
 
   return (
     <Box sx={{ width: '100%', maxWidth: 1000, mx: 'auto' }}>
-      <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+      <Box sx={{ display: 'flex', gap: 7, flexWrap: 'wrap', alignItems: 'flex-start' }}>
         {/* Left: mini calendar */}
         <MiniCalendar
           year={calYear} month={calMonth}
@@ -303,13 +306,13 @@ export default function CalendarBooking({ apiBaseUrl = '', onSuccess, onError }:
         {/* Right: week grid */}
         <Box data-testid="week-grid" sx={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
           {/* Day headers */}
-          <Box sx={{ display: 'grid', gridTemplateColumns: '56px repeat(5, 1fr)', mb: 0 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: '56px repeat(5, 1fr)', mb: 0.5 }}>
             <Box /> {/* time label spacer */}
             {days.map(day => (
               <Box
                 key={day.date}
                 data-testid="day-column-header"
-                sx={{ textAlign: 'center', py: 0.75, borderBottom: '1px solid', borderColor: 'divider' }}
+                sx={{ textAlign: 'center', py: 0.75 }}
               >
                 <Typography variant="caption" display="block" sx={{ fontWeight: 600, color: 'text.secondary', fontSize: 10 }}>
                   {day.dayName}
@@ -330,7 +333,7 @@ export default function CalendarBooking({ apiBaseUrl = '', onSuccess, onError }:
                   key={i}
                   sx={{
                     position: 'absolute', top: i * ROW_HEIGHT, height: ROW_HEIGHT,
-                    width: '100%', display: 'flex', alignItems: 'flex-start', pt: '2px', pr: '6px',
+                    width: '100%', display: 'flex', alignItems: 'center', pr: '8px',
                   }}
                 >
                   <Typography variant="caption" sx={{ fontSize: 9, color: 'text.disabled', lineHeight: 1, whiteSpace: 'nowrap' }}>
@@ -344,8 +347,10 @@ export default function CalendarBooking({ apiBaseUrl = '', onSuccess, onError }:
             {days.map(day => {
               const past = isPastDay(day);
               const isSelected = selectedDay === day.date;
+              const isToday = day.date === toDateStr(today);
+              const dark = theme.palette.mode === 'dark';
               return (
-                <Box key={day.date} sx={{ position: 'relative', height: GRID_HEIGHT, borderLeft: '1px solid', borderColor: 'divider' }}>
+                <Box key={day.date} data-day-column={day.date} sx={{ position: 'relative', height: GRID_HEIGHT }}>
                   {/* Background rows */}
                   {TIME_SLOTS.map((_, i) => {
                     const avail = !past && isAvailable(day, i);
@@ -355,19 +360,30 @@ export default function CalendarBooking({ apiBaseUrl = '', onSuccess, onError }:
                         key={i}
                         data-testid={avail ? 'time-slot' : 'day-unavailable'}
                         data-selected={rowSelected ? 'true' : 'false'}
+                        data-today={isToday ? 'true' : 'false'}
                         onClick={avail ? () => handleSlotClick(day.date, i) : undefined}
                         sx={{
-                          position: 'absolute', top: i * ROW_HEIGHT, height: ROW_HEIGHT - 1,
-                          width: '100%',
-                          borderBottom: '1px solid',
-                          borderColor: theme.palette.divider,
+                          position: 'absolute', top: i * ROW_HEIGHT + 2, height: ROW_HEIGHT - 5,
+                          left: 3, right: 3,
+                          borderRadius: '6px',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
                           cursor: avail ? 'pointer' : 'default',
                           backgroundColor: avail
-                            ? theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)'
-                            : 'transparent',
-                          '&:hover': avail ? { backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.06)' } : {},
+                            ? (dark
+                              ? (isToday ? 'rgba(255,255,255,0.11)' : 'rgba(255,255,255,0.07)')
+                              : (isToday ? 'rgba(0,0,0,0.10)' : 'rgba(0,0,0,0.06)'))
+                            : (dark
+                              ? (isToday ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.03)')
+                              : (isToday ? 'rgba(0,0,0,0.05)' : 'rgba(0,0,0,0.025)')),
+                          '&:hover': avail ? { backgroundColor: dark ? 'rgba(255,255,255,0.16)' : 'rgba(0,0,0,0.13)' } : {},
                         }}
-                      />
+                      >
+                        {!avail && (
+                          <Typography component="span" sx={{ fontSize: 11, lineHeight: 1, color: dark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.2)', userSelect: 'none' }}>
+                            —
+                          </Typography>
+                        )}
+                      </Box>
                     );
                   })}
 
