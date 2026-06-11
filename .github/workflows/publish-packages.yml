@@ -105,7 +105,7 @@ jobs:
         run: pnpm build:all
       - name: Publish packages to npm
         env:
-          NODE_AUTH_TOKEN: ''
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: >
           node scripts/npmRelease.mjs publish
           --mode "${{ needs.detect.outputs.mode }}"
