@@ -1,7 +1,6 @@
 {
   "name": "@stoked-ui/internal-cdn-sui",
   "version": "0.1.0",
-  "private": true,
   "description": "Shell app for cdn-sui.stokd.cloud — powered by @stoked-ui/cdn",
   "scripts": {
     "dev": "vite",
