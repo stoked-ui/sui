@@ -1,6 +1,6 @@
 # Stoked UI — User Flow Classification
 
-> **Generated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) | **Refreshed:** 2026-06-06 | **Meta version:** 0.4.0
+> **Generated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) | **Refreshed:** 2026-06-06 (timed refresh — re-verified API/route topology end-to-end; added §1.6 consulting service-line discovery, cited the `useAllProducts()` → `GET /api/products/public` data source for the product menu/index grid) | **Meta version:** 0.4.0
 > **Repository:** `@stoked-ui/sui`
 > **Root:** `/opt/worktrees/stoked-ui/stoked-ui-main`
 
@@ -38,7 +38,7 @@ Flows are grouped by domain:
   1. Browser hits `docs/pages/index.tsx`.
   2. Site-wide chrome (header/banner/footer) renders via §1.1 *Home Page* of `SC_VIEWS.md`.
   3. `RandomHome` (`docs/src/components/home/RandomHome.tsx`) randomly mounts one of `HeroEditor` / `HeroTimeline` / `HeroFileExplorer` / `HeroFlux` / `HeroStokedUi` / rusty-editor demo (intersection-observer gated).
-  4. User clicks a product card (or product menu) → routes to a §2 showcase or §3 docs MDX shell.
+  4. User clicks a product card (or the header product menu, populated by `useAllProducts()` in `docs/src/products.tsx` → `GET /api/products/public`) → routes to a §2 showcase or §3 docs MDX shell.
   5. Optional: `NewsletterToast` opens; user submits email → `POST api/subscribe` (Lambda `api/subscribe.ts`).
 - **Views:** §1.1 Home, §2 Product Showcase pages (`HeroEditor`, `HeroTimeline`, `HeroFileExplorer`, `HeroFlux`, `HeroStokedUi`, `HeroGithub`), §8 Embedded Showcase / Hero Components
 - **Products:** SC_PRODUCT_STOKED_UI_SUI.md
@@ -49,7 +49,7 @@ Flows are grouped by domain:
 - **Goal:** Read marketing detail for a single product (Editor / Timeline / FileExplorer / Media / GitHub / Flux)
 - **Entry points:** `/products`, `/products/[slug]` link, header product menu
 - **Steps:**
-  1. `docs/pages/products/index.tsx` renders the product index card grid.
+  1. `docs/pages/products/index.tsx` renders the product index card grid from `useAllProducts()` (`docs/src/products.tsx` → `GET /api/products/public`, `docs/pages/api/products/public.ts`, live products only, `stoked-ui` excluded).
   2. User clicks a product → `docs/pages/products/[product-slug].tsx` resolves the slug and calls `GET /api/products/public/[slug]` (`docs/pages/api/products/public/[slug].ts`).
   3. `PublicProductDetailPage` renders hero + features + doc list + CTA.
   4. CTA either deep-links into §3 product MDX docs, the §2 hero showcase, or §3.1 Pricing.
@@ -93,6 +93,20 @@ Flows are grouped by domain:
   3. Page renders state per HTTP code (200 verified / 201 already / 401 invalid / 402 system / 404 missing / 500 / no-code instructions).
 - **Views:** §1.7 About / Careers / Feedback / Subscription Confirm
 - **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+
+### 1.6 Discover Consulting Service Lines
+
+- **Actor:** Anonymous visitor / prospect on the consulting origin
+- **Goal:** Land on `consulting.stokd.cloud`, see a service-line pitch, browse practice-area landing pages, and convert into the audit bot (§9.3) or contact
+- **Entry points:** Direct URL (`https://consulting.stokd.cloud/`, served by `docs/pages/consulting/index.js`), `/consulting/main`, service cards, header
+- **Steps:**
+  1. Visitor hits `docs/pages/consulting/index.js`; `WeightedMain` runs a client-side weighted lottery (SSR off) — `ai` 50, `devops` 20, `front-end`/`back-end`/`full-stack` 10 each — and dynamically mounts that service line's `main` page inside the `Home` shell.
+  2. Alternatively `/consulting/main.tsx` renders `HeroConsulting` + a `ServiceCard` grid (Greenfield, Tech-Debt Remediation, Platform/Marketplace, DevOps/CI-CD, Full-Stack Modernization, …) and industry cards.
+  3. Visitor opens a specific service-line landing page (`/consulting/{ai,back-end,front-end,devops,full-stack}` → `docs/pages/consulting/<service>/main.tsx`): `HeroConsulting`/`GradientText` hero, `ConsultingProofStrip`, stats/steps/opportunity `Section`s, `ServiceCard` grid.
+  4. Conversion: the `/consulting/ai` page embeds `AuditBotTrigger` (`variant="hero"`) → opens the audit-bot dialog (§9.3); other pages route to `/company/contact` (static `mailto:`) or `/consulting/login` for engagement.
+- **Views:** §4.2 Consulting Home, §21 Consulting Service-Line Pages, §24.1 Audit Bot Trigger, §23 Company / Contact
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Note:** This is the consulting-origin counterpart to §1.1 (the product-origin home). The same `docs/` Next.js app serves both origins (`siteRouting.ts`); only the audit-bot path (§9.3) is currently transactional — the contact surface (§23) is a static `mailto:` page, not a form submission.
 
 ---
 
@@ -195,7 +209,7 @@ Flows are grouped by domain:
 - **Entry points:** `/pricing`, "Buy" CTA on product detail
 - **Steps:**
   1. `docs/pages/pricing.tsx` renders `HeroPricing`, `PricingTable`/`PricingList`, `PricingFAQ`.
-  2. User toggles community/commercial via `LicensingModelProvider`.
+  2. User toggles community/commercial via `LicensingModelProvider`; available tiers/products are sourced from `GET /api/licenses/products` (`docs/pages/api/licenses/products.ts` → `listLicenseProducts`).
   3. CTA hits `POST /api/licenses/checkout` (`docs/pages/api/licenses/checkout.ts`) which calls Stripe to create a checkout session (returning client secret for embedded checkout).
   4. Browser routes to `/consulting/checkout?product=...&email=...&session=...` (§7.1).
 - **Views:** §1.4 Pricing, §7.1 Stripe Embedded Checkout
@@ -545,7 +559,7 @@ Flows are grouped by domain:
   2. Each visitor message POSTs `{ sessionId, playbook, history, message }` to `POST /api/audit/turn` (`docs/pages/api/audit/turn.ts`).
   3. Server `runTurn` (`docs/src/modules/auditBot/conversationRunner.ts`) calls the LM Studio / Qwen endpoint (`llmClient.ts`, model `AUDIT_MODEL`) with the playbook system prompt (`playbooks/server.ts`) and `AUDIT_TOOLS` (`tools.ts`), looping over tool calls server-side so the UI only sees clean assistant text.
   4. Tool `fetch_company_site` scrapes the visitor's company URL — SSRF-guarded via `urlSafety.ts` (blocks private/reserved IPs, validates redirects hop-by-hop) — to ground the audit.
-  5. Tool `generate_report` emits the structured `AuditReport`; server stamps `playbook` and returns it in the turn response; UI renders it inline via `AuditReportView` (§24.3).
+  5. Tool `generate_report` emits the structured `AuditReport`; the runner first passes the untrusted model args through `validateReportShape` (`docs/src/modules/auditBot/reportValidation.ts`, called at `conversationRunner.ts:143`) — a malformed payload is rejected and the schema error is fed back as a tool result so the model re-calls `generate_report` with a correct shape (never reaching the UI/mailer). On a valid shape the server stamps `playbook` and returns it in the turn response; UI renders it inline via `AuditReportView` (§24.3).
   6. Tool `save_lead` marks the conversation `finished`; server extracts lead fields (`leadFields.ts`), persists the lead/transcript/report via `auditStore.ts` (Mongo, best-effort), then runs the §13.5 notify + report-email side effects.
   7. Visitor may instead (or also) submit name/email — and optionally "Book a 30-min call" (Calendly) — in the email-capture panel → `POST /api/audit/save-lead` (`docs/pages/api/audit/save-lead.ts`); response `{ ok, emailedReport }` toggles the confirmation copy.
 - **Views:** §24.1 Audit Bot Trigger, §24.2 Audit Bot Dialog, §24.3 Audit Report View; hosted on §21 Consulting Service-Line Pages (`/consulting/ai`)
@@ -726,6 +740,7 @@ Flows are grouped by domain:
   3. If the lead has both an email and a generated report, `sendAuditReportEmail` (`docs/src/modules/auditBot/auditMailer.ts`) emails the report via SES; `tryMarkReportEmailed` guarantees a single send (idempotent guard).
 - **Views:** None (server-only); §24.2 Audit Bot Dialog / §24.3 Audit Report View reflect the resulting confirmation state in-dialog
 - **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Planned (defined, not yet wired):** `promoteAuditToDeliverable` (`docs/src/modules/auditBot/deliverables.ts`) is meant to mirror a completed audit report into the consulting extranet as a `deliverables` doc (`download|link|ux|html`), bridging this flow into §7.2/§7.3. As of this refresh nothing calls it — `grep -rln promoteAuditToDeliverable` returns only its own definition — so the audit→deliverable bridge is dormant, not a live flow.
 
 ---
 

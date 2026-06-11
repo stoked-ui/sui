@@ -1,92 +1,222 @@
-# Testing Strategy: `@stoked-ui/github`
+# SC_TEST: sui-github (`@stoked-ui/github`)
 
-**Package:** `packages/sui-github`
-**Priority:** Medium
-**Stack:** TypeScript + React 18 + MUI 5 + native `fetch`
-**Current Coverage:** 0% — files under `test/` are MUI boilerplate (Dialog/Menu/Select/Table/etc.) and exercise none of this package's source
+> **Generated:** 2026-06-06 | **Meta version:** 0.4.0
+> **Package:** `packages/sui-github` (`@stoked-ui/github` v0.1.0-alpha.11.3)
+> **Priority:** Medium
+> **Source entry (barrel):** `packages/sui-github/src/index.ts`
+> See `.stokd/meta/packages/sui-github/SC_MODULE.md` for module classification and
+> `packages/sui-github/.axioms.md` for the module invariants this strategy protects
+> (`AX-MOD-GITHUB-001` … `AX-MOD-GITHUB-008`).
+>
+> All file paths, line numbers, exports, and test-stack conventions below were
+> verified against the working tree on the generated date.
 
----
+`@stoked-ui/github` is a set of **React components for rendering GitHub data**
+(contribution calendar, event feed, commit and branch-compare views) plus a matching
+set of **server-side fetchers and Next.js API handler factories** that keep
+`GITHUB_TOKEN` off the client. The package has **zero meaningful test coverage today**:
+everything under `test/` is MUI Joy/Material scaffolding boilerplate (`Dialog`, `Menu`,
+`Select`, `Table`, `OverridableComponent`, `moduleAugmentation/…`) copied at package
+creation — none of it imports `@stoked-ui/github` source. There are **no co-located
+`src/**/*.test.*` files** and **no `test` script** in `package.json` (verified).
 
-## 1. What Should Be Tested
+The package splits cleanly into four testable layers behind one barrel:
 
-### 1.1 Critical Paths
+1. **Pure normalizers / parsers** — `src/apiHandlers/githubApi.ts` (the single source of
+   truth for the `GithubCommitData` / `GithubBranchData` wire shape, per `AX-MOD-GITHUB-003`).
+2. **Server fetchers** — `getGithubContributions`, `getCommitDetails`,
+   `getBranchCompareDetails`, `getPullRequestDetails`, `githubEventsQuery`. Network I/O
+   over native `fetch` (REST + one GraphQL call); token-bearing, **server-only** (`AX-MOD-GITHUB-006`).
+3. **Handler factories** — `createGithub{Events,Branch,Commit,Contributions}Handler`. The
+   Next.js API seam: method gate, param validation, error→status mapping, cache headers.
+   Their query-string contract is symmetric with the components (`AX-MOD-GITHUB-002`).
+4. **React components** — `GithubEvents` (1,377 LOC, embeds nearly all event logic + a
+   localStorage cache), `GithubCalendar`, `GithubBranch`, `GithubCommit`,
+   `GithubContributorsList`, and the per-type renderers under `GithubEvents/EventTypes/`.
 
-| Area | Source | Why Critical |
-|------|--------|-------------|
-| `fetchGithubResource` / `parseGithubDiff` / `normalizeGithubFile` / `normalizeGithubCommit` / `buildGithubContributors` / `summarizeGithubStats` | `src/apiHandlers/githubApi.ts` | Pure helpers shared by every commit/branch/PR fetcher — bugs here cascade into every consumer |
-| `getGithubContributions` | `src/apiHandlers/getGithubContributions.ts` | Drives `GithubCalendar` — GraphQL query, date-range coercion, contribution-level mapping, total label |
-| `getCommitDetails` | `src/apiHandlers/getCommitDetails.ts` | Single-commit normalizer — short ref, summary, contributor, files, stats |
-| `getBranchCompareDetails` | `src/apiHandlers/getBranchCompareDetails.ts` | Compare endpoint — status, ahead/behind, contributors, file diffs |
-| `getPullRequestDetails` | `src/apiHandlers/getPullRequestDetails.ts` | Three sequential REST calls (PR + commits + files), diff parsing, rate-limit detection, `RequestError` returns |
-| `githubEventsQuery` | `src/apiHandlers/getGithubEvents.ts` | Multi-page event fetch (up to 30 pages), `Link` header pagination, dedup, repo/action/date/description filtering, derived facets |
-| `createGithubEventsHandler` | `src/apiHandlers/createGithubEventsHandler.ts` | Next.js API seam — keeps `GITHUB_TOKEN` server-side, validates `username`, maps errors to 400/502 |
-| `createGithubBranchHandler` / `createGithubCommitHandler` / `createGithubContributionsHandler` | `src/apiHandlers/*.ts` | Same handler pattern: method gate, param validation, cache headers, error mapping |
-| `processEvents` | `src/GithubEvents/GithubEvents.tsx:381` | Transforms raw `GitHubEvent[]` into `DisplayEventDetails[]` — date formatting (`America/Chicago`), per-type routing, error resilience |
-| `filterEvents` | `src/GithubEvents/GithubEvents.tsx:502` | Client-side combined repo/action/description/date filter |
-| `getEventDescription` | `src/GithubEvents/GithubEvents.tsx:525` | Type-to-description mapping used by description filter |
-| `getFilteredDate` | `src/GithubEvents/GithubEvents.tsx:539` | Cutoff date for `today` / `yesterday` / `week` / `month` |
-| `ErrorDetails` | `src/GithubEvents/GithubEvents.tsx:232` | Renders `RequestError`, plain-string, and unknown error shapes |
-| Cache layer | `src/GithubEvents/GithubEvents.tsx` (`persistCachedEvents`, `updateCachedEventsTimestamp`, etc.) | localStorage-backed cache with truncation + timestamp refresh; falls back when storage write fails |
+### Source surface (verified LOC / line anchors)
 
-### 1.2 Edge Cases
+| Module | File | LOC | Key exports / functions (line) |
+|--------|------|-----|--------------------------------|
+| Pure normalizers | `src/apiHandlers/githubApi.ts` | 226 | `fetchGithubResource` (`:33`), `parseGithubDiff` (`:59`), `normalizeGithubFile` (`:107`), `normalizeGithubCommit` (`:148`), `buildGithubContributors` (`:165`), `summarizeGithubStats` (`:201`), `getGithubMessageSummary` (`:216`), `getGithubShortRef` (`:220`); internal `getGithubHeaders` (`:19`), `toFileChangeType` (`:96`), `getGithubIdentity` (`:128`) |
+| Contributions fetcher | `src/apiHandlers/getGithubContributions.ts` | 176 | default `getGithubContributions` (`:102`); internal `isValidDateInput` (`:57`), `toDateRange` (`:65`), `buildContributionTotals` (`:83`), `buildCountLabel` (`:91`), `CONTRIBUTION_LEVEL_MAP` (`:30`) |
+| Commit fetcher | `src/apiHandlers/getCommitDetails.ts` | 56 | default `getCommitDetails` (`:18`) |
+| Branch-compare fetcher | `src/apiHandlers/getBranchCompareDetails.ts` | 49 | default `getBranchCompareDetails` (`:17`) |
+| PR fetcher | `src/apiHandlers/getPullRequestDetails.ts` | 121 | default `getPullRequestDetails` (`:4`) — returns (not throws) `RequestError` |
+| Events query | `src/apiHandlers/getGithubEvents.ts` | 174 | `githubEventsQuery` (`:27`, also default `:174`), type `EventsQuery` (`:3`); **file-local** `parseLinkHeader` (`:12`, not exported) |
+| Events handler | `src/apiHandlers/createGithubEventsHandler.ts` | 66 | default factory (`:29`); internal `getQueryValue` (`:20`), `parseNumber` (`:24`) |
+| Branch handler | `src/apiHandlers/createGithubBranchHandler.ts` | 46 | default factory (`:20`) |
+| Commit handler | `src/apiHandlers/createGithubCommitHandler.ts` | 45 | default factory (`:20`) |
+| Contributions handler | `src/apiHandlers/createGithubContributionsHandler.ts` | 61 | default factory (`:24`) |
+| Component fetch helper | `src/components/fetchGithubViewData.ts` | 15 | default `fetchGithubViewData` (`:1`) — `apiUrl` proxy fetch |
+| Contributors list | `src/components/GithubContributorsList.tsx` | 65 | default `GithubContributorsList` (`:24`) |
+| Event feed | `src/GithubEvents/GithubEvents.tsx` | 1,377 | default `GithubEvents`; exported `ErrorDetails` (`:232`); embedded `JsonFallbackView` (`:157`), `processEvents` (`:381`), `filterEvents` (`:502`), `getEventDescription` (`:525`), `getFilteredDate` (`:539`); cache `persistCachedEvents` (`:115`), `updateCachedEventsTimestamp` (`:138`); SSR-safe storage wrappers `getStorageItem` (`:65`), `setStorageItem` (`:74`), `removeStorageItem` (`:87`), `getStorageKeys` (`:95`) |
+| Calendar | `src/GithubCalendar/GithubCalendar.tsx` | 464 | default `GithubCalendar` (`:126`); internal `buildApiUrl` (`:113`) |
+| Branch view | `src/GithubBranch/GithubBranch.tsx` | 175 | default `GithubBranch` |
+| Commit view | `src/GithubCommit/GithubCommit.tsx` | 171 | default `GithubCommit` |
+| Wire types | `src/types/github.ts` | 196 | `GitHubEvent`, `EventDetails`, `CachedData`, `Github{ChangedFile,DiffLine,Contributor,CommitListItem,CommitStats,CommitData,BranchData,ContributionDay,ContributionsResponse}`, `PullRequestDetails`, `GithubFileHighlight` |
+| Per-type renderers | `src/GithubEvents/EventTypes/**` | — | `PushEvent`, `DeleteEvent`, `CreateEvent`, `IssuesEvent`, `IssueCommentEvent`, `PullRequest/{PullRequestEvent,PullRequestView,CommitsList,FileChanges}`; **inert** `ForkEvent`, `ProjectsV2*Event` (exist but not wired — `AX-MOD-GITHUB-008`) |
+| Barrel | `src/index.ts` | 19 | The public contract (see `AX-MOD-GITHUB-001`) |
 
-- **`fetchGithubResource`** — 403 with `x-ratelimit-remaining: 0` ⇒ "rate limit" error including reset timestamp; 403 with remaining ⇒ raw body; non-JSON body; missing `User-Agent` header tolerated; `GITHUB_TOKEN` absent ⇒ no `Authorization` header.
-- **`parseGithubDiff`** — undefined patch ⇒ `[]`; truncation sentinel appears only when over `maxLines`; lines beginning with `+`/`-` only at column 0 are addition/deletion (not `+++`/`---` headers — verify current behavior, since headers DO start with `+`/`-`).
-- **`normalizeGithubFile`** — missing `filename` falls back to `path` then `'unknown'`; status `removed` ⇒ `deleted`; status `added` ⇒ `added`; everything else ⇒ `modified`; pre-supplied `diff` short-circuits patch parsing.
-- **`normalizeGithubCommit` / `buildGithubContributors`** — anonymous commit (no `author`, only `commit.author`); identical login appearing in multiple commits aggregates contributions; sort is by contributions desc then `login` asc; `'Unknown author'` is upgraded if a later commit supplies a real name.
-- **`summarizeGithubStats`** — empty array returns zeros; per-file `additions`/`deletions` undefined treated as `0` via `||`.
-- **`getGithubMessageSummary` / `getGithubShortRef`** — empty message ⇒ `'Untitled commit'`; ref shorter than `length` returned as-is; empty ref ⇒ `''`.
-- **`getGithubContributions`** — missing `githubUser` throws; missing `githubToken` (env unset) throws "GitHub token not configured"; `from > to` throws "must be before"; invalid date strings ignored (defaults applied); GraphQL `errors` array surfaced; missing `contributionCalendar` throws; same-year vs cross-year `countLabel`.
-- **`getCommitDetails`** — missing params throw; commit with no `files`; `contributor` fallback when `buildGithubContributors` returns empty; multi-line message ⇒ summary uses first line.
-- **`getBranchCompareDetails`** — missing params throw; `status` of `ahead`/`behind`/`diverged`/`identical`/missing; empty `commits`/`files` arrays; `total_commits` falls back to `commits.length`; URL fallback when `html_url` missing; encoded refs containing `/`.
-- **`getPullRequestDetails`** — missing param ⇒ `RequestError(400)`; rate-limit 403 ⇒ thrown error with reset time; non-ok ⇒ thrown error with body; fetch failure ⇒ `RequestError(500)`; `file.status` mapping; empty `patch` ⇒ empty diff array.
-- **`githubEventsQuery`** — pagination stops on empty page, on missing `Link: rel="next"`, and at 30-page cap; dedup by `event.id`; `action` filter strips trailing `Event`; `date: 'yesterday'` resets hours to start-of-day; `description` is case-insensitive substring; pagination math uses 1-based `pageNum`; combined filters compose; `total_pages` is ceil(filtered / per_page).
-- **`createGithubEventsHandler`** — non-GET ⇒ 405 with `Allow: GET`; missing `username` ⇒ 400; array-valued query params take first element; `parseNumber` rejects ≤0 and non-finite; `getGithubToken` config override beats `process.env.GITHUB_TOKEN`; query error ⇒ 502 unless message contains "username is required" ⇒ 400; success sets `s-maxage=300, stale-while-revalidate=3600`.
-- **`createGithubBranchHandler` / `createGithubCommitHandler`** — same method gate, param requirement (`owner/repo/base/head` or `owner/repo/ref`), and "Missing required parameters" → 400 vs upstream → 502 mapping.
-- **`processEvents`** — null entries filtered; missing `created_at` produces error placeholder; unknown `type` falls back to `type.replace('Event','')`; `payload` sub-fields missing on PR/Issue/Push handled.
-- **`filterEvents`** — empty filters return input; combined filters intersect; description filter is case-insensitive.
-- **`getFilteredDate`** — `today` is 00:00 of today; `yesterday` subtracts a day then resets to 00:00; `week`/`month` analogous; unknown ⇒ `null` (or epoch — verify against source).
-- **Cache** — `persistCachedEvents` truncates to `normalizedLimit`; storage failure removes the key and warns; stale entry (>8h) ignored; corrupt JSON gracefully reset; session-level fetch dedup avoids parallel duplicate requests.
-- **Event-type components** — every renderer in `src/GithubEvents/EventTypes/*` should return `null` (or a recognizable placeholder) when `event.payload` or expected sub-fields are missing.
-
-### 1.3 Integration Points
-
-- GitHub REST: `api.github.com/users/{user}/events`, `/repos/{owner}/{repo}/commits/{ref}`, `/repos/{owner}/{repo}/compare/{base}...{head}`, `/repos/{owner}/{repo}/pulls/{n}`, `/pulls/{n}/commits`, `/pulls/{n}/files`
-- GitHub GraphQL: `api.github.com/graphql` (contribution calendar)
-- `react-activity-calendar` SVG renderer in `GithubCalendar.tsx`
-- `next/dynamic` to defer `react-json-view` (SSR-unsafe)
-- `localStorage` / `sessionStorage` for event cache + dedup
-- MUI theme integration via `@mui/material/styles` (`useTheme`, `styled`, `ThemeProvider`)
-- `date-fns` / `date-fns-tz` for `America/Chicago` zoned formatting in `processEvents`
-- `@stoked-ui/common` resize hooks (`useResize`, `useResizeWindow`) used by `GithubCalendar`
-- `@octokit/request-error` `RequestError` returned (not thrown) by `getPullRequestDetails`
-
----
-
-## 2. Test Framework and Tooling
-
-### Recommended Stack
-
-| Tool | Purpose | Rationale |
-|------|---------|-----------|
-| **Mocha + Chai + Sinon** | Test runner / assertions / spies | Matches the rest of this monorepo (`@mui-internal/test-utils`, `chai` is already a devDependency in `package.json:83`) — keeps tests runnable via the root `pnpm test` |
-| **`@mui-internal/test-utils`** | `createRenderer`, `describeConformance` | `test/describeConformance.ts` already wires this up; sibling packages (`sui-editor`, `sui-file-explorer`) follow the same pattern |
-| **JSDOM** (via root mocharc) | DOM environment | Already configured at the monorepo level |
-| **`global.fetch` stub** (Sinon) | API mocking | All GitHub calls go through native `fetch` — no extra dependency needed |
-
-> Do **not** introduce Jest in this package alone — it would diverge from the monorepo's Mocha-based runner and break aggregated `pnpm test`. The existing `test/` layout (`integration/`, `typescript/`, `umd/`) is the convention to follow once you replace the MUI boilerplate.
-
-### Configuration
-
-- Tests run from the monorepo root via Mocha; no per-package config is needed beyond glob inclusion.
-- Add a per-package `tsconfig.test.json` only if test-only types diverge from `tsconfig.json`.
-- Re-use `test/describeConformance.ts` for component conformance suites.
+> **Refresh note (2026-06-06):** the prior strategy referenced `react-json-view`
+> loaded via `next/dynamic`. That dependency has been **removed from `src/`** — the raw
+> payload panel is now the in-package, SSR-safe `JsonFallbackView` (`GithubEvents.tsx:157`,
+> wired at `:1370`), which `JSON.stringify`s into a `<pre>`. `react-json-view` remains a
+> dead entry in `package.json` and is a removal candidate. No `src/` file imports
+> `next/dynamic` or `react-json-view` (verified). Any future SSR-unsafe dependency must
+> still go behind `next/dynamic({ ssr: false })` per `AX-MOD-GITHUB-007`.
 
 ---
 
-## 3. Test File Organization
+## 1. Framework & Tooling — use the umbrella Mocha runner
 
-Mirror the convention used by sibling packages (e.g. `packages/sui-editor/src/**/*.test.tsx`):
+| Tool | Purpose | Why |
+|------|---------|-----|
+| **Mocha 10** | Test runner | The monorepo CI gate. Co-located `packages/**/*.test.{js,ts,tsx}` are picked up by root `pnpm test:unit` / `pnpm test:coverage` with **no per-package wiring**. |
+| **Chai 4** | Assertions | Already a devDependency (`package.json:83`; `@types/chai:79`). |
+| **Sinon 15** | Stubs / spies / fake timers | Resolves hoisted from the root (`sinon@15.2.0` verified at `node_modules/sinon`). Used to stub `global.fetch`, freeze the clock, silence `console`. |
+| **`@stoked-ui/internal-test-utils`** | `createRenderer` (JSDOM-backed render/act), `describeConformance` | Already a devDependency (`package.json:78`); `test/describeConformance.ts` already wires it. Sibling browser packages (`sui-file-explorer`, `sui-editor`) follow the same pattern. |
+| **JSDOM** | DOM + `localStorage` / `sessionStorage` | Provided by the root `.mocharc.js` `require` hook `@stoked-ui/internal-test-utils/setupJSDOM`. |
+
+> **Do NOT introduce Jest here.** `@stoked-ui/github` is a **publishable** package; the
+> root Mocha glob (`packages/**/*.test.{js,ts,tsx}`) would try to run any Jest spec and
+> fail on Jest globals. Jest is reserved for `sui-media` / `sui-common` only (standalone
+> stacks). Stay on Mocha + Chai + Sinon.
+
+### devDependencies — already sufficient
+
+`package.json` already carries `@stoked-ui/internal-test-utils`, `chai`, `@types/chai`,
+`@types/react-transition-group`, `@types/prop-types`, and `typescript`. **Nothing must be
+added** to start writing tests. `sinon` resolves from the root hoist; add an explicit
+`"sinon": "^15.2.0"` only for hygiene if desired. Do **not** add `jest`, `ts-jest`,
+`@types/jest`, or a `react-activity-calendar` stub package.
+
+### Do NOT add a (broken) per-package `test` script
+
+The browser-package family deliberately ships **no** `scripts.test` (verified:
+`sui-github`, `sui-file-explorer`, `sui-editor`, `sui-timeline` all have
+`scripts.test === undefined`). A naive `"test": "mocha 'src/**/*.test.{ts,tsx}'"` run from
+`packages/sui-github/` would **fail** — Mocha resolves config from CWD and does not walk
+up, so it would miss the root `.mocharc.js` `require` hooks (no Babel transform → TS/TSX
+won't compile; no JSDOM → no DOM/`localStorage`). Run from the repo root instead:
+
+```bash
+# whole package
+cross-env NODE_ENV=test mocha --config .mocharc.js 'packages/sui-github/src/**/*.test.{ts,tsx}'
+# one file, focused
+cross-env NODE_ENV=test mocha --config .mocharc.js 'packages/sui-github/src/apiHandlers/githubApi.test.ts'
+```
+
+The structural acceptance check for every axiom is also already wired:
+`pnpm --filter @stoked-ui/github typescript` and `pnpm --filter @stoked-ui/github build`.
+
+### TDD is mandatory (red → green)
+
+Per `~/.stokd/SC_AXIOMS.md` §5, every behavioral change needs a test that is **observed
+to fail before** the implementation and **pass after**. For this package that maps onto:
+write the normalizer/handler/query test against a fixture, watch it go **red** (e.g. the
+function doesn't yet handle the missing-`filename` fallback), implement, watch it go
+**green**. Record the per-criterion pass/fail **outcome** (e.g. `red, green`) — not the
+full output. Do not weaken a test to make a task look done.
+
+---
+
+## 2. What Should Be Tested
+
+### Tier 1 — Pure normalizers (`src/apiHandlers/githubApi.ts`) — highest ROI, no I/O, no React
+
+These are the single source of truth for the rendered shape (`AX-MOD-GITHUB-003`); a bug
+here cascades into every commit/branch/PR view. Fully deterministic — test by direct call.
+
+| Function | What to assert |
+|----------|----------------|
+| `fetchGithubResource` (`:33`) | default headers (`User-Agent`, `Accept`); adds `Authorization: token <v>` **iff** `process.env.GITHUB_TOKEN` set; 403 + `x-ratelimit-remaining: 0` → `"GitHub rate limit exceeded. Resets at …"` (reset epoch → localized date); other non-ok → response body text (or `GitHub API error: <status>`); 200 → parsed JSON. |
+| `parseGithubDiff` (`:59`) | `undefined` patch → `[]`; lines starting `+`/`-` → `addition`/`deletion`, else `context`; sequential 1-based `lineNumber`; appends `"... N more diff lines"` sentinel only when `patchLines.length > maxLines`; custom `maxLines` honored. **Edge:** `+++`/`---` hunk headers also start with `+`/`-` and are classified as addition/deletion — assert the *current* behavior, don't assume header-stripping. |
+| `normalizeGithubFile` (`:107`) | `filename` → `path` → `'unknown'` fallback chain; status `added`→`added`, `removed`→`deleted`, anything else→`modified`; pre-supplied `diff` short-circuits `parseGithubDiff`; missing `additions`/`deletions` default to `0`. |
+| `normalizeGithubCommit` (`:148`) | `id` = `sha` → `node_id` → identity login; author name/login/avatar resolved through `getGithubIdentity` (`commit.author` vs `commit.commit.author`); `date` from `commit.commit.author.date` → `committer.date` → `''`; `url` from `html_url` → `''`. |
+| `buildGithubContributors` (`:165`) | aggregates by `login||name` key; `contributions` increment; sort by count **desc**, then `login` **asc**; `'Unknown author'` upgraded when a later commit supplies a real name; empty `avatarUrl` filled from a later commit. |
+| `summarizeGithubStats` (`:201`) | empty `[]` → all zeros; sums `additions`/`deletions`/`changedFiles`. |
+| `getGithubMessageSummary` (`:216`) | first line trimmed; empty/whitespace → `'Untitled commit'`. |
+| `getGithubShortRef` (`:220`) | truncates to `length` (default 7) when longer; returns ref unchanged when shorter; `''` for empty ref. |
+
+### Tier 2 — Server fetchers (network over `fetch`)
+
+| Function | What to assert |
+|----------|----------------|
+| `getCommitDetails` (`getCommitDetails.ts:18`) | throws `"Missing required parameters: owner, repo, ref"` on any missing param; hits `/repos/:owner/:repo/commits/:ref` with `encodeURIComponent(ref)`; returns full `GithubCommitData` (repo, ref, shortRef, summary, message, committedAt, contributor, single-element `commits`, files, stats); constructs fallback `html_url` when API omits one; **contributor fallback** when `buildGithubContributors([commit])` returns `[]`. |
+| `getBranchCompareDetails` (`getBranchCompareDetails.ts:17`) | throws on missing `owner/repo/base/head`; encodes `base`/`head` into `…/compare/base...head`; `status`/`aheadBy`/`behindBy`/`totalCommits` defaults (`'unknown'`/`0`/`commits.length`); contributors built from `compare.commits`; empty `commits`/`files` → empty arrays; URL fallback when `html_url` missing. |
+| `getPullRequestDetails` (`getPullRequestDetails.ts:4`) | **returns** (never throws) `RequestError(400)` on missing `owner/repo/pull_number`; issues **three sequential** fetches (`/pulls/:n`, `/pulls/:n/commits`, `/pulls/:n/files`); adds `Authorization` iff token set; 403 rate-limit → thrown internally → returned `RequestError(500)` with reset string in message; parses `file.patch` into typed diff lines; maps `file.status` removed→deleted / added→added / else→modified; `fetch` rejection → `RequestError(500)`. |
+| `getGithubContributions` (`getGithubContributions.ts:102`) | throws on missing `githubUser`; throws `"GitHub token not configured"` when no token in arg **or** env; `toDateRange`: invalid/missing `from` → 1-year-back window, `from > to` throws `"must be before"`; POSTs to `api.github.com/graphql` with `Authorization: Bearer …` + `User-Agent`; non-ok → message from payload; `payload.errors[]` joined and thrown; missing `contributionCalendar` → `"No contribution calendar returned for …"`; `CONTRIBUTION_LEVEL_MAP` NONE..FOURTH→0..4 (unknown level → `0`); contributions sorted by date asc; `buildContributionTotals` groups by year; `buildCountLabel` same-year vs cross-year phrasing. |
+| `githubEventsQuery` (`getGithubEvents.ts:27`) | paginates while `Link rel="next"` present, capped at `maxPages=30`; stops on empty page; dedups by `event.id` across pages; `repo` filter on `event.repo.name`; `action` filter on `type.replace('Event','')`; `date` cutoff for `today`/`yesterday`/`week`/`month` (start-of-day) and default epoch; `description` case-insensitive substring over the derived description; **client-side** slice using 1-based `pageNum`/`perPage`; `repositories`/`actionTypes` facets derived from **all fetched** events (not the filtered set); `total_pages = ceil(filtered/perPage)`; non-ok upstream → throws `GitHub API error: <status> - <body>`; `Authorization` only when `githubToken` passed. |
+| `parseLinkHeader` (`getGithubEvents.ts:12`) | `null` → `{}`; extracts `next`/`last` URLs; ignores other `rel`; tolerates malformed entries. **Currently file-local** — see §7 to export for direct unit testing. |
+| `fetchGithubViewData` (`fetchGithubViewData.ts:1`) | appends params with `?`/`&` separator depending on existing query; non-ok → throws `errorBody.message` (or `'Failed to fetch GitHub data'` when the body isn't JSON); returns parsed JSON. |
+
+### Tier 3 — Handler factories (the Next.js API seam, `AX-MOD-GITHUB-002` / `-006`)
+
+All four share the same skeleton: method gate → param validation → delegate → cache header
+→ error→status mapping. Test with a **plain mock `req`/`res`** (no Next.js import needed).
+
+| Factory | What to assert |
+|---------|----------------|
+| `createGithubEventsHandler` (`:29`) | non-GET → 405 + `Allow: GET`; missing `username` → 400; `parseNumber` fallbacks (`page`→1, `per_page`→40) and rejects ≤0 / non-finite; array-valued query → first element; `config.getGithubToken(req)` **overrides** `process.env.GITHUB_TOKEN`; success → 200 + `Cache-Control: s-maxage=300, stale-while-revalidate=3600`; error message containing `"username is required"` → 400, else → 502. |
+| `createGithubBranchHandler` (`:20`) | non-GET → 405 + `Allow: GET`; any missing of `owner/repo/base/head` → 400; success → 200 + `s-maxage=300, swr=3600`; `"Missing required parameters"` → 400, else → 502. |
+| `createGithubCommitHandler` (`:20`) | same gate; missing `owner/repo/ref` → 400; same cache header + error mapping. |
+| `createGithubContributionsHandler` (`:24`) | non-GET → 405; missing `username` → 400; success → 200 + `Cache-Control: s-maxage=3600, swr=86400`; richer error mapping → `"username is required"`→400, `"No contribution calendar returned"`→404, `"GitHub token not configured"`→500, else→502; `config.getGithubToken` override. |
+
+> **`AX-MOD-GITHUB-002` symmetry check:** assert that each handler reads exactly the
+> params its component sends (events: `username,page,per_page,repo,action,date,description`;
+> commit: `owner,repo,ref`; branch: `owner,repo,base,head`; contributions:
+> `username,from,to`). A drift here silently breaks the `apiUrl` proxy seam.
+
+### Tier 4 — `GithubEvents` logic + cache (after extraction; see §7)
+
+| Unit | What to assert |
+|------|----------------|
+| `processEvents` (`:381`) | `[]` for empty input; `PushEvent`→action with commit count, head SHA in url; `PullRequestEvent`→PR title + `html_url`; `IssuesEvent`→issue title; `IssueCommentEvent`→`"Commented on issue:"` prefix; date formatted in `America/Chicago` (currently hardcoded — parameterize per §7); unknown type → `type.replace('Event','')`; null entries filtered; missing `created_at` → error placeholder, never a throw. |
+| `filterEvents` (`:502`) | empty filters → input unchanged; repo + action + description intersect; date cutoff via `getFilteredDate`; description match case-insensitive. |
+| `getEventDescription` (`:525`) | `"Pushed N commits"` (Push), PR title, issue title, `"Commented on issue: …"`; `''` for unknown; tolerates missing `payload` sub-fields. |
+| `getFilteredDate` (`:539`) | `today`→00:00 today; `yesterday`→00:00 prev day; `week`/`month`→back-dated 00:00; unknown → assert *current* return (null vs epoch). Freeze the clock with `sinon.useFakeTimers`. |
+| Cache: `persistCachedEvents` (`:115`), `updateCachedEventsTimestamp` (`:138`) | truncates to the configured limit; SSR-safe storage wrappers (`:65`–`:95`) swallow `localStorage` failures (`getStorageItem` returns `null`, `setStorageItem` returns `false`, key removed on write failure); `_session_fetched` flag in `sessionStorage` dedups parallel cold loads (`AX-MOD-GITHUB-004` — schema is **unversioned in-key**, so test that a corrupt/stale payload resets gracefully rather than crashing). |
+
+### Tier 5 — Component rendering (render via `createRenderer`)
+
+| Component | What to assert |
+|-----------|----------------|
+| `ErrorDetails` (`GithubEvents.tsx:232`, exported) | renders `RequestError` (message + status), plain-string error, and an unknown shape without throwing. Cheapest component test — it's already exported, start here. |
+| `GithubEvents` detail panel (dispatch `:1357`–`:1370`) | the `actionType` ternary chain routes `PullRequestEvent`/`PushEvent`/`DeleteEvent`/`CreateEvent`/`IssuesEvent`/`IssueCommentEvent` to their renderers, and **any other type falls through to `JsonFallbackView`** (raw `JSON.stringify` in `<pre>`) — never blank, never thrown (`AX-MOD-GITHUB-008`). Drive with a Fork / ProjectsV2 fixture to prove the fallback. |
+| Per-type renderers (`EventTypes/**`) | one thorough (`PushEvent`: branch + per-commit short SHA/message; `null`/placeholder on missing `payload`), the rest smoke (`CreateEvent`, `DeleteEvent`, `IssuesEvent`, `IssueCommentEvent`, `PullRequest/PullRequestEvent`). `ForkEvent` / `ProjectsV2*` are **inert** — assert they stay unwired (no dispatch arm). |
+| `GithubCalendar` (`:126`) | renders `ActivityCalendar` with `loading` initially; fetches via `apiUrl` seam (`buildApiUrl` adds `?`/`&username=`) when `apiUrl` set, else direct path; never passes an empty data set; theme colors derived from MUI `palette.mode`. |
+| `GithubCommit` / `GithubBranch` | all **three** modes (direct fetch, `apiUrl` proxy, snapshot `data` prop) hydrate the same `GithubCommitData`/`GithubBranchData` and render identical views (`AX-MOD-GITHUB-003`); empty-state when no commits; truncated diff shows the `"… more"` sentinel. |
+| `GithubContributorsList` (`:24`) | returns `null` for empty list; renders one card per contributor; `"1 commit"` vs `"N commits"` pluralization; hides the secondary name when it equals `login`. |
+
+### Edge cases to call out explicitly
+
+- **Token leakage (`AX-MOD-GITHUB-006`):** add a guard test / grep assertion that no
+  component file (`GithubCalendar`, `GithubEvents`, `GithubCommit`, `GithubBranch`) reads
+  `process.env.GITHUB_TOKEN` — every hit must be inside `apiHandlers/`.
+- **`githubEventsQuery` runs in the browser too:** `GithubEvents.tsx:29` imports it
+  directly for direct-fetch mode, so it must not depend on Node-only globals.
+- **Rate-limit branch:** `403 + x-ratelimit-remaining: 0` has a distinct, user-facing
+  message in both `fetchGithubResource` and `getPullRequestDetails` — cover both.
+- **30-page cap + dedup:** `githubEventsQuery` can fetch up to 30×100 events; assert the
+  cap halts pagination and the `Map`-by-`id` dedup collapses duplicates across pages.
+- **Encoded refs containing `/`:** branch names like `feature/x` must survive
+  `encodeURIComponent` in commit/compare paths.
+
+### Out of scope
+
+- The MUI scaffolding under `test/integration/`, `test/typescript/`, `test/umd/` — these
+  test MUI, not this package. **Delete** (see §6, cleanup step). Keep `test/describeConformance.ts`.
+- `styled(...)` declarations and pure presentational JSX (visual-only).
+- `react-activity-calendar`'s internal SVG rendering — stub it (see §4); test only the
+  props this package passes.
+- Live network calls — everything goes through a stubbed `fetch`.
+
+---
+
+## 3. Test File Organization & Naming
+
+Co-locate `*.test.ts(x)` next to source (the convention in `sui-file-explorer`/`sui-editor`):
 
 ```
 packages/sui-github/
@@ -97,75 +227,51 @@ packages/sui-github/
 │   │   ├── getCommitDetails.test.ts
 │   │   ├── getBranchCompareDetails.test.ts
 │   │   ├── getPullRequestDetails.test.ts
-│   │   ├── getGithubEvents.test.ts
+│   │   ├── getGithubEvents.test.ts            # githubEventsQuery + parseLinkHeader
 │   │   ├── createGithubEventsHandler.test.ts
 │   │   ├── createGithubBranchHandler.test.ts
 │   │   ├── createGithubCommitHandler.test.ts
 │   │   └── createGithubContributionsHandler.test.ts
+│   ├── components/
+│   │   ├── fetchGithubViewData.test.ts
+│   │   └── GithubContributorsList.test.tsx
 │   ├── GithubEvents/
-│   │   ├── GithubEvents.test.tsx          # ErrorDetails + cache + render integration
-│   │   ├── processEvents.test.ts          # after extraction (see §7)
-│   │   ├── filterEvents.test.ts           # after extraction
-│   │   ├── getEventDescription.test.ts    # after extraction
-│   │   ├── getFilteredDate.test.ts        # after extraction
+│   │   ├── GithubEvents.test.tsx              # ErrorDetails + detail-panel dispatch + cache
+│   │   ├── utils.test.ts                      # processEvents/filterEvents/… after extraction (§7)
 │   │   └── EventTypes/
-│   │       ├── PushEvent.test.tsx
-│   │       ├── PullRequest/PullRequestEvent.test.tsx
-│   │       ├── IssuesEvent.test.tsx
-│   │       ├── IssueCommentEvent.test.tsx
-│   │       ├── CreateEvent.test.tsx
-│   │       ├── DeleteEvent.test.tsx
-│   │       ├── ForkEvent.test.tsx
-│   │       └── ProjectsV2*Event.test.tsx
-│   ├── GithubCalendar/
-│   │   └── GithubCalendar.test.tsx
-│   ├── GithubBranch/
-│   │   └── GithubBranch.test.tsx
-│   ├── GithubCommit/
-│   │   └── GithubCommit.test.tsx
-│   └── components/
-│       └── GithubContributorsList.test.tsx
+│   │       ├── PushEvent.test.tsx             # thorough
+│   │       └── PullRequest/PullRequestEvent.test.tsx
+│   ├── GithubCalendar/GithubCalendar.test.tsx
+│   ├── GithubBranch/GithubBranch.test.tsx
+│   └── GithubCommit/GithubCommit.test.tsx
 └── test/
-    ├── describeConformance.ts             # keep — already correct
-    ├── fixtures/                          # NEW — shared mock data
-    │   ├── githubEvents.ts
-    │   ├── pullRequest.ts
-    │   ├── compareResponse.ts
-    │   ├── commitResponse.ts
-    │   └── contributionGraphql.ts
-    ├── integration/                       # delete MUI boilerplate
-    ├── typescript/                        # delete MUI boilerplate (or replace with this package's type specs)
-    └── umd/                               # delete unless an actual UMD bundle is built
+    ├── describeConformance.ts                 # keep
+    └── fixtures/                              # NEW — shared mock payloads
+        ├── githubEvents.ts                    # pushEvent(), pullRequestEvent(), issuesEvent(), …
+        ├── commitResponse.ts                  # raw /commits/:ref payload
+        ├── compareResponse.ts                 # raw /compare payload
+        ├── pullRequest.ts                     # raw /pulls/:n + commits + files
+        └── contributionGraphql.ts             # raw GraphQL contributionCalendar payload
 ```
 
-### Naming Conventions
-
-- `<ModuleName>.test.ts(x)` co-located with source.
-- `describe('<ComponentOrFunction>', …)`, `it('<expected behavior> when <condition>', …)`.
-- Shared fixtures live under `test/fixtures/` and export factory functions that accept `Partial<T>` overrides.
+**Naming:** `describe('<function|Component>')`, `it('<behavior> when <condition>')`.
+Fixtures export factory functions taking `Partial<T>` overrides so each test mutates only
+the field under test.
 
 ---
 
-## 4. Mock/Stub Strategy
+## 4. Mock & Stub Strategy
 
-### 4.1 `fetch`
-
-Stub the global with Sinon and reset between cases:
+### 4.1 `global.fetch` (Sinon)
 
 ```ts
 import sinon from 'sinon';
 
 let fetchStub: sinon.SinonStub;
+beforeEach(() => { fetchStub = sinon.stub(globalThis, 'fetch'); });
+afterEach(() => { fetchStub.restore(); });
 
-beforeEach(() => {
-  fetchStub = sinon.stub(global, 'fetch');
-});
-
-afterEach(() => {
-  fetchStub.restore();
-});
-
-function jsonResponse(body: unknown, init: { status?: number; headers?: Record<string, string> } = {}) {
+function jsonResponse(body: unknown, init: { status?: number; headers?: Record<string,string> } = {}) {
   return new Response(JSON.stringify(body), {
     status: init.status ?? 200,
     headers: { 'Content-Type': 'application/json', ...(init.headers ?? {}) },
@@ -173,29 +279,12 @@ function jsonResponse(body: unknown, init: { status?: number; headers?: Record<s
 }
 ```
 
-Drive multi-call flows (`getPullRequestDetails`, `githubEventsQuery`) with `fetchStub.onCall(n).resolves(...)`.
+Drive multi-call flows with `fetchStub.onCall(n).resolves(...)`:
+`getPullRequestDetails` = 3 calls (pull, commits, files); `githubEventsQuery` = N pages
+then an empty page (or a response whose `Link` header omits `rel="next"`). Use the real
+`Response` so `.ok`, `.status`, `.headers.get(...)`, `.json()`, `.text()` all behave.
 
-### 4.2 Fixtures
-
-```ts
-// test/fixtures/githubEvents.ts
-import type { GitHubEvent } from '../../src/types/github';
-
-export function pushEvent(overrides: Partial<GitHubEvent> = {}): GitHubEvent {
-  return {
-    id: '1',
-    type: 'PushEvent',
-    repo: { name: 'owner/repo' },
-    created_at: '2026-03-01T12:00:00Z',
-    payload: { commits: [{ sha: 'abc', message: 'msg' }], head: 'abc', ref: 'refs/heads/main' },
-    ...overrides,
-  };
-}
-```
-
-Provide analogous factories for `pullRequestEvent`, `issuesEvent`, `issueCommentEvent`, `createEvent`, `forkEvent`, plus raw GitHub REST payloads for compare/commit/PR endpoints.
-
-### 4.3 `process.env.GITHUB_TOKEN`
+### 4.2 `process.env.GITHUB_TOKEN`
 
 ```ts
 const original = process.env.GITHUB_TOKEN;
@@ -205,375 +294,246 @@ afterEach(() => {
 });
 ```
 
-### 4.4 `next/dynamic`
+### 4.3 Handler `req`/`res` doubles
 
-`react-json-view` is loaded via `next/dynamic` inside `GithubEvents`. For component tests, stub the module:
-
-```ts
-import { mock } from 'node:test'; // or your loader of choice
-// e.g. proxyquire / require-cache replacement
-```
-
-If a loader-based mock is awkward, render in a wrapper that does not exercise the JSON view, or extract the JSON-view section into its own component to isolate the test surface.
-
-### 4.5 MUI Theme
-
-```tsx
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-const theme = createTheme();
-const renderWithTheme = (ui: React.ReactElement) =>
-  render(<ThemeProvider theme={theme}>{ui}</ThemeProvider>);
-```
-
-### 4.6 `@stoked-ui/common` Resize Hooks
+The handlers depend only on a tiny structural interface — no Next.js import:
 
 ```ts
-sinon.stub(common, 'useResize').returns({ width: 800, height: 600 });
-sinon.stub(common, 'useResizeWindow').returns([1024, () => {}]);
+function mockRes() {
+  const res: any = { statusCode: 0, body: undefined, headers: {} as Record<string,string> };
+  res.setHeader = (k: string, v: string) => { res.headers[k] = v; };
+  res.status = (code: number) => { res.statusCode = code; return res; };
+  res.json = (b: unknown) => { res.body = b; };
+  return res;
+}
+const req = { method: 'GET', query: { username: 'octocat' } };
 ```
 
-### 4.7 `react-activity-calendar`
+Stub the underlying fetcher (e.g. `githubEventsQuery`) at the module boundary, or let it
+hit the stubbed `fetch` and assert end-to-end. For `config.getGithubToken` override tests,
+pass `createGithubEventsHandler({ getGithubToken: () => 'cfg-token' })` and assert it wins
+over a set `process.env.GITHUB_TOKEN`.
 
-Replace with a stub that exposes the props you assert on:
+### 4.4 Clock (Sinon fake timers)
 
-```tsx
-jest.mock('react-activity-calendar', () => ({
-  ActivityCalendar: (props: any) => (
-    <div data-testid="activity-calendar" data-loading={String(!!props.loading)} data-count={props.data.length} />
-  ),
-}));
-```
-
-(Use the equivalent loader-mock helper if staying on Mocha-only.)
-
-### 4.8 Storage
-
-JSDOM provides `localStorage` / `sessionStorage`; clear them in `afterEach`:
-
-```ts
-afterEach(() => { localStorage.clear(); sessionStorage.clear(); });
-```
-
-### 4.9 Date / Time
-
-Freeze the clock with Sinon for date-sensitive tests (`getFilteredDate`, `processEvents`, `toDateRange`):
+Required for `getFilteredDate`, `processEvents` (zoned formatting), `toDateRange`, and the
+`date`-filter branch of `githubEventsQuery`:
 
 ```ts
 const clock = sinon.useFakeTimers(new Date('2026-03-15T10:00:00Z').getTime());
 afterEach(() => clock.restore());
 ```
 
-Do **not** mock `date-fns` / `date-fns-tz` — they are pure and produce deterministic output.
+Do **not** mock `date-fns` / `date-fns-tz` — they are pure and deterministic.
 
-### 4.10 Logging
+### 4.5 Storage
 
-`getGithubEvents.ts` and `getPullRequestDetails.ts` are noisy with `console.log` / `console.error`. Stub `console.log`/`console.error` per test to keep output clean and to assert on error logging when relevant.
+JSDOM supplies `localStorage` / `sessionStorage`. Clear between tests:
+
+```ts
+afterEach(() => { localStorage.clear(); sessionStorage.clear(); });
+```
+
+To exercise the SSR-safe failure path (`setStorageItem` returning `false`, key removed),
+stub `localStorage.setItem` to throw and assert the cache degrades silently.
+
+### 4.6 MUI theme + `react-activity-calendar`
+
+```tsx
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+const renderWithTheme = (ui: React.ReactElement) =>
+  render(<ThemeProvider theme={createTheme()}>{ui}</ThemeProvider>);
+```
+
+`GithubCalendar` imports `ActivityCalendar` **directly** (no `next/dynamic`). To assert
+props without the SVG renderer, intercept the module via a Babel/require-cache replacement
+(no Jest `jest.mock` available) — or, preferably, render `GithubCalendar` and assert on the
+`apiUrl`/data wiring through the stubbed `fetch` rather than reaching into the calendar's DOM.
+
+### 4.7 `console` noise
+
+`getGithubEvents.ts` and `getPullRequestDetails.ts` are chatty (`console.log`/`console.error`).
+Stub them per suite to keep output clean and to assert error logging where relevant:
+
+```ts
+let logStub: sinon.SinonStub, errStub: sinon.SinonStub;
+beforeEach(() => { logStub = sinon.stub(console, 'log'); errStub = sinon.stub(console, 'error'); });
+afterEach(() => { logStub.restore(); errStub.restore(); });
+```
+
+### 4.8 What NOT to mock
+
+`JsonFallbackView` is in-package and SSR-safe — render it for real. There is **no**
+`next/dynamic` / `react-json-view` to mock anymore (verified). The normalizers in
+`githubApi.ts` are pure — call them directly, never stub them in fetcher tests (that would
+defeat the `AX-MOD-GITHUB-003` "single source of truth" guarantee).
 
 ---
 
 ## 5. Coverage Targets
 
-Medium priority, prerelease (`0.1.0-alpha.x`). Bias toward pure-logic coverage; UI is secondary.
+Medium priority, prerelease (`0.1.0-alpha.11.3`). Bias hard toward Tier 1–3 (pure logic +
+fetchers + handlers); UI coverage is secondary.
 
 | Metric | Target | Rationale |
 |--------|--------|-----------|
-| **Statements** | 70% | Pure helpers + handlers are highly testable |
-| **Branches** | 60% | Many branches are error/rate-limit fallbacks — cover happy path + key error path |
-| **Functions** | 65% | Repetitive event-type components share a pattern; sample, don't enumerate |
-| **Lines** | 70% | Tracks statements |
+| **Statements** | 70% | Normalizers, fetchers, and handlers are highly testable. |
+| **Branches** | 60% | Many branches are error / rate-limit / fallback arms — cover happy path + the key error path of each. |
+| **Functions** | 65% | The per-type renderers share a pattern; sample, don't enumerate. |
+| **Lines** | 70% | Tracks statements. |
 
-### Coverage Exclusions
+**Floor before any new feature work:** `githubApi.ts` ≈ 90%+ (it's pure and load-bearing),
+and every handler factory's 405 / 400 / success / error-mapping arms covered.
 
-- `src/index.ts` and per-folder `index.ts` re-exports
-- `styled(...)` declarations (visual-only)
-- Debug `console.log`/`console.error` (cleanup-tracked separately)
-- Legacy MUI boilerplate under `test/integration/` and `test/typescript/` once deleted
+### Coverage exclusions
+
+- `src/index.ts` and per-folder `index.ts` re-exports.
+- `styled(...)` declarations (visual-only).
+- Debug `console.log`/`console.error` lines.
+- Legacy MUI boilerplate under `test/integration/`, `test/typescript/`, `test/umd/` (delete).
 
 ---
 
-## 6. Priority Test Cases — Implement First
+## 6. Specific Test Cases to Implement First
 
-### Phase 1 — Pure helpers (highest ROI, no React)
+Ordered by ROI. Each phase is a self-contained red→green cycle.
 
-#### 6.1 `githubApi.ts` — `src/apiHandlers/githubApi.ts`
+### Phase 0 — Cleanup (no behavior, structural)
+
+Delete the scaffolding that tests MUI, not this package:
+`test/integration/**`, `test/typescript/**`, `test/umd/**`. **Keep** `test/describeConformance.ts`.
+This stops the root runner from spending CI time on `Dialog`/`Menu`/`Select`/etc.
+
+### Phase 1 — `githubApi.test.ts` (pure, ~1–2 h, locks the foundation)
 
 ```
-describe('fetchGithubResource')
-  it('hits api.github.com with default headers and no Authorization when GITHUB_TOKEN is unset')
-  it('adds "token <value>" Authorization when GITHUB_TOKEN is set')
-  it('throws "GitHub rate limit exceeded. Resets at <date>" on 403 with x-ratelimit-remaining=0')
-  it('throws response body text on other non-ok statuses')
-  it('returns parsed JSON on 200')
-
 describe('parseGithubDiff')
   it('returns [] for undefined patch')
-  it('classifies +/-/other as addition/deletion/context with sequential lineNumber')
-  it('appends "... N more diff lines" sentinel when patch exceeds maxLines')
-  it('respects custom maxLines')
-
+  it('classifies +/-/other lines and numbers them from 1')
+  it('appends "... N more diff lines" only when over maxLines')
 describe('normalizeGithubFile')
-  it('maps status "added" → type "added", "removed" → "deleted", default → "modified"')
-  it('uses filename, then path, then "unknown"')
-  it('passes through pre-supplied diff and skips parseGithubDiff')
-  it('defaults additions/deletions to 0 when missing')
-
+  it('maps added/removed/other status; filename→path→"unknown"; defaults counts to 0')
+  it('passes through a pre-supplied diff without re-parsing the patch')
 describe('normalizeGithubCommit')
-  it('uses commit.sha as id and hash, falling back to node_id then login')
-  it('builds author from commit.author then commit.commit.author')
-
+  it('resolves id/author/date/url across api-author vs commit-author shapes')
 describe('buildGithubContributors')
-  it('aggregates contributions by login and sorts by count desc, login asc')
-  it('upgrades "Unknown author" to a real name if a later commit has one')
-  it('fills missing avatarUrl from a later commit')
-
-describe('summarizeGithubStats')
-  it('returns zeros for empty input')
-  it('sums additions, deletions, and changedFiles')
-
-describe('getGithubMessageSummary')
-  it('returns first non-empty line trimmed')
-  it('returns "Untitled commit" for empty/whitespace messages')
-
-describe('getGithubShortRef')
-  it('truncates to length when ref is longer')
-  it('returns ref unchanged when shorter than length')
-  it('returns "" for empty ref')
+  it('aggregates by login, sorts by count desc then login asc')
+  it('upgrades "Unknown author" and backfills avatarUrl from a later commit')
+describe('summarizeGithubStats') it('zeros on empty; sums otherwise')
+describe('getGithubMessageSummary') it('first line; "Untitled commit" when empty')
+describe('getGithubShortRef') it('truncates/passes through/empty')
+describe('fetchGithubResource')   // uses fetch stub + GITHUB_TOKEN guard
+  it('omits Authorization without a token; adds "token <v>" with one')
+  it('throws the rate-limit message on 403 + remaining=0')
+  it('throws the body text on other non-ok; returns JSON on 200')
 ```
 
-#### 6.2 `getCommitDetails.ts`
+### Phase 2 — Fetchers (`get*Details` / `getGithubContributions` / `getGithubEvents`)
 
 ```
 describe('getCommitDetails')
-  it('throws "Missing required parameters" when owner/repo/ref missing')
-  it('hits /repos/:owner/:repo/commits/:ref with encoded ref')
-  it('returns repo, ref, shortRef, summary, message, committedAt, contributor, commits, files, stats')
-  it('falls back to constructed html_url when API omits one')
-  it('uses single-element commits array via normalizeGithubCommit')
-  it('builds contributor fallback when buildGithubContributors returns []')
-```
-
-#### 6.3 `getBranchCompareDetails.ts`
-
-```
+  it('throws on missing params; encodes ref; returns full GithubCommitData; html_url + contributor fallbacks')
 describe('getBranchCompareDetails')
-  it('throws on missing owner/repo/base/head')
-  it('encodes base and head into the compare path')
-  it('returns aheadBy/behindBy/totalCommits/status with sensible defaults when missing')
-  it('aggregates contributors from compare.commits')
-  it('returns empty arrays when commits/files are absent')
-```
-
-#### 6.4 `getPullRequestDetails.ts`
-
-```
+  it('throws on missing params; encodes base...head; default status/ahead/behind/total; empty arrays')
 describe('getPullRequestDetails')
-  it('returns RequestError(400) when owner/repo/pull_number is missing')
-  it('issues three sequential fetches (pull, commits, files)')
-  it('adds Authorization when GITHUB_TOKEN is set; omits otherwise')
-  it('throws on 403 rate-limit with reset timestamp string')
-  it('throws on non-ok with status and body')
-  it('parses file.patch into typed diff lines (+/-/context)')
-  it('maps file.status removed→deleted, added→added, default→modified')
-  it('returns RequestError(500) on fetch rejection')
-```
-
-#### 6.5 `getGithubContributions.ts`
-
-```
+  it('returns RequestError(400) on missing params (does not throw)')
+  it('issues 3 sequential fetches and merges commits_list + processed files')
+  it('returns RequestError(500) on rate-limit and on fetch rejection')
 describe('getGithubContributions')
-  it('throws when githubUser is missing')
-  it('throws "GitHub token not configured" when no token in args or env')
-  it('throws "must be before" when from > to')
-  it('defaults to one-year window when from is invalid/missing')
-  it('POSTs to api.github.com/graphql with Bearer token and User-Agent')
-  it('throws GraphQL error message when payload.errors is non-empty')
-  it('throws when contributionCalendar is missing')
-  it('maps NONE/FIRST_/SECOND_/THIRD_/FOURTH_QUARTILE → 0..4')
-  it('sorts contributions by date asc and groups totals by year')
-  it('emits same-year vs cross-year countLabel')
-```
-
-#### 6.6 `getGithubEvents.ts` (`githubEventsQuery` + `parseLinkHeader`)
-
-```
-describe('parseLinkHeader')
-  it('returns {} for null')
-  it('extracts next and last urls')
-  it('ignores other rel values')
-  it('handles malformed entries')
-
+  it('throws on missing user / missing token / from>to')
+  it('defaults to a 1-year window; maps quartile levels 0..4; sorts by date; year totals + countLabel')
+  it('surfaces GraphQL errors and missing-calendar')
+describe('parseLinkHeader')  // export it first (see §7)
+  it('null→{}; extracts next/last; ignores other rels; tolerates malformed')
 describe('githubEventsQuery')
-  it('paginates while Link rel="next" is present, up to maxPages=30')
-  it('stops when a page returns []')
-  it('dedupes events by id across pages')
-  it('filters by repo.name when repo is provided')
-  it('filters by type.replace("Event","") when action is provided')
-  it('applies today/yesterday/week/month cutoff for date filter')
-  it('case-insensitive substring match against derived description')
-  it('paginates filtered results client-side using pageNum/perPage')
-  it('returns repositories and actionTypes derived from ALL fetched events (not filtered)')
-  it('throws on non-ok upstream response with status + body')
-  it('passes Authorization "token <value>" only when githubToken provided')
+  it('paginates on Link rel=next up to 30 pages; stops on empty page; dedups by id')
+  it('filters by repo/action/date/description; facets from ALL events; ceil total_pages')
+  it('throws on non-ok upstream; sends Authorization only with a token')
 ```
 
-### Phase 2 — Server handlers
-
-#### 6.7 `createGithubEventsHandler`
+### Phase 3 — Handler factories
 
 ```
 describe('createGithubEventsHandler')
-  it('returns 405 + Allow:GET for non-GET methods')
-  it('returns 400 when username is missing')
-  it('parses page/per_page with parseNumber fallback (1 / 40)')
-  it('takes the first element when query value is array')
-  it('uses config.getGithubToken result over process.env.GITHUB_TOKEN')
-  it('sets Cache-Control "s-maxage=300, stale-while-revalidate=3600" on success')
-  it('maps "username is required" error → 400, others → 502')
+  it('405+Allow:GET on non-GET; 400 on missing username')
+  it('parseNumber fallbacks (1/40), rejects <=0/non-finite; array query → first element')
+  it('config.getGithubToken overrides process.env; sets s-maxage=300,swr=3600 on success')
+  it('maps "username is required"→400 else→502')
+describe('createGithubBranchHandler / createGithubCommitHandler')
+  it('405 / 400 on missing params / 200+cache / "Missing required parameters"→400 else 502')
+describe('createGithubContributionsHandler')
+  it('richer mapping: username→400, no-calendar→404, no-token→500, else→502; s-maxage=3600,swr=86400')
 ```
 
-#### 6.8 `createGithubBranchHandler` / `createGithubCommitHandler` / `createGithubContributionsHandler`
+### Phase 4 — Components
 
 ```
-describe('createGithubBranchHandler')
-  it('returns 405 + Allow:GET on non-GET')
-  it('returns 400 when any of owner/repo/base/head is missing')
-  it('returns 200 + s-maxage cache header on success')
-  it('maps "Missing required parameters" → 400, upstream errors → 502')
-
-// Mirror the same shape for commit and contributions handlers
-```
-
-### Phase 3 — Component logic (after extraction; see §7)
-
-#### 6.9 `processEvents`
-
-```
-describe('processEvents')
-  it('returns [] for empty input')
-  it('renders PushEvent with action "Push" and head SHA in url')
-  it('renders PullRequestEvent with title and html_url')
-  it('renders IssuesEvent with title and html_url')
-  it('renders IssueCommentEvent with "Commented on issue:" prefix')
-  it('formats date in America/Chicago timezone')
-  it('falls back to type.replace("Event","") for unknown types')
-  it('filters out null entries from malformed events')
-  it('produces an error placeholder for events missing created_at')
-```
-
-#### 6.10 `filterEvents`
-
-```
-describe('filterEvents')
-  it('returns input when all filters empty')
-  it('intersects repo + action + description filters')
-  it('applies date cutoff using getFilteredDate')
-  it('description match is case-insensitive substring')
-```
-
-#### 6.11 `getEventDescription`
-
-```
-describe('getEventDescription')
-  it('"Pushed N commits" for PushEvent with payload.commits')
-  it('PR title for PullRequestEvent')
-  it('issue title for IssuesEvent')
-  it('"Commented on issue: <title>" for IssueCommentEvent')
-  it('returns "" for unknown types')
-  it('handles missing payload sub-fields without throwing')
-```
-
-#### 6.12 `getFilteredDate`
-
-```
-describe('getFilteredDate')
-  it('returns 00:00 of today for "today"')
-  it('returns 00:00 of yesterday for "yesterday"')
-  it('returns 7 days ago at 00:00 for "week"')
-  it('returns one month ago at 00:00 for "month"')
-  it('returns null (or epoch) for unknown filter — assert against current behavior')
-```
-
-### Phase 4 — Component rendering
-
-#### 6.13 `ErrorDetails` — `src/GithubEvents/GithubEvents.tsx:232`
-
-```
-describe('ErrorDetails')
-  it('renders RequestError with message and status code')
-  it('renders plain string error as message')
-  it('renders "Unknown Error" placeholder for unrecognized shapes')
-```
-
-#### 6.14 Event-type components (one thorough, others smoke)
-
-```
-describe('PushEvent')
-  it('renders branch name and commit count')
-  it('lists each commit short SHA and message')
-  it('returns null when payload is missing')
-
-describe('PullRequestEvent')
-  it('fetches PR details on mount and renders PullRequestView')
-  it('skips fetch for closed/merged PRs and renders available info')
-  it('renders ErrorDetails on RequestError result')
-
-describe('CreateEvent / DeleteEvent / ForkEvent / IssuesEvent / IssueCommentEvent / ProjectsV2*')
-  it('renders the expected ref / title / state without throwing on missing payload fields')
-```
-
-#### 6.15 `GithubCalendar` — `src/GithubCalendar/GithubCalendar.tsx`
-
-```
-describe('GithubCalendar')
-  it('renders ActivityCalendar with loading=true initially')
-  it('fetches contribution data via apiUrl seam when provided')
-  it('falls back to direct GraphQL when apiUrl is omitted')
-  it('passes theme colors derived from MUI palette.mode')
-  it('uses inputBlockSize when provided; otherwise computes from window width or container width')
-  it('auto-scrolls to the most recent week after loading')
-  it('never passes an empty data set to ActivityCalendar')
-```
-
-#### 6.16 `GithubBranch`, `GithubCommit`, `GithubContributorsList`
-
-```
-describe('GithubBranch / GithubCommit')
-  it('renders status, ahead/behind (branch) or short ref (commit), and contributors')
-  it('renders empty-state when no commits')
-  it('renders truncated diff with "+ N more lines" sentinel')
-
+describe('ErrorDetails')             // already exported — cheapest
+  it('renders RequestError / plain string / unknown shape without throwing')
 describe('GithubContributorsList')
-  it('renders contributors sorted as built by buildGithubContributors')
-  it('renders avatar fallbacks when avatarUrl is empty')
+  it('null on empty; one card each; "1 commit" vs "N commits"; hides redundant name')
+describe('GithubEvents detail panel')
+  it('routes known actionTypes to their renderers')
+  it('falls through unknown actionType (Fork/ProjectsV2) to JsonFallbackView, no throw')   // AX-MOD-GITHUB-008
+describe('GithubCalendar')
+  it('renders ActivityCalendar loading; fetches via apiUrl seam vs direct; never passes empty data')
+describe('PushEvent')                // thorough; others smoke
+  it('renders branch + per-commit SHA/message; returns null on missing payload')
+```
+
+### Phase 5 — `GithubEvents` internals + cache (after §7 extraction)
+
+```
+describe('processEvents / filterEvents / getEventDescription / getFilteredDate')  // clock frozen
+describe('cache')
+  it('persistCachedEvents truncates to the limit')
+  it('storage-write failure removes the key and degrades silently')
+  it('corrupt/stale CachedData is reset rather than crashing (AX-MOD-GITHUB-004)')
 ```
 
 ---
 
-## 7. Refactoring Recommendations for Testability
+## 7. Refactoring for Testability (do alongside, not instead of, tests)
 
-`GithubEvents.tsx` is 1,377 lines and embeds nearly all of its logic as closures inside the component. Before (or alongside) writing tests:
+`GithubEvents.tsx` (1,377 LOC) embeds nearly all logic as closures inside the component,
+which forces full-component renders to test pure logic. Low-risk extractions that unlock
+direct unit tests:
 
-1. **Extract pure functions** to `src/GithubEvents/utils.ts`:
-   - `processEvents` (`GithubEvents.tsx:381`) — accept `timezone` as a parameter instead of hardcoding `'America/Chicago'`
-   - `filterEvents` (`GithubEvents.tsx:502`) — accept filter values as arguments, not React state
-   - `getEventDescription` (`GithubEvents.tsx:525`)
-   - `getFilteredDate` (`GithubEvents.tsx:539`)
-   - `buildFilterOptionsFromEvents` — return values rather than calling state setters
-2. **Export `parseLinkHeader`** from `getGithubEvents.ts` so it can be unit-tested directly (currently file-local).
-3. **Make `react-json-view` an optional peer** or guard the `next/dynamic` import behind a feature flag — the hard dependency on Next.js inside a generic component package complicates non-Next consumers and tests.
-4. **Centralize `console.log`/`console.error`** behind a debug helper (or remove) so tests can silence/assert without per-test stubbing.
-5. **Inject `fetch`** into `getGithubContributions` / `getPullRequestDetails` / `githubEventsQuery` (default to `globalThis.fetch`) — eliminates global-stubbing fragility and supports multiple fetch implementations (Edge runtime, undici).
-6. **Split the cache layer** in `GithubEvents.tsx` (`persistCachedEvents`, `updateCachedEventsTimestamp`, dedup via `sessionStorage`) into `src/GithubEvents/cache.ts` — currently it fights for visual real estate with rendering logic.
+1. **Extract pure functions** to `src/GithubEvents/utils.ts`: `processEvents` (`:381`,
+   take `timezone` as a parameter instead of hardcoding `'America/Chicago'`), `filterEvents`
+   (`:502`, take filter values as args not React state), `getEventDescription` (`:525`),
+   `getFilteredDate` (`:539`). Re-import them into the component unchanged.
+2. **Export `parseLinkHeader`** from `getGithubEvents.ts` (currently file-local at `:12`)
+   so it is unit-testable without driving a full multi-page fetch.
+3. **Split the cache** (`persistCachedEvents`/`updateCachedEventsTimestamp`/storage wrappers,
+   `:65`–`:155`) into `src/GithubEvents/cache.ts` — and consider stamping a schema version
+   into the cache key to satisfy `AX-MOD-GITHUB-004` (the key `github_events_<username>` has
+   no embedded version today).
+4. **Inject `fetch`** into the fetchers (default `globalThis.fetch`) to replace global
+   stubbing with parameter passing — also helps Edge/undici consumers.
+5. **Remove the dead `react-json-view` dependency** from `package.json` (no longer imported
+   in `src/`, per the 2026-06-06 refresh and `AX-MOD-GITHUB-007`).
+6. **Route the `console.log`/`console.error` debug spam** through a single debug helper (or
+   delete it) so tests don't each need to stub `console`.
+
+> Extractions 1–3 are pure relocations (no behavior change) — they are exempt from the
+> red→green requirement themselves, but the relocated functions then get their own
+> behavioral tests in Phase 5.
 
 ---
 
-## 8. Existing Test Cleanup
+## 8. Axiom → Test Mapping
 
-The current `test/` directory contains MUI Joy/Material boilerplate copied during package scaffolding:
+Each module invariant in `packages/sui-github/.axioms.md` should have at least one guarding
+test or check:
 
-- `test/integration/` — `Dialog`, `Menu`, `MenuList`, `NestedMenu`, `PopperChildrenLayout`, `Select`, `TableCell`, `TableRow`. **None test this package.** Delete.
-- `test/typescript/` — `OverridableComponent.spec.tsx`, `color-palette-prop.spec.tsx`, `colors.spec.ts`, `index.spec.tsx`, `styles.spec.tsx`, `moduleAugmentation/`. **None reference `@stoked-ui/github` types.** Delete or replace with this package's type-only specs.
-- `test/umd/run.js` — UMD smoke test; this package does not ship a UMD bundle. Delete.
-- `test/describeConformance.ts` — **keep**; reuse for `GithubBranch` / `GithubCommit` / `GithubCalendar` conformance suites once they exist.
-
-After cleanup, fold real tests into `src/**/*.test.ts(x)` per §3.
+| Axiom | Guarding test / check |
+|-------|------------------------|
+| `AX-MOD-GITHUB-001` (barrel is the contract) | `pnpm --filter @stoked-ui/github typescript` + a test importing every named export from `@stoked-ui/github` and asserting it is defined. |
+| `AX-MOD-GITHUB-002` (component↔handler query symmetry) | Handler tests assert the exact param set each factory reads (Tier 3); pair with the component fetch-URL assertions. |
+| `AX-MOD-GITHUB-003` (3 modes → 1 shape) | `GithubCommit`/`GithubBranch` tests asserting direct / `apiUrl` / `data` modes hydrate identical `Github*Data`; normalizer tests in Phase 1. |
+| `AX-MOD-GITHUB-004` (unversioned cache key) | Phase 5 cache test: corrupt/stale `CachedData` resets gracefully. |
+| `AX-MOD-GITHUB-005` (new event type needs renderer + dispatcher + filter) | When adding a type: renderer test + a `processEvents`/dispatch test + a `githubEventsQuery` facet test, in lockstep. |
+| `AX-MOD-GITHUB-006` (token is server-only) | Guard test / grep: no component reads `process.env.GITHUB_TOKEN`; `fetchGithubResource`/handlers carry it. |
+| `AX-MOD-GITHUB-007` (SSR-unsafe deps behind `next/dynamic`) | Grep assertion: no `react-json-view` / `next/dynamic` in `src/`; `JsonFallbackView` renders SSR-safe. |
+| `AX-MOD-GITHUB-008` (unhandled types → `JsonFallbackView`, never crash) | Phase 4 detail-panel test driving a Fork/ProjectsV2 fixture through the fallback arm. |

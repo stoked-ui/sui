@@ -1,7 +1,8 @@
 # Module: @stoked-ui/media-api
 
-> **Generated:** 2026-05-05 (fresh) | **Last upgraded:** 2026-05-21 (meta v0.3.0 → v0.4.0)
+> **Generated:** 2026-05-05 (fresh) | **Last upgraded:** 2026-05-21 (meta v0.3.0 → v0.4.0) | **Last refreshed:** 2026-06-06 (timed refresh — re-verified against source; one correction: the `blog`/`clients`/`users` subtrees are now empty leftover directories)
 > **Meta version:** 0.4.0
+> **Verification (2026-06-06):** Controllers (`auth`/`media`/`uploads`/`health`), the 10 `/media`, 8 `/uploads`, and 3 `/auth` routes, the `generate-thumbnail`/`generate-sprites` "Work Item 3.1" placeholders, upload constants (`DEFAULT_CHUNK_SIZE = 10 MiB`, `MAX_URLS_PER_REQUEST = 50`, `SESSION_EXPIRATION_DAYS = 7`, `MULTIPART_URL_EXPIRY = 1h`), the `^(video|image)\/[a-z0-9.+-]+$` MIME regex, the CORS default list, Swagger servers (`localhost:3001/v1`, `api.sui.stokd.cloud/v1`, `JWT-auth`), the JWT secret chain (`Resource` → `import('sst')` → `JWT_SECRET` → `'dev-secret-change-me'`, `7d`), the `AUTH_AUTO_DOMAINS` code-default-vs-`.env.example` mismatch, and the Lambda binary content-type list all confirmed unchanged. `MediaService` remains in-memory (`Map<string, MediaEntity>`). **Drift corrected this refresh:** the formerly-dormant `src/blog`, `src/clients`, `src/users`, and `src/blog/dto` are now *empty, untracked* leftover directories — the `21d04d615f refactor: remove business APIs from media stack` commit removed their contents (previously `blog/dto` held files); `git ls-files` returns nothing for all three. The e2e config `testRegex` (`.e2e-spec.ts$`) still does not match `test/uploads-e2e.spec.ts`, so that suite runs under the unit config (see SC_TEST.md §2).
 > **Package location:** `packages/sui-media-api`
 > **NPM name:** `@stoked-ui/media-api` (v1.0.0)
 > **Runtime:** NestJS 10.3 / TypeScript 5.4 / Express 5 / MongoDB (Mongoose 8) / AWS S3 / `ffmpeg` + `sharp`
@@ -27,7 +28,7 @@ Its scope is exactly six concerns:
 
 Cross-cutting: a `HealthModule` (liveness probe), a `swagger.config.ts` that builds the OpenAPI spec from the controller decorators and mounts Swagger UI at `/v1/api/docs`, and an SST/Lambda configuration path so the same code runs as either an Express server or an API Gateway Lambda.
 
-There are also dormant subdirectories on disk (`src/blog`, `src/clients`, `src/users`) that survive from earlier iterations of the codebase — only `blog/dto` is non-empty and nothing in those folders is imported by `AppModule`. The active module surface is what is wired in `src/app.module.ts`: `ConfigModule`, `AuthModule`, `DatabaseModule`, `MediaModule`, `HealthModule`, `UploadsModule`.
+There are also empty leftover subdirectories on disk (`src/blog`, `src/clients`, `src/users`, and `src/blog/dto`) that survive from earlier iterations of the codebase. As of the `21d04d615f refactor: remove business APIs from media stack` commit they are **completely empty and untracked** — `git ls-files` returns nothing for any of them, and nothing in those folders is imported by `AppModule`. The active module surface is what is wired in `src/app.module.ts`: `ConfigModule`, `AuthModule`, `DatabaseModule`, `MediaModule`, `HealthModule`, `UploadsModule`.
 
 ---
 
@@ -134,7 +135,7 @@ This module is a backend service, so the only **first-class view it owns** is th
 
 | View (SC_VIEWS.md ref) | Role of this module |
 |---|---|
-| §19.1 Swagger UI (Media API) | **Owned.** Mounted at `GET /v1/api/docs` by `setupSwaggerUI(app)` in `src/app.ts:86`; configuration in `src/swagger.config.ts` (title, contact, license, server URLs `localhost:3001/v1` + `api.sui.stokd.cloud/v1`, Bearer-JWT widget, tag groups `Health`/`Media`/`Uploads`/`auth`). The `customCss` rule that hides the top bar is part of the visible surface. |
+| §19.1 Swagger UI (Media API) | **Owned.** Mounted at `GET /v1/api/docs` by `setupSwaggerUI(app)` in `src/app.ts:87` (`SwaggerModule.setup('api/docs', …)` in `src/swagger.config.ts:59`); configuration in `src/swagger.config.ts` (title, contact, license, server URLs `localhost:3001/v1` + `api.sui.stokd.cloud/v1`, Bearer-JWT widget, tag groups `Health`/`Media`/`Uploads`/`auth`). The `customCss` rule that hides the top bar is part of the visible surface. |
 
 It also **materially shapes** several browser-rendered views by providing the data contract those views read or write:
 
@@ -190,7 +191,7 @@ In-tree:
 6. **Soft-delete default.** `DELETE /media/:id` is a soft-delete unless `?hardDelete=true`. `POST /media/:id/restore` recovers soft-deleted records. Inverting this default is a breaking change.
 7. **Public route.** `GET /media/api/info` is the only `/media/*` route that does not require authentication. Locking it down breaks the docs-site "API info" surface.
 8. **JWT secret resolution order.** SST `Resource` first, then env. Tests and dev fall back to `'dev-secret-change-me'`. Producing tokens in any other order silently invalidates issued tokens.
-9. **CORS allow-list.** Standalone server reads `ALLOWED_ORIGINS` (comma-separated) and falls back to `http://localhost:3000,https://sui.stokd.cloud,https://brianstoker.com`; localhost ports are allowed in non-production. The Lambda path uses `origin: true` (mirror) plus a hand-rolled OPTIONS/HEAD short-circuit. Removing either is a regression for the docs site at port 5199 and for any host app.
+9. **CORS allow-list.** Standalone server (`app.ts`) reads `ALLOWED_ORIGINS` (comma-separated) and falls back to `http://localhost:5199,http://localhost:3000,https://sui.stokd.cloud,https://consulting.stokd.cloud,https://brianstoker.com`; any `http(s)://localhost:<port>` origin is additionally allowed when not in production (the dev branch keys off `NODE_ENV !== 'production'` **and** `SST_STAGE` not `production`/`prod`). The Lambda path (`lambda.bootstrap.ts`) uses a hand-rolled OPTIONS/HEAD short-circuit that runs before NestFactory. Removing either is a regression for the docs site at port 5199 and for any host app.
 10. **OpenAPI artifact.** `openapi:export` writes the spec under `packages/sui-media-api/docs/`. The `@stoked-ui/media` client and any external SDK can be regenerated from this artifact; breaking changes must be reflected in the next export.
 
 ---
@@ -206,7 +207,7 @@ In-tree:
 | `src/swagger.config.ts` | Single source of truth for the OpenAPI document — title, contact, license, servers, Bearer-JWT auth, tags. Used by both the runtime UI and the offline export script. |
 | `src/database/database.module.ts` | `MongooseModule.forRootAsync` resolves URI from SST `Resource.MONGODB_URI` → `ConfigService` → env → `mongodb://localhost:27017/stoked-media`. Registers the four `@stoked-ui/common-api` feature schemas. |
 | `src/auth/auth.module.ts` | JWT module factory with the SST-aware secret resolution; exports `AuthService`, `JwtModule`, `PassportModule` for downstream guards. |
-| `src/auth/auth.service.ts` | Register/login/validate. **In-memory `Map<string, User>`** today; domain-based role auto-assignment via `AUTH_AUTO_DOMAINS` (defaults to `consulting.stokd.cloud`, `sui.stokd.cloud`, `brianstoker.com`). |
+| `src/auth/auth.service.ts` | Register/login/validate. **In-memory `Map<string, User>`** today; domain-based role auto-assignment via `AUTH_AUTO_DOMAINS` (code default `['stokd.cloud','sui.stokd.cloud','consulting.stokd.cloud','brianstoker.com']` → `admin`, everything else → `client`). Note: `.env.example` ships a *different* sample value (`stokedconsulting.com,stoked-ui.com,brianstoker.com`); the code default applies only when the env var is unset. |
 | `src/auth/auth.controller.ts` | `RegisterDto`/`LoginDto` validation + `/auth/register`, `/auth/login`, `/auth/me`. |
 | `src/auth/strategies/jwt.strategy.ts` | Passport JWT strategy. |
 | `src/auth/guards/{jwt-auth,roles}.guard.ts` + `src/auth/decorators/roles.decorator.ts` | Bearer-token guard and `@Roles()` enforcement. |
@@ -235,7 +236,7 @@ In-tree:
 
 ### Dormant code (present but not wired)
 
-`src/blog/`, `src/clients/`, `src/users/` are leftovers. Only `blog/dto` is non-empty and nothing in those folders is imported by `AppModule`. They must not grow new endpoints (per the media-API boundary rule in `AGENTS.md` / `CLAUDE.md` / `.stokd/meta/SC_CONTEXT.md` — business/domain APIs belong in `docs/pages/api/*`). If the dormant code is removed in the future, any corresponding spec files should go with it.
+`src/blog/`, `src/clients/`, `src/users/`, and `src/blog/dto/` are leftovers from earlier iterations. As of the `21d04d615f refactor: remove business APIs from media stack` commit they are **empty, untracked directories** (`git ls-files` returns nothing for any of them) and nothing in those folders is imported by `AppModule`. They must not grow new endpoints (per the media-API boundary rule in `AGENTS.md` / `CLAUDE.md` / `.stokd/meta/SC_CONTEXT.md` — business/domain APIs belong in `docs/pages/api/*`). Because they are now empty and git-untracked, they can simply be deleted from disk with no contract impact.
 
 ---
 
@@ -264,7 +265,7 @@ When this module changes, the following typically need validation.
 | Replace `AuthService` in-memory user store with a `User` collection | The domain-based auto-role logic (`AUTH_AUTO_DOMAINS`) and the password-hash comparison must port verbatim. JWT payload shape (`sub`/`email`/`role`/`name`) is consumed by `AuthGuard` and `@UserId()` — do not change. |
 | Edit `media/guards/auth.guard.ts` | The dev-only `x-user-id` / `?userId=` fallback is a documented contract for local tooling. Removing it without notice breaks docs-site dev (port 5199) and many tests. |
 | Edit `swagger.config.ts` | Re-export the OpenAPI artifact. Servers list (`localhost:3001/v1`, `api.sui.stokd.cloud/v1`) and the `JWT-auth` security scheme name are referenced by every controller's `@ApiBearerAuth('JWT-auth')`. |
-| Edit `app.ts` CORS handling | Verify the docs site at `http://localhost:5199` still works in dev (allowed via the localhost branch); verify production origins (`sui.stokd.cloud`, `brianstoker.com`) and any custom `ALLOWED_ORIGINS`. |
+| Edit `app.ts` CORS handling | Verify the docs site at `http://localhost:5199` still works in dev (allowed via both the default list and the localhost branch); verify production origins (`sui.stokd.cloud`, `consulting.stokd.cloud`, `brianstoker.com`) and any custom `ALLOWED_ORIGINS`. The dev-localhost branch is gated on `NODE_ENV`/`SST_STAGE` — do not let production fall into it. |
 | Edit `lambda.bootstrap.ts` | OPTIONS/HEAD short-circuit must remain (it runs before NestFactory bootstrap). The 50 s self-timeout exists to surface hangs before API Gateway's 60 s ceiling. |
 | Bump `@nestjs/*` major | Coordinate `@nestjs/swagger`, `@nestjs/passport`, `@nestjs/mongoose` lock-step. Re-run e2e and the OpenAPI export. |
 | Bump `mongoose` major | Re-test schema features registered from `@stoked-ui/common-api`; check connection-string compatibility. |

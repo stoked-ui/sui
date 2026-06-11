@@ -1,6 +1,6 @@
 # Module: @stoked-ui/docs
 
-> **Generated:** 2026-05-05 (fresh) | **Updated:** 2026-06-06 (timed refresh; verified exports, Next.js coupling, `DocsConfig` shape, consumer counts) | **Meta version:** 0.4.0
+> **Generated:** 2026-05-05 (fresh) | **Updated:** 2026-06-06 (timed refresh; re-verified against the live tree: `package.json#exports` = 31 entries (root + ~30 subpaths), test script still `"exit 0"`, Next.js coupling = 5 files / 6 import sites, `DocsConfig` = 4 fields with `useDocsConfig` throw @ `DocsProvider.tsx:39`, `cssVarPrefix: 'muidocs'` @ `BrandingCssVarsProvider.tsx:66`, source-file layout + line counts (MarkdownElement 824, DemoToolbar 748, ThemeContext 351, brandingTheme 1292, Dependencies 162, i18n 140, Link 138, utils 144), and the five restructure scripts) | **Meta version:** 0.4.0
 > **Package location:** `packages/sui-docs`
 > **NPM name:** `@stoked-ui/docs` (v0.1.21)
 > **Source entry:** `packages/sui-docs/src/index.ts` (declared in `package.json#main` as `./src/index.js`; resolved as `.ts` via the build pipeline / TS path mapping)
@@ -57,7 +57,12 @@ export { en };                              // default English translations bund
 
 ### 2.3 Standalone subpath exports (per `package.json#exports`)
 
-Every component and helper above is also a deep import target — e.g. `@stoked-ui/docs/Demo`, `@stoked-ui/docs/MarkdownElement`, `@stoked-ui/docs/HighlightedCode`, `@stoked-ui/docs/CodeSandbox`, `@stoked-ui/docs/i18n`, `@stoked-ui/docs/branding`, `@stoked-ui/docs/svgIcons`, `@stoked-ui/docs/translations`, `@stoked-ui/docs/useLazyCSS`, `@stoked-ui/docs/getFileExtension`, etc. The consuming `docs/` site uses both the barrel and these subpaths.
+A **curated set** of ~30 components/helpers (the `package.json#exports` map — not every symbol in the barrel) is also a deep import target — e.g. `@stoked-ui/docs/Demo`, `@stoked-ui/docs/MarkdownElement`, `@stoked-ui/docs/HighlightedCode`, `@stoked-ui/docs/CodeSandbox`, `@stoked-ui/docs/i18n`, `@stoked-ui/docs/branding`, `@stoked-ui/docs/svgIcons`, `@stoked-ui/docs/translations`, `@stoked-ui/docs/useLazyCSS`, `@stoked-ui/docs/getFileExtension`, `@stoked-ui/docs/DocsProvider`. Caveats:
+
+- Barrel-only symbols (`ThemeContext`, `CreateReactApp` helpers, `codeVariant` / `codeStylingSolution`, `constants`, `types`, `CodeCopy`) are reachable **only** through the package root, not a subpath.
+- Several subpaths resolve under `./components/*` in the flattened publish layout: `./DocsProvider` → `./components/DocsProvider/index.js`, `./Link` → `./components/Link/index.js`, plus `./InfoCard`, `./branding`, `./i18n`, `./svgIcons`, `./translations`.
+
+The consuming `docs/` site uses both the barrel and these subpaths.
 
 ### 2.4 Other utility surfaces
 
@@ -77,7 +82,7 @@ There are **no NestJS controllers, no CLI commands, and no runtime daemons** —
 
 This module is consumed by the single product documented in this repo:
 
-- **SC_PRODUCT_STOKED_UI_SUI.md** — `@stoked-ui/sui`. Every public-facing surface in the `docs/` Next.js site uses `@stoked-ui/docs` for theming, MDX rendering, demos, and i18n. No other published `@stoked-ui/*` package depends on it (it is `devDependency`-only inside other packages); only the docs app imports it as a runtime dependency. A grep for `from '@stoked-ui/docs'` (and its subpaths) shows **111 files** under `docs/src/**` and **46 files** under `docs/pages/**` (157 total) importing the package.
+- **SC_PRODUCT_STOKED_UI_SUI.md** — `@stoked-ui/sui`. Every public-facing surface in the `docs/` Next.js site uses `@stoked-ui/docs` for theming, MDX rendering, demos, and i18n. No other published `@stoked-ui/*` package depends on it (it is `devDependency`-only inside other packages); only the docs app imports it as a runtime dependency. A grep for `@stoked-ui/docs` (barrel + subpaths) shows **112 files** under `docs/src/**` and **46 files** under `docs/pages/**` (158 total) importing the package.
 
 ---
 
@@ -128,7 +133,7 @@ This module **materially shapes** every view documented in `SC_VIEWS.md` §1 (pu
 
 ### Downstream (consumers)
 
-- **`docs/` Next.js site** — pervasive: `_app.tsx`, every `pages/**/*.tsx`, `docs/src/modules/components/MarkdownDocs.js`, `docs/src/modules/components/AppLayoutDocs.tsx`, hero / showcase components in `docs/src/components/{home,showcase,productMaterial,productBaseUI,productDesignKit,productTemplate,about,action,...}` (~111 importing files).
+- **`docs/` Next.js site** — pervasive: `_app.tsx`, every `pages/**/*.tsx`, `docs/src/modules/components/MarkdownDocs.js`, `docs/src/modules/components/AppLayoutDocs.tsx`, hero / showcase components in `docs/src/components/{home,showcase,productMaterial,productBaseUI,productDesignKit,productTemplate,about,action,...}` (~112 importing files under `docs/src/**`).
 - **Workspace packages** — none consume `@stoked-ui/docs` as a runtime dependency. It only appears in the `docs/` app's `package.json`. Other packages reference doc primitives indirectly through their own MDX trees rendered by the docs site.
 - **External examples / templates** — the `examples/stoked-ui-nextjs-pages-router*` folders mirror `Link` semantics (see comment in `Link.tsx` line 11–15).
 
@@ -180,16 +185,18 @@ This module **materially shapes** every view documented in `SC_VIEWS.md` §1 (pu
 | `src/components/constants.js` | — | `CODE_VARIANTS`, `CODE_STYLING`, `LANGUAGES_LABEL`, `GA_ADS_DISPLAY_RATIO`. |
 | `src/utils.tsx` | 144 | `useClipboardCopy`, `pathnameToLanguage`, `pageToTitle`, `pageToTitleI18n`, `getCookie`. |
 | `src/i18n/i18n.tsx` | ~140 | `UserLanguageProvider`, `TranslationsProvider` (deepmerge), `useUserLanguage`, `useSetUserLanguage`, `useTranslate` (dot-path lookup, English fallback, missing-key warn), `mapTranslations`. |
-| `src/branding/brandingTheme.ts` | ~1290 | All design tokens + themed components. `getDesignTokens(mode)`, `getThemedComponents()`, `brandingLightTheme`, `brandingDarkTheme`, color scales (`blue`, `blueDark`, `grey`, `error`, `success`, `warning`). |
+| `src/branding/brandingTheme.ts` | 1292 | All design tokens + themed components. `getDesignTokens(mode)`, `getThemedComponents()`, `brandingLightTheme`, `brandingDarkTheme`, color scales (`blue`, `blueDark`, `grey`, `error`, `success`, `warning`). |
 | `src/branding/BrandingProvider.tsx` | 21 | Legacy nested theme switch (light/dark) for in-page islands. |
 | `src/BrandingCssVarsProvider/BrandingCssVarsProvider.tsx` | 107 | Canonical theme + `NextNProgressBar` + `CssBaseline` + `SkipLink` + `MarkdownLinks`; hard-codes `cssVarPrefix: 'muidocs'` (line 66) and imports `useRouter` from `next/router`. |
-| `src/BrandingCssVarsProvider/SkipLink.tsx`, `MarkdownLinks.tsx` | — | A11y skip link + anchor copy-on-hover. |
+| `src/BrandingCssVarsProvider/SkipLink.tsx`, `MarkdownLinks.js` | — | A11y skip link + anchor copy-on-hover. `MarkdownLinks.js` imports `Router` from `next/router` (one of the 5 Next.js-coupled files). |
+| `src/components/DemoToolbarFallback/index.tsx` | — | Static placeholder toolbar rendered while the real `DemoToolbar` (and its heavy deps) hydrate; keeps demo layout stable on first paint. |
+| `src/components/DemoCodeViewer/index.tsx` | — | Collapsed/expanded/copied read-only code block used inside demos. |
 | `src/DocsProvider/DocsProvider.tsx` | 43 | `DocsConfigContext` + composition with `UserLanguageProvider`; `useDocsConfig` throws outside a provider (lines 35–42). |
 | `src/InfoCard/InfoCard.tsx` | — | `InfoCard` + `GlowingIconContainer`. |
 | `src/Link/Link.tsx` | ~140 | `NextLinkComposed` + branded `Link` component; consumes `useUserLanguage` + `useDocsConfig` to prefix language. |
 | `src/NProgressBar/NProgressBar.js` (default export of package) | — | Standalone nprogress styles + initialization. |
 | `src/svgIcons/{FileDownload,JavaScript,TypeScript}.js` | — | Inline icons. |
-| `src/translations/translations.json` | — | Default English bundle (copied to `build/translations/` and `node/translations/` by `postbuild`). |
+| `src/translations/translations.json` | — | Default English bundle. Distribution is two-step: `build:copy-files` seeds `./translations/translations.json` and `./node/translations/translations.json`, then `postbuild` (`copyTranslations.sh`) fans the source out into **every** directory named `translations` found under `build/`. |
 | `src/global.d.ts` | — | Module-augmentation types (e.g. `@mui/material/styles` `primaryDark`). |
 | Build infra | `package.json#scripts`, `restructure.js`, `restructure-components.js`, `update-imports.js`, `fix-extensions.js`, `verify-components.js`, `copyTranslations.sh` | Drive the unusual flat publish layout (one folder per component at the package root). |
 

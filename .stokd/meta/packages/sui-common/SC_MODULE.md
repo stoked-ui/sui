@@ -147,7 +147,7 @@ In-tree consumers verified by `import` statements (excluding `build/` artifacts)
 | `src/Colors/colors.ts` | 61 | `compositeColors(base, overlay)` — alpha compositing via MUI color helpers. |
 | `src/Types/Types.ts` | 101 | `SortedList<T>` (binary-insert sorted Array subclass), `setProperty` (defineProperty wrapper), constructor type aliases. |
 | `src/Types/mergeWith.ts` | 38 | Installs `Array.prototype.mergeWith` globally as an import side effect. |
-| `src/Ids/namedId/namedId.ts` | 37 | `namedId(props?)` returns `prefix-id-suffix-<hex>`. Used everywhere for stable React keys / DOM IDs. |
+| `src/Ids/namedId/namedId.ts` | 38 | `namedId(props?)` returns `prefix-id-suffix-<hex>`. Used everywhere for stable React keys / DOM IDs. |
 | `src/Ids/useIncId/useIncId.ts` | 62 | Deterministic auto-incrementing ID hook for SSR-safe rendering. |
 | `src/UserMenu/UserMenu.tsx` | 122 | MUI Avatar + dropdown shared chrome. Each menu item is opt-in via prop. |
 | `src/SocialLinks/SocialLinks.tsx` (95), `SocialLinkField.tsx` (51), `platformRegistry.ts` (123) | ~269 | Controlled/uncontrolled list/editor for social platform URLs. The only test-covered surface in the package: 52 Jest cases across `__tests__/SocialLinks.test.tsx` (14), `SocialLinkField.test.tsx` (18), `platformRegistry.test.ts` (20) — `it.each` parameterization expands the case count well beyond the literal `it()` blocks. |
@@ -157,7 +157,7 @@ In-tree consumers verified by `import` statements (excluding `build/` artifacts)
 | `src/interfaces/publicity.ts` | 54 | `PUBLICITY_TYPES`, admin-only and "all filter" subsets, type guards. Re-exported by API packages. |
 | `src/interfaces/embed-visibility.ts` | 42 | Embed-visibility constants and guards. |
 | `src/interfaces/upload-types.ts` | 201 | Shared upload DTO types/constants (NestJS-free, React-free). Re-exported by `sui-common-api`/`sui-media-api`. |
-| `src/Dialog/Dialog.types.ts` | 43 | Type-only confirm/prompt dialog contract. **Not exported** from `index.tsx` yet — staged surface (see §2). |
+| `src/Dialog/Dialog.types.ts` | 42 | Type-only confirm/prompt dialog contract. **Not exported** from `index.tsx` yet — staged surface (see §2). |
 
 ---
 

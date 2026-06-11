@@ -1,6 +1,6 @@
 # Stoked UI — Codebase Overview
 
-> **Generated:** 2026-05-21 (upgraded 0.3.0 → 0.4.0) · **Refreshed:** 2026-06-06 (prior: 2026-05-28) | **Meta version:** 0.4.0
+> **Generated:** 2026-05-21 (upgraded 0.3.0 → 0.4.0) · **Refreshed:** 2026-06-06 (timed re-verification — no codebase drift, HEAD `29ec514149`; prior same-day: audit-bot lead-gen pass + baseline; earlier: 2026-05-28) | **Meta version:** 0.4.0
 > **Repository:** `@stoked-ui/sui` v0.1.0-alpha.5 (private monorepo root)
 > **Root:** `/opt/worktrees/stoked-ui/stoked-ui-main`
 > **Package manager:** pnpm 10.5.1 (enforced via `preinstall: npx only-allow pnpm`)
@@ -16,7 +16,7 @@ Stoked UI is a pnpm / Turborepo / Lerna monorepo that produces a media-centric R
 The repo ships three product surfaces:
 
 1. **`@stoked-ui/*` npm packages** — Reusable React libraries built on MUI v5, published to npm under the `@stoked-ui` scope.
-2. **`stokedui-com` (`docs/`)** — Next.js 13.5 (Pages Router; `next@^13.5.1`, installed 13.5.11) documentation + marketing + admin app (port **5199**) that consumes the packages and hosts non-media business APIs at `docs/pages/api/*`. This surface also hosts the consulting site (`docs/pages/consulting/**`, e.g. `ai/`, `front-end/`, `back-end/`, `devops/`, `full-stack/`) and the audit-bot lead-capture endpoints (`docs/pages/api/audit/{turn.ts, save-lead.ts}`).
+2. **`stokedui-com` (`docs/`)** — Next.js 13.5 (Pages Router; `next@^13.5.1`, installed 13.5.11) documentation + marketing + admin app (port **5199**) that consumes the packages and hosts non-media business APIs at `docs/pages/api/*`. This surface also hosts the consulting site (`docs/pages/consulting/**`, e.g. `ai/`, `front-end/`, `back-end/`, `devops/`, `full-stack/`) and the **audit-bot lead-gen agent** (`docs/pages/api/audit/{turn.ts, save-lead.ts}` → `docs/src/modules/auditBot/*`), a playbook-driven conversational funnel for `consulting.stokd.cloud` that performs a live, SSRF-guarded audit of a visitor-supplied URL, captures the lead, emails a branded report via SES, and notifies Brian (Telegram + BCC).
 3. **AWS deployment via SST v4** — CloudFront sites, API Gateway v2 + Lambda surface, CDN buckets, ACM certs, and supporting Lambdas in `api/`. Entry: `sst.config.ts` → `infra/index.ts`.
 
 A native Rust crate (`packages/sui-video-renderer`) compiles to WASM and is consumed by `@stoked-ui/editor` for in-browser video preview/rendering.
@@ -135,7 +135,10 @@ Edges verified from each `package.json`:
 
 ### Critical boundary rule (from `.stokd/meta/SC_CONTEXT.md` and `CLAUDE.md`)
 
-> **`sui-media-api` is reserved for media-component endpoints only.** Business/domain routes (products, clients, licenses, invoices, users, non-media auth) belong in `docs/pages/api/*`. The existing route folders confirm this: `docs/pages/api/{account, audit, auth, blog, cdn, chat, clients, deliverables, github, invoices, licenses, products, upload, users, webhooks}` plus `logs.ts`, `openapi.ts`. The `audit/` routes (`turn.ts`, `save-lead.ts`) are the consulting-site lead-capture/chat surface, backed by `docs/src/modules/auditBot/{conversationRunner, playbooks, auditStore}`.
+> **`sui-media-api` is reserved for media-component endpoints only.** Business/domain routes (products, clients, licenses, invoices, users, non-media auth) belong in `docs/pages/api/*`. The existing route folders confirm this: `docs/pages/api/{account, audit, auth, blog, cdn, chat, clients, deliverables, github, invoices, licenses, products, upload, users, webhooks}` plus `logs.ts`, `openapi.ts`. The `audit/` routes (`turn.ts`, `save-lead.ts`) are the consulting-site lead-gen chat surface, backed by `docs/src/modules/auditBot/*`, which is organized as **playbooks × channels × leads**:
+> - **Playbooks** (`auditBot/playbooks/{ai-readiness, cloud-cost, security}` with `index.ts`, `server.ts`) — the audit verticals; each ships a `system.md` persona/instruction set.
+> - **Channels** (`auditBot/channels/{web, linkedin, voice}`) — delivery surfaces; `web/components/AuditBot.tsx` is the in-page React widget.
+> - **Engine + lead plumbing** — `conversationRunner.ts` (turn loop), `llmClient.ts` (OpenAI-compatible inference; defaults to LM Studio / Qwen 2.5 32B at `AUDIT_BOT_BASE_URL`), `tools.ts` + `urlSafety.ts` (SSRF-guarded URL fetch — see `AX-AUDIT-BOT-URL-SAFETY`), `leadFields.ts` (lead extraction), `reportValidation.ts` + `deliverables.ts` (report assembly), `auditMailer.ts` (SES report email, Brian BCC'd), `notifyTelegram.ts` (lead alert), `auditStore.ts` (persistence), `types.ts`.
 
 ---
 
@@ -146,6 +149,7 @@ Edges verified from each `package.json`:
 | Language | TypeScript 5.4, Rust 2021, JavaScript |
 | UI | React 18.3.1 (pinned via `pnpm.overrides`), MUI v5 pinned to `@mui/material` 5.17.1 / `@mui/system` 5.17.1 / `@mui/utils` 5.17.1 / `@mui/base` 5.0.0-beta.40, Emotion 11 (`@emotion/styled` 11.8.1 pinned) |
 | Docs app | Next.js 13.5 (Pages Router; `next@^13.5.1`), `@mui/material-nextjs` ^5.16.6, MDX, `@docsearch/react`, `react-spring`, Tailwind (`docs/tailwind.config.js`) |
+| Audit bot / lead-gen | `openai` (OpenAI-compatible client → LM Studio / Qwen 2.5 by default), `undici@^6` (SSRF-safe fetch agent), `@aws-sdk/client-ses` (report email), Telegram notify |
 | Build | Turborepo 2.7, NX 20.5 (Pigment/zero-runtime targets), Lerna 8 (versioning only), Babel 7 (custom `babel.config.js`), tsup 8, custom `scripts/build.mjs` (modern/node/stable targets + types + copy) |
 | Backend | NestJS 10, Mongoose 8 / MongoDB 6.12, Express 5, Passport JWT, class-validator, Swagger |
 | Media processing | Sharp 0.34, fluent-ffmpeg, AWS SDK v3 (S3 / SES / SNS / ACM) |
@@ -214,7 +218,7 @@ Each step shells out to root scripts:
 |---------|-------|-------|
 | Docs / marketing / consulting site | `docs/pages/_app.js`, `docs/pages/_document.js` | Next.js 13.5 Pages Router, port 5199. Service worker via `docs/scripts/buildServiceWorker.js` (`build-sw`). `dev` runs `github:snapshots` then `next dev -p 5199`. |
 | Business APIs | `docs/pages/api/**` | All non-media domain endpoints per the boundary rule. |
-| Audit bot (consulting) | `docs/pages/api/audit/{turn.ts, save-lead.ts}` → `docs/src/modules/auditBot/*` | Playbook-driven lead-capture chat for `consulting.stokd.cloud`. |
+| Audit bot (consulting) | `docs/pages/api/audit/{turn.ts, save-lead.ts}` → `docs/src/modules/auditBot/*` | Playbook-driven lead-gen agent for `consulting.stokd.cloud`: `turn.ts` runs the chat loop (`conversationRunner` + `llmClient` + SSRF-guarded `tools`/`urlSafety`); `save-lead.ts` persists the lead (`auditStore`), emails the SES report (`auditMailer`), and alerts Brian (`notifyTelegram`). |
 | Media API (server) | `packages/sui-media-api/src/main.ts` → `Server.start()` from `app.ts` | NestJS bootstrap; silences `console.log` in prod. |
 | Media API (Lambda) | `packages/sui-media-api/src/lambda.ts` + `lambda.bootstrap.ts` | `@codegenie/serverless-express` adapter. |
 | Root Lambda handlers | `api/auth/*`, `api/subscribe.ts`, `api/sms.ts`, `api/promos.ts` | Wired into SST via `infra/api.ts`. |
@@ -231,6 +235,7 @@ Each step shells out to root scripts:
 - **Media metadata path:** `sui-media`'s `extractVideoMetadata` writes into a `ScreenshotStore`; consumers persist to IndexedDB via `sui-common/LocalDb`. The empty-store guard (`count > 0`) prevents the previous block on first generation.
 - **MediaCard render path** (analyzed directory): `packages/sui-media/src/components/MediaCard/MediaCard.tsx` consumes `MediaCard.types.ts` and is exercised by `__tests__/MediaCard.test.tsx`. `file.media` uses a `createSettings` Proxy — properties set via `Object.assign` don't always propagate through React state updates; detail views use DOM `<video>` element fallbacks for duration/width/height. **Active work (2026-06):** the `media-pairing-poster-detection` project (PRD at `.stokd/projects/media-pairing-poster-detection/prd.md`, 5 phases) pairs video+image objects sharing a basename, uses the image as the video card's poster, collapses the redundant image card in the `sui-cdn` `CdnBrowser` gallery, and exposes the image's actions via a thumbnail FAB/menu. Recent commits (`6145267e70`, `a1a92da872`, `76a8732750`) auto-extract a first-frame thumbnail for CORS-friendly video posters across `MediaCard` and CDN videos.
 - **Business API request flow:** browser → `docs/pages/api/<domain>/...` → MongoDB (`mongodb` 6.12). Stripe + Google OAuth integrate at this layer.
+- **Audit-bot lead-gen flow:** `web/components/AuditBot.tsx` → `POST /api/audit/turn` → `conversationRunner` selects the playbook persona and calls `llmClient` (OpenAI-compatible; LM Studio / Qwen by default). When the model calls the URL-fetch tool, `tools.ts` dials through an SSRF-safe undici agent enforcing `urlSafety.ts` (http/https only, no private/reserved IPs, redirects re-validated hop-by-hop). On completion, `POST /api/audit/save-lead` validates and assembles the report (`reportValidation` + `deliverables`), persists the lead (`auditStore`), emails it via SES (`auditMailer`, Brian BCC'd), and pings Telegram (`notifyTelegram`).
 - **Media API request flow:** client → `sui-media-api` NestJS controllers → Mongoose models → S3 / Sharp / ffmpeg. Same codebase runs locally (Nest CLI) and serverless (Lambda adapter).
 - **Deployment path:** `pnpm deploy:prod` → `sst deploy --stage production` → `infra/{site,cdn-site,api,cert,domains,secrets}.ts` provisions CloudFront, API Gateway v2, Lambdas, and certs.
 
@@ -271,7 +276,7 @@ MUI is pinned tree-wide (`@mui/material` 5.17.1, `@mui/system` 5.17.1, `@mui/uti
 - Flows / data paths: `.stokd/meta/SC_FLOWS.md`
 - Test inventory: `.stokd/meta/SC_TEST.md` (and per-package `SC_TEST.md` under `.stokd/meta/packages/`)
 - Product card: `.stokd/meta/SC_PRODUCT_STOKED_UI_SUI.md`
-- Axioms: `.stokd/meta/SC_AXIOMS.md` (repo-wide `AX-REPO-*` invariants), per-package `.axioms.md`, legacy `~/.stokd/SC_AXIOMS.md`
+- Axioms: `.stokd/meta/SC_AXIOMS.md` (repo-wide `AX-REPO-*` invariants, plus `AX-AUDIT-BOT-URL-SAFETY` governing the audit-bot SSRF guards in `docs/src/modules/auditBot/{urlSafety,tools}.ts`), per-package `.axioms.md`, legacy `~/.stokd/SC_AXIOMS.md`
 - Guardrails: `.stokd/meta/SC_CONTEXT.md`, `CLAUDE.md`, `AGENTS.md`
 - Recommendations log: `.stokd/meta/SC_RECOMMENDATIONS.md`
 - Governed project PRDs / phase plans: `.stokd/projects/<slug>/` (e.g. `media-pairing-poster-detection/{prd.md, phases/*}`); orchestration runtime state in top-level `projects/<slug>/`
@@ -280,7 +285,24 @@ MUI is pinned tree-wide (`@mui/material` 5.17.1, `@mui/system` 5.17.1, `@mui/uti
 
 ---
 
-## 10. Changes in 2026-06-06 Refresh (meta v0.4.0)
+## 10. Changes in 2026-06-06 Refresh — timed re-verification pass (meta v0.4.0)
+
+This pass was a scheduled (timed) refresh. The repository HEAD is unchanged since the same-day audit-bot pass (`29ec514149` "chore: land in-flight work from parallel sessions"), so **no architectural, dependency, or structural drift was found**. All claims below were re-verified against the live tree and preserved:
+
+- **Versions:** docs app `stokedui-com` manifest `next@^13.5.1` / installed **13.5.11**; root SST installed **4.2.0** while `docs/package.json` still carries the vestigial `sst@^3.6.19` (confirmed still present — flagged for cleanup in §4). Package versions: `@stoked-ui/editor` 0.1.2, `media-api` 1.0.0, `timeline` 0.1.3, `file-explorer` 0.1.2, `common` 0.1.2, `common-api` 0.1.0, `cdn` 0.1.0-alpha.5, `github` 0.1.0-alpha.11.3, `docs` 0.1.21, `media` 0.1.0-alpha.5; root `@stoked-ui/sui` 0.1.0-alpha.5.
+- **Audit-bot lead-gen deps confirmed present** in `docs/package.json`: `openai@^4.77.0`, `undici@^6`, `@aws-sdk/client-ses@^3.731.1`, `archiver@^6.0.1`. The `docs/src/modules/auditBot/` module tree (`conversationRunner`, `llmClient`, `tools`+`urlSafety`, `leadFields`, `reportValidation`, `deliverables`, `auditMailer`, `notifyTelegram`, `auditStore`, `types`, plus `channels/` and `playbooks/` and co-located `*.test.ts`) and the `docs/pages/api/audit/{turn,save-lead}.ts` endpoints are all present.
+- **Boundary roster intact:** `docs/pages/api/**` business domains = `account, audit, auth, blog, cdn, chat, clients, deliverables, github, invoices, licenses, products, upload, users, webhooks` + `logs.ts`, `openapi.ts` — matches §3 exactly.
+- **WASM artifacts present:** `packages/sui-video-renderer/pkg/` carries `wasm_preview*` outputs (`.wasm`, `.js`, `.d.ts`); editor `optionalDependency` `@stoked-ui/video-renderer-wasm` → `file:../sui-video-renderer/pkg` intact.
+- **Package rosters match:** `packages/` = 11 `sui-*` + `stoked-ui-project-1` + `zero-runtime`; `config.json.packages` lists the 11 tracked `sui-*` packages; `packages-internal/` contents match §2. No changes to `pnpm-workspace.yaml`, `turbo.json`, or the `pnpm.overrides` / `resolutions` pins in root `package.json`.
+
+## 11. Changes in 2026-06-06 Refresh — audit-bot lead-gen pass (meta v0.4.0)
+
+- **Documented the completed audit-bot lead-gen agent** (commit `86ed35e3d0`, landed alongside `29ec514149`). `docs/src/modules/auditBot/` grew from a thin `{conversationRunner, playbooks, auditStore}` sketch into a full **playbooks × channels × leads** agent: playbooks `{ai-readiness, cloud-cost, security}`; channels `{web, linkedin, voice}` (`web/components/AuditBot.tsx`); and engine/lead plumbing `llmClient.ts`, `tools.ts` + `urlSafety.ts`, `leadFields.ts`, `reportValidation.ts`, `deliverables.ts`, `auditMailer.ts`, `notifyTelegram.ts`, `types.ts` (each with co-located `*.test.ts`). Expanded §1, the §3 boundary rule, the §6 entry-point table, and added an audit-bot critical-path entry in §6.
+- **Recorded the SSRF guard and its axiom:** visitor-supplied URL fetches now dial through an SSRF-safe undici agent enforcing `urlSafety.ts` (http/https only, no private/reserved IPs, hop-by-hop redirect re-validation, size/timeout caps), governed by the new `AX-AUDIT-BOT-URL-SAFETY` axiom in `.stokd/meta/SC_AXIOMS.md`. Cross-referenced in §9.
+- **Noted the inference stack:** `llmClient.ts` uses an OpenAI-compatible endpoint (`openai` dep in `docs/package.json`), defaulting to LM Studio serving Qwen 2.5 32B-Instruct at `AUDIT_BOT_BASE_URL`; the SES report mailer (`auditMailer.ts`) reuses `@aws-sdk/client-ses` and BCCs `AUDIT_REPORT_BCC_EMAIL`.
+- **Re-verified** installed Next.js (**13.5.11**), root SST (**4.2.0**, with `docs/package.json` still carrying the vestigial `sst@^3.6.19`), WASM artifacts present in both `packages/sui-video-renderer/pkg/` and `wasm-preview/pkg/`, the 11-package `config.json` roster, `pnpm-workspace.yaml`, and `turbo.json`. All preserved where accurate.
+
+## 12. Changes in 2026-06-06 Refresh — baseline pass (meta v0.4.0)
 
 - **Fixed two stale "Next.js 14" references** left in §2 (top-level layout) and §3 (dependency-graph diagram) — the docs app is Next.js **13.5.11** (manifest `next@^13.5.1`). The 2026-05-28 refresh corrected §1/§4/§6 but missed these; now consistent. Added the installed framework version to the header.
 - **Documented the Stokd governed-project structure** now present in the tree: `.stokd/projects/<slug>/` (PRDs + phase plans) and the top-level `projects/<slug>/` orchestration artifacts (`state.mjs`, `build-state.mjs`, `orchestrate.workflow.js`, `prd.md`). Added to §2 layout and §9 cross-references.
@@ -289,7 +311,7 @@ MUI is pinned tree-wide (`@mui/material` 5.17.1, `@mui/system` 5.17.1, `@mui/uti
 - **Verified WASM artifacts present** in both `packages/sui-video-renderer/pkg/` and `wasm-preview/pkg/` (`wasm_preview*` outputs); editor `optionalDependency` `@stoked-ui/video-renderer-wasm` → `file:../sui-video-renderer/pkg` intact (editor v0.1.2, media-api v1.0.0).
 - Re-verified the dependency graph, build pipeline, scripts, `pnpm-workspace.yaml`, `turbo.json`, and `config.json` against current manifests; preserved where accurate. Added an axioms cross-reference to §9.
 
-## 11. Changes in 2026-05-28 Refresh (meta v0.4.0)
+## 13. Changes in 2026-05-28 Refresh (meta v0.4.0)
 
 - **Corrected the docs-app framework version:** prior copies said "Next.js 14" throughout; the manifest is `next@^13.5.1` and the installed version is **13.5.11** (Pages Router). Updated §1, §4, §6 accordingly.
 - **Recorded the audit-bot / consulting surface:** new `docs/pages/api/audit/{turn.ts, save-lead.ts}` endpoints (backed by `docs/src/modules/auditBot/{conversationRunner, playbooks, auditStore}`) and the expanded `docs/pages/consulting/**` verticals (ai, front-end, back-end, devops, full-stack). Added to §1, §3 boundary list, and §6 entry-point table.
@@ -297,7 +319,7 @@ MUI is pinned tree-wide (`@mui/material` 5.17.1, `@mui/system` 5.17.1, `@mui/uti
 - Verified WASM artifact presence: `packages/sui-video-renderer/pkg/` and `wasm-preview/pkg/` both contain `wasm_preview*` output; editor `optionalDependency` `@stoked-ui/video-renderer-wasm` → `file:../sui-video-renderer/pkg` is intact.
 - All other architectural, dependency-graph, build-system, and pattern content re-verified against `package.json`, `docs/package.json`, `pnpm-workspace.yaml`, and per-package manifests; preserved where accurate.
 
-## 12. Changes vs. Meta v0.3.0
+## 14. Changes vs. Meta v0.3.0
 
 - Bumped meta version 0.3.0 → 0.4.0.
 - Removed dead reference to legacy `.stokd/meta/SC_MODULE_SUI_*.md` files (now deleted; see `git status`). Per-package module docs now live under `.stokd/meta/packages/<pkg>/SC_MODULE.md`.

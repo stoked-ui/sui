@@ -1,20 +1,34 @@
 # Stoked UI — Recommendations
 
-> **Generated:** 2026-05-05 (fresh) | **Updated:** 2026-05-21 (0.3.0 → 0.4.0) · **Refreshed:** 2026-05-28, **2026-06-06** (timed)
+> **Generated:** 2026-05-05 (fresh) | **Updated:** 2026-05-21 (0.3.0 → 0.4.0) · **Refreshed:** 2026-05-28, 2026-06-06, 2026-06-06 (2nd pass), **2026-06-06 (3rd pass — timed re-verification)**
 > **Meta version:** 0.4.0
 > **Repository:** `@stoked-ui/sui` v0.1.0-alpha.5
 > **Root:** `/opt/worktrees/stoked-ui/stoked-ui-main`
 
 This document captures actionable recommendations across code quality, architecture, testing, security, and performance, derived from a read of the monorepo (manifests, build config, CI workflows, source layout, and the existing `.stokd/meta/*` documents). Items are grouped by category and tagged **P0 / P1 / P2** by recommended urgency.
 
-**2026-06-06 refresh changes:**
+**2026-06-06 (3rd pass) — timed re-verification, no codebase drift.** HEAD is unchanged at `29ec514149` since the 2nd pass; every actionable claim below was re-checked against the live tree and holds. Re-verified this pass:
 
-- **§2.1** — Refreshed the commit sample. The top of `main` now uses informal conventional prefixes (`restore:`, `refactor:`, `fix:`), but the `shove ×4` / `derp` commits still sit a few commits back in history. Still **no `.husky/` and no `commitlint.config.*`** — the enforcement gap stands and the P0 holds.
-- **§2.2** — Corrected: the `@minh.nguyen/plugin-transform-destructuring` fork lives in the **`resolutions`** block (33 keys, still present), **not** in `pnpm.overrides` (22 keys, none referencing it). Because pnpm ignores `resolutions`, that fork override is almost certainly *not applied at all* — which strengthens the "delete `resolutions`" recommendation and means the Babel fork is either dead weight or relying on a transitive default.
-- **§3.1 / §3.3** — `packages/sui-media` now ships a real Jest suite (`MediaCard.utils.test.ts`, `MediaViewer/*`, `abstractions/{Auth,Router,Queue,Payment,KeyboardShortcuts}.test.ts`, `integration-backward-compatibility.test.ts`). The "sui-media untested" framing is retired; `MediaFile.fromUrl()` retry/backoff still appears uncovered.
-- **§3.5 / §4.7** — The audit-bot is **no longer untested**: `docs/src/modules/auditBot/tools.test.ts` (11 specs) covers the new `urlSafety.ts` SSRF guard for the `fetch_company_site` tool and the tool surface. Remaining gaps narrowed to `conversationRunner`, `save-lead`, `llmClient`, and (still-absent) rate limiting on `api/audit/turn.ts`.
-- **§8.1** — `@stoked-ui/media` has dropped to `0.1.0-alpha.5` (aligned with the root); only `@stoked-ui/media-api` remains `1.0.0`. The version-spread concern is partially resolved.
-- **CI inventory** — Now **9 workflows**: `ci.yml`, `ci-check.yml`, `codeql.yml`, `scorecards.yml`, `vale-action.yml`, `deploy-site.yml`, `publish-packages.yml`, `claude.yml`, `claude-code-review.yml`. Referenced where relevant.
+- **CI inventory still 9 workflows** (`ci.yml`, `ci-check.yml`, `codeql.yml`, `scorecards.yml`, `vale-action.yml`, `deploy-site.yml`, `publish-packages.yml`, `claude.yml`, `claude-code-review.yml`). **No `gitleaks`/`trufflehog` job** (§4.2 P0→P1 stands) and **no `.husky/` or `commitlint.config.*`** (§2.1 P0 stands) — the `shove ×4`/`derp` block is still in recent history.
+- **Dependency blocks unchanged:** `resolutions` = **25 keys** (yarn-style, pnpm-ignored, dead weight), `pnpm.overrides` = **22 keys**. The `@minh.nguyen/plugin-transform-destructuring` fork is present **only in `resolutions`** (confirmed absent from `pnpm.overrides`) — so it is almost certainly a no-op (§2.2 / §4.6 stands).
+- **Audit-bot test posture unchanged:** 5 suites present (`urlSafety`, `tools`, `auditMailer`, `leadFields`, `reportValidation`); `conversationRunner.ts`, `llmClient.ts`, and `docs/pages/api/audit/save-lead.ts` still have no dedicated tests (§3.5). `docs/pages/api/audit/turn.ts` (149 lines) keeps its input caps but a `grep -niE "rate|throttle|limiter"` returns **no match** — **per-IP rate limiting is still absent** (§4.7 P1 stands).
+- **License store still untested:** zero `*.test.*` files under `docs/src/modules/license/` (§3.3 / §4.4 — revenue-critical gap stands).
+- **Versioning anomaly persists:** `@stoked-ui/media-api` is still `1.0.0` while `@stoked-ui/media` is `0.1.0-alpha.5` and the rest are 0.1.x (§8.1).
+- **No `.github/dependabot.yml` or Renovate config** (§4.6).
+
+**2026-06-06 (2nd pass) refresh changes** — two commits landed after the morning refresh (`86ed35e3d0 feat(audit-bot): complete lead-gen agent`, `29ec514149 chore: land in-flight work`):
+
+- **§3.5 / §4.7** — The audit-bot lead-gen agent is now **substantially tested**. Five suites exist under `docs/src/modules/auditBot/`: `urlSafety.test.ts` (SSRF guard, now its own file), `tools.test.ts`, `auditMailer.test.ts`, `leadFields.test.ts`, `reportValidation.test.ts`. New code: `auditMailer.ts` (SES report email, BCCs Brian), `leadFields.ts`, `reportValidation.ts`. **Still uncovered:** `conversationRunner.ts`, `llmClient.ts`, and `docs/pages/api/audit/save-lead.ts` have no dedicated tests.
+- **§4.7** — `docs/pages/api/audit/turn.ts` now enforces input caps (`MAX_HISTORY_TURNS=40`, `MAX_MESSAGE_CHARS=4000`, `sanitizeHistory`) — partial cost-amplification defense. **Per-IP rate limiting is still absent.** A new outbound channel exists: SES report email via `@aws-sdk/client-ses` reading `SES_FROM_EMAIL` / `AUDIT_REPORT_BCC_EMAIL` — lead PII now leaves the system by email as well as Telegram.
+- **§2.2 / §4.6** — `resolutions` block is now **25 keys** (was 33). It still contains the pnpm-ignored `@minh.nguyen/plugin-transform-destructuring` fork and `pnpm.overrides` (22 keys) still does not. The "delete `resolutions` / adopt-or-drop the fork" recommendation stands.
+- **§3.3** — `docs/src/modules/products/` now ships `StokdCloudPitch.test.tsx` (107 lines) alongside the new `StokdCloudPitch.tsx`.
+
+**Carried-forward facts (morning 2026-06-06 refresh):**
+
+- **§2.1** — The `shove ×4` / `derp` commits still sit in recent history; **no `.husky/` and no `commitlint.config.*`** — the enforcement gap stands and the P0 holds.
+- **§3.1 / §3.3** — `packages/sui-media` ships a real Jest suite (`MediaCard.utils.test.ts`, `MediaViewer/*`, `abstractions/{Auth,Router,Queue,Payment,KeyboardShortcuts}.test.ts`, `integration-backward-compatibility.test.ts`); `MediaFile.fromUrl()` retry/backoff still appears uncovered.
+- **§8.1** — `@stoked-ui/media` is `0.1.0-alpha.5` (aligned with root); only `@stoked-ui/media-api` remains `1.0.0`.
+- **CI inventory** — **9 workflows**: `ci.yml`, `ci-check.yml`, `codeql.yml`, `scorecards.yml`, `vale-action.yml`, `deploy-site.yml`, `publish-packages.yml`, `claude.yml`, `claude-code-review.yml`.
 
 ---
 
@@ -88,7 +102,7 @@ The `shove ×4` / `derp` block is hostile to bisection, blame, and reviewers, an
 
 ### 2.2 [P1] Reconcile dependency pin / override sprawl — the `resolutions` block is dead weight
 
-`package.json` carries a `pnpm.overrides` block (**22 keys**) pinning MUI 5.17.1, React 18.3.1, and security minimums for `tar`, `axios`, `multer`, `qs`, `glob`, `webpack`, `lodash`, `js-yaml`, `fast-xml-parser`, `diff`, `micromatch`. A **separate `resolutions` block (33 keys) still exists** and duplicates several Babel/React/MUI constraints.
+`package.json` carries a `pnpm.overrides` block (**22 keys**) pinning MUI 5.17.1, React 18.3.1, and security minimums for `tar`, `axios`, `multer`, `qs`, `glob`, `webpack`, `lodash`, `js-yaml`, `fast-xml-parser`, `diff`, `micromatch`. A **separate `resolutions` block (25 keys) still exists** and duplicates several Babel/React/MUI constraints.
 
 Issues (corrected this refresh):
 
@@ -158,16 +172,16 @@ Still-thin, high-value targets:
 
 `pnpm test:argos` exists but there is no documented set of stories/screenshots feeding it. If Argos is being paid for, document which routes/components are captured and add an Argos CI step.
 
-### 3.5 [P1 — REVISED] Audit-bot SSRF guard is now tested; the runner / persistence / LLM paths are not
+### 3.5 [P1 — REVISED] Audit-bot is now broadly tested; the runner / persistence / LLM paths are the residual gaps
 
-`docs/src/modules/auditBot/` is a substantial subsystem — `conversationRunner.ts`, `playbooks/` (`ai-readiness`, `cloud-cost`, `security`), `channels/` (`linkedin`, `voice`, `web`), `llmClient.ts`, `tools.ts`, `urlSafety.ts`, `deliverables.ts`, `auditStore.ts`, `notifyTelegram.ts`, `types.ts` — wired to public endpoints `docs/pages/api/audit/{turn.ts, save-lead.ts}`.
+`docs/src/modules/auditBot/` is a substantial subsystem — `conversationRunner.ts`, `playbooks/` (`ai-readiness`, `cloud-cost`, `security`), `channels/` (`linkedin`, `voice`, `web`), `llmClient.ts`, `tools.ts`, `urlSafety.ts`, `auditMailer.ts`, `leadFields.ts`, `reportValidation.ts`, `deliverables.ts`, `auditStore.ts`, `notifyTelegram.ts`, `types.ts` — wired to public endpoints `docs/pages/api/audit/{turn.ts, save-lead.ts}`.
 
-**Progress:** `auditBot/tools.test.ts` (11 specs) now covers the new `urlSafety.ts` SSRF guard (loopback / cloud-metadata / RFC-1918 / IPv6-loopback / non-http schemes / embedded-credential rejection) and the tool surface (unknown-tool error path, removed `email_report` tool no longer advertised). The "zero tests" framing is retired.
+**Progress:** five suites now exist — `urlSafety.test.ts` (SSRF guard: loopback / cloud-metadata / RFC-1918 / IPv6-loopback / non-http schemes / embedded-credential rejection), `tools.test.ts` (tool surface, unknown-tool error path, removed `email_report` tool no longer advertised), `auditMailer.test.ts` (SES report-email rendering), `leadFields.test.ts` (lead-field extraction from the `save_lead` tool args), and `reportValidation.test.ts` (report-shape validation). The "barely tested" framing is retired.
 
 Still uncovered on this revenue/lead-capture path (a silent regression loses leads):
 
-- **`conversationRunner` playbook state transitions** — per-playbook happy path + early-exit; nothing tests these yet.
-- **`save-lead` persistence + dedupe** — and the Telegram notify side-effect (`notifyTelegram.ts`), mocked.
+- **`conversationRunner` playbook state transitions** — per-playbook happy path + the `result.finished` / `save_lead` end-of-conversation branch that triggers notify + email (`turn.ts:111`). Nothing tests these yet.
+- **`save-lead` persistence + dedupe** — `docs/pages/api/audit/save-lead.ts` (69 lines) and the `tryMarkChatNotified` / `tryMarkReportEmailed` idempotency claims in `auditStore.ts`, plus the Telegram notify side-effect (`notifyTelegram.ts`), mocked.
 - **`llmClient` base-URL / model resolution** from env (`AUDIT_BOT_BASE_URL`, `AUDIT_BOT_MODEL`, `AUDIT_BOT_API_KEY`) with a mocked OpenAI-compatible transport — these tests double as documentation of the LM Studio / Qwen contract.
 
 ---
@@ -216,13 +230,13 @@ The docs app embeds CodeSandbox/StackBlitz iframes. Verify `docs/next.config.mjs
 
 ### 4.7 [P1 — REVISED] Lead/PII handling and outbound notifications in the audit bot
 
-The audit bot ingests untrusted user input on a public `web` channel and persists leads (`save-lead.ts` → `auditStore.ts`) and notifies via Telegram (`notifyTelegram.ts`). Status:
+The audit bot ingests untrusted user input on a public `web` channel, persists leads (`save-lead.ts` → `auditStore.ts`), and now notifies via **two** outbound channels: Telegram (`notifyTelegram.ts`) and SES report email (`auditMailer.ts`). Status:
 
-- **SSRF (mitigated):** the `fetch_company_site` tool now routes visitor-supplied URLs through `auditBot/urlSafety.ts`, which rejects loopback, cloud-metadata (`169.254.169.254`), RFC-1918/CGNAT/link-local, IPv6 ULA/loopback, non-http(s) schemes, and embedded credentials — and is unit-tested (`tools.test.ts`). Keep these green; ensure the **post-DNS-resolution** address is also re-checked in `tools.ts` (the helper is intentionally network-free), so a public hostname that resolves to a private IP is still blocked.
+- **SSRF (mitigated):** the `fetch_company_site` tool routes visitor-supplied URLs through `auditBot/urlSafety.ts`, which rejects loopback, cloud-metadata (`169.254.169.254`), RFC-1918/CGNAT/link-local, IPv6 ULA/loopback, non-http(s) schemes, and embedded credentials — and is unit-tested in its own `urlSafety.test.ts`. Per `AX-AUDIT-BOT-URL-SAFETY`, the post-DNS-resolution address is re-checked at connect time via the undici Agent `lookup` hook in `tools.ts` (closes the DNS-rebinding TOCTOU). Keep both suites green.
 - **Prompt injection / untrusted content:** `conversationRunner` feeds user text to an LLM and to `tools.ts`. Treat all channel input as data, never instructions; ensure tool invocation cannot be steered by the visitor (per global guardrails). No test guards this yet (§3.5).
-- **Lead data is PII** and is business-domain data — it must persist in MongoDB (`AX-REPO-MONGODB-BUSINESS-DATA`), not in any browser store, and `save-lead` should validate/sanitize before write.
-- **Outbound secrets:** the Telegram bot token and `AUDIT_BOT_API_KEY` must come from env/Secrets Manager and never be logged or echoed into a chat transcript.
-- **Rate limiting (still missing):** `docs/pages/api/audit/turn.ts` (111 lines) is an unauthenticated public endpoint that proxies an LLM and has **no rate-limit/throttle reference**. Add per-IP rate limiting and a max-tokens guard to prevent cost-amplification abuse.
+- **Lead data is PII** and is business-domain data — it must persist in MongoDB (`AX-REPO-MONGODB-BUSINESS-DATA`), not in any browser store, and `save-lead` should validate/sanitize before write. Note PII now also **leaves the system by email**: `auditMailer.sendAuditReportEmail` mails the report to the lead and BCCs `AUDIT_REPORT_BCC_EMAIL`. Confirm the report body is HTML-escaped (it is, via `escapeHtml` in `auditMailer.ts`) and that the BCC address is config, not hard-coded.
+- **Outbound secrets:** the Telegram bot token, `AUDIT_BOT_API_KEY`, and the SES sender (`SES_FROM_EMAIL`) / BCC must come from env/Secrets Manager and never be logged or echoed into a chat transcript.
+- **Input caps present, rate limiting still missing:** `docs/pages/api/audit/turn.ts` (149 lines) now caps `MAX_HISTORY_TURNS=40` and `MAX_MESSAGE_CHARS=4000` and sanitizes history — a partial cost-amplification defense. It remains an **unauthenticated public endpoint that proxies an LLM with no per-IP rate-limit/throttle**. Add per-request rate limiting (and ideally a per-session turn cap) to prevent abuse; the finalization branch (`turn.ts:111`) also fans out to Mongo + SES + Telegram per finished session, so an unthrottled caller can amplify cost across all three.
 
 ---
 
@@ -332,7 +346,7 @@ Ordered by ROI:
 1. Add `commitlint` + `.husky/commit-msg` + branch protection on `main` (P0, §2.1) — `shove ×4` / `derp` still in recent history; still no husky/commitlint.
 2. Add `gitleaks` to CI alongside the present CodeQL/Scorecards (P0→P1, §4.2) — still absent.
 3. Add a `test:jest` Turbo coverage gate surfacing the existing `sui-media-api` and `sui-media` suites, then add Jest configs to `sui-timeline`/`sui-editor`/`sui-common-api`/`sui-github`/`sui-docs` (P0/P1, §3.1, §3.3).
-4. Write the next audit-bot tests (`conversationRunner`, `save-lead`, `llmClient`) — the SSRF guard is already tested — and add rate-limiting to `api/audit/turn.ts` (P1, §3.5, §4.7).
+4. Add per-IP rate limiting to `api/audit/turn.ts` (input caps now exist, but no throttle on the LLM+Mongo+SES+Telegram fan-out), then write the residual audit-bot tests (`conversationRunner`, `save-lead`, `llmClient`) — SSRF / mailer / lead-fields / report-validation are already covered (P1, §4.7, §3.5).
 5. Delete the dead `resolutions` block and resolve the pnpm-ignored `@minh.nguyen` Babel fork (adopt-and-pin in `pnpm.overrides`, or remove) (P1, §2.2, §4.6).
 6. Resolve the `@stoked-ui/video-renderer-wasm` publication strategy or label editor monorepo-only; fix the WASM size-gate filename to `wasm_preview_bg.wasm` (P1, §1.4, §5.1).
 7. Add a bootstrap AWS-profile guard in `infra/index.ts` and the `deploy-site.yml` workflow (P0, §4.1).

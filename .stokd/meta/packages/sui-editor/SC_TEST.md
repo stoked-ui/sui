@@ -1,19 +1,67 @@
 # Testing Strategy: `@stoked-ui/editor`
 
-> **Generated:** 2026-05-21 | **Meta version:** 0.3.1
+> **Generated:** 2026-05-21 | **Re-verified against current source:** 2026-06-06 | **Meta version:** 0.4.0
 > **Package:** `packages/sui-editor` (`@stoked-ui/editor` v0.1.2)
 > **Priority:** Medium
 > **Source entry:** `packages/sui-editor/src/index.ts`
+> **Companion docs:** `.stokd/meta/packages/sui-editor/SC_MODULE.md`, `packages/sui-editor/.axioms.md`
 
-`@stoked-ui/editor` is the user-visible composition layer that ties together
-`@stoked-ui/timeline`, `@stoked-ui/file-explorer`, `@stoked-ui/media`, and the
-`@stoked-ui/video-renderer-wasm` engine. Bugs here surface immediately in the
-docs site editor and are notoriously hard to reproduce because the surface is
-heavily DOM/canvas/IDB driven. Testing investment should focus on logic that
-can be exercised without a real browser — `EditorFile` serialization, the
-plugin hooks, and the per-controller lifecycle — and leave the canvas/recorder
-paths to manual verification on `localhost:5199` until a Karma path is wired
-up.
+`@stoked-ui/editor` is the **integration layer** that ties together `@stoked-ui/timeline`
+(engine), `@stoked-ui/file-explorer` (asset tabs), `@stoked-ui/media` (file
+abstractions), `@stoked-ui/common` (LocalDb / mime / ids), and the optional
+`@stoked-ui/video-renderer-wasm` compositor. Bugs here surface immediately in the docs
+editor on `localhost:5199` and are hard to reproduce because the hot path is `<canvas>` /
+`MediaRecorder` / `AudioContext` / IndexedDB — none of which JSDOM implements well.
+**Testing investment must concentrate on the logic that runs headlessly:** pure helpers
+(`actionToWasmLayer`, `calculateFitTransform`, `getTracksFromMediaFiles`, the `EditorState`
+selectors), `EditorFile` persistence, the `Controllers` deterministic methods, and
+`EditorEngine` state / `_actionMap` / event wiring. Leave canvas blits, recording, and WASM
+`render_frame` to manual verification on port 5199.
+
+Every concrete claim below was checked against the source on 2026-06-06. Where the source
+contradicts an obvious-but-wrong assumption, §0 calls it out explicitly.
+
+---
+
+## 0. Source-verified facts that constrain the strategy
+
+These are easy to get wrong; all were confirmed against the current tree.
+
+1. **`EditorFile.createBlob` / `EditorFile.readBlob` do not exist.** Not on `EditorFile`
+   (`src/EditorFile/EditorFile.ts`) and not on its parent `TimelineFile`. The real
+   persistence/serialization surface is the **static factories**
+   `EditorFile.fromUrl(url, Ctor)` (`EditorFile.ts:170`) and
+   `EditorFile.fromLocalFile(blob, Ctor)` (`EditorFile.ts:266`), the instance method
+   `updateStore()` (`EditorFile.ts:162`), and the module-level caches
+   `editorFileCache` (`EditorFile.ts:23`) and `EditorFile.fileCache` (`EditorFile.ts:272`).
+   The existing `EditorFile.test.tsx` references the removed API and is why its body is
+   commented out. **Do not "uncomment the blob line" — rewrite the test against
+   `fromLocalFile` / `fromUrl` / `updateStore`.**
+2. **`mapBlendMode` is NOT exported.** `src/WasmPreview/actionMapper.ts` exports only
+   `calculateFitTransform` (line 58) and `actionToWasmLayer` (line 116). `mapBlendMode`
+   (line 19) is a module-private helper invoked inside `actionToWasmLayer` (line 209). A
+   unit test **cannot import `mapBlendMode` directly** — assert blend-mode mapping
+   *through* `actionToWasmLayer` output. (This corrects earlier drafts that listed it as a
+   standalone target.)
+3. **The `Controllers` map registers only `audio`, `video`, `image`, `compositor`**
+   (`src/Controllers/Controllers.ts`). `AnimationController` is commented out of the map;
+   `WebController` is not imported at all. **Do not write `AnimationController.test.ts` /
+   `WebController.test.ts` as ship-blocking coverage** — they are dead paths until
+   re-registered.
+4. **The three plugin tests are verbatim forks from `@stoked-ui/file-explorer`.**
+   `useEditor.test.tsx`, `useEditorMetadata.test.tsx`, and `useEditorKeyboard.test.tsx`
+   assert a tree / `treeitem` / checkbox selection DOM contract (`getItemRoot`,
+   `isItemExpanded`, `checkboxSelection`, `role="editor"`) and reference components
+   (`EditorBasic`, `EditorComponent`) and a harness (`test/utils/editor-view/describeEditor`)
+   that **do not exist in this package** — verified: there is no `describeEditor*` file
+   anywhere in the repo, and `packages/sui-editor/test/utils/` does not exist. `useEditor.test.tsx`
+   additionally has a duplicate-identifier destructure (`{ … EditorComponent, EditorComponent }`)
+   that will not compile under strict TS. See §7 step 1 — this is a governed decision, not a
+   delete-on-sight.
+5. **No per-package `test` script.** `packages/sui-editor/package.json` has `typescript`,
+   `build*`, `watch*`, `dev*` — no `test`. Editor tests run only from the repo root glob.
+6. **Node version is a hard blocker.** The active runtime in this workspace breaks the Mocha
+   runner; tests must run under Node 20 (`nvm use v20.20.0`). See §3.
 
 ---
 
@@ -21,90 +69,143 @@ up.
 
 | Item | Status |
 |---|---|
-| Test runner | Mocha 10 (root `.mocharc.js`) — Babel + JSDOM |
-| Setup | `@stoked-ui/internal-test-utils/setupBabel`, `@stoked-ui/internal-test-utils/setupJSDOM` |
-| Assertions | `chai` (declared in `devDependencies`), `sinon` (transitively for `spy`) |
-| Per-package script | None — `package.json` has no `test` entry. Runs from root via `pnpm test` / `pnpm test:coverage`. |
-| Conformance helper | `packages/sui-editor/test/describeConformance.ts` (wraps `@mui-internal/test-utils`) — currently unused by any test file. |
-| Karma / browser tests | Configured at the repo level (`test/karma.conf.js`) but no `sui-editor` specs feed it. |
-| CI gating | None for this package specifically; rolls into the umbrella `test:repo:no-docs` turbo task. |
+| Test runner | Mocha 10 (root `.mocharc.js`) — `extension: [js, mjs, ts, tsx]`, `reporter: 'dot'`, JSDOM |
+| Setup (require hooks) | `@stoked-ui/internal-test-utils/setupBabel`, `@stoked-ui/internal-test-utils/setupJSDOM` (from `.mocharc.js`) |
+| Assertions | `chai` (`expect`, dev dep); `sinon` (`spy`/`stub`, transitive via internal-test-utils) |
+| React helpers | `createRenderer`, `act`, `fireEvent`, `ErrorBoundary`, `toErrorDev` from `@stoked-ui/internal-test-utils` |
+| Root runner scripts | `pnpm test:unit` (`mocha 'packages/**/*.test.{js,ts,tsx}' 'docs/**/*.test.{js,ts,tsx}'`), `pnpm test:coverage` (`nyc` + same glob) |
+| Per-package script | **None** — runs only from repo root. |
+| Glob | `packages/**/*.test.{js,ts,tsx}` |
+| Coverage | `nyc` over `packages/sui*/src/**/*.{js,ts,tsx}`, excludes `**/*.test.*` |
+| Conformance helper | `packages/sui-editor/test/describeConformance.ts` exists, **unused** by any test |
+| Repo test utils | `test/utils/` has `describeConformance.ts`, `describeSlotsConformance.tsx`, `file-explorer/`, `setupBabel.js`, `setupJSDOM.js`, `mochaHooks.js`, `init.ts` — **no `editor-view/`** |
+| CI gating | Rolls into umbrella `test:repo:no-docs` (turbo) — no editor-specific gate |
+| Runnable editor tests today | **Zero.** All four runtime test files are broken (see below). |
 
-### Existing test files
+### Existing test files (and why each is currently non-functional)
 
-- `src/EditorFile/EditorFile.test.tsx` — Blob round-trip for `EditorFile`/`EditorExample`. **The body that builds the blob is commented out** (`// createdBlob = await EditorExample.createBlob(true);`), so the test currently asserts on an `undefined` blob and would throw on the first `expect`. Treat this as broken-and-skipped, not as coverage.
-- `src/internals/useEditor/useEditor.test.tsx` — Smoke tests for the `useEditor` hook driven through `describeEditor`. References a destructured arg `{ … EditorComponent, EditorComponent }` (duplicate identifier) that will not compile under strict TS.
-- `src/internals/plugins/useEditorMetadata/useEditorMetadata.test.tsx` — Selection model tests through `describeEditor`.
-- `src/internals/plugins/useEditorKeyboard/useEditorKeyboard.test.tsx` — ArrowDown / focus navigation through `describeEditor`.
-- `src/themeAugmentation/themeAugmentation.spec.ts` — Type-only spec.
-- `test/typescript/*.spec.tsx`, `test/typescript/moduleAugmentation/*` — Type-only specs (verified by `tsc`, not Mocha).
-- `test/integration/*` — Eight files (`Menu`, `MenuList`, `Select`, `TableCell`, `TableRow`, `Dialog`, `NestedMenu`, `PopperChildrenLayout`). These are **MUI snapshots, not editor tests**, and look like leftover scaffolding from the package fork. They should either be deleted or rewritten against editor components.
+- `src/EditorFile/EditorFile.test.tsx` — Blob round-trip. **Broken three ways:**
+  (a) the blob-creation line is commented out so it asserts on an `undefined` blob;
+  (b) it calls `EditorExample.createBlob(true)` / `EditorFile.readBlob(...)` which **do not
+  exist** (§0.1); (c) it does `import { describe, it } from 'node:test'`, which shadows
+  Mocha's globals and breaks chai integration under the Mocha runner.
+- `src/internals/useEditor/useEditor.test.tsx` — imports the missing `describeEditor`
+  harness; has a duplicate-identifier destructure that won't compile under strict TS.
+- `src/internals/plugins/useEditorMetadata/useEditorMetadata.test.tsx` — imports the missing
+  `describeEditor`; asserts a file-explorer tree-selection contract.
+- `src/internals/plugins/useEditorKeyboard/useEditorKeyboard.test.tsx` — imports the missing
+  `describeEditor`; ~30 keyboard cases copied verbatim from file-explorer.
+- `src/themeAugmentation/themeAugmentation.spec.ts` — type-only (`tsc`, not Mocha).
+- `test/typescript/*.spec.tsx`, `test/typescript/moduleAugmentation/*` — type-only MUI-fork
+  leftovers, validated by `tsc`.
+- `test/integration/*` — eight files (`Menu`, `MenuList`, `Select`, `TableCell`, `TableRow`,
+  `Dialog`, `NestedMenu`, `PopperChildrenLayout`). **MUI snapshots, not editor tests** —
+  leftover scaffolding from the package fork. Delete or quarantine.
 
-### Critical gap
+### The harness gap
 
-`describeEditor` is imported as `test/utils/editor-view/describeEditor` but **that file does not exist** in the repo. `test/utils/file-explorer/describeFileExplorer` exists; the editor-view sibling was never ported. Every plugin test in `src/internals/plugins/**` and `src/internals/useEditor/useEditor.test.tsx` is therefore unrunnable today. Restoring this harness is the single highest-leverage thing you can do for editor test coverage.
+`describeEditor` is imported as `test/utils/editor-view/describeEditor` but no such file
+exists (verified: zero `describeEditor*` matches in the package; `packages/sui-editor/test/utils/`
+is absent). Only `test/utils/file-explorer/` exists at the repo root. Per axiom
+**AX-MOD-SUI-EDITOR-005**, the correct response to the failing plugin tests is to build the
+harness or open a governed task — **not** to `.skip` or delete them silently. But the harness
+alone is insufficient: the assertions target a `role`/`treeitem` DOM contract the editor does
+not render (it renders a timeline/canvas). See §7 step 1.
 
 ---
 
 ## 2. What Should Be Tested
 
-### Tier 1 — Critical, ship-blocking (write or restore first)
+Ranked by ROI for a Medium-priority, canvas-heavy package. **Tier 1A is fully headless and
+should be written first** — it needs no harness and no browser API.
 
-| Module | File | Why it matters |
+### Tier 1A — Pure functions (headless, highest ROI, zero infra)
+
+| Target | File | Why it matters |
 |---|---|---|
-| `EditorFile` blob I/O | `src/EditorFile/EditorFile.ts` | `createBlob` / `readBlob` round-trip is how projects persist. The existing test (`EditorFile.test.tsx`) is the right shape but commented out. Restore it and add coverage for: missing tracks, unknown controller IDs, version mismatch, and the `editorFileCache` hit/miss paths. |
-| `useEditorMetadata` | `src/internals/plugins/useEditorMetadata/useEditorMetadata.ts` | Drives selection state used by every consumer of the editor. Restore `useEditorMetadata.test.tsx` by porting `describeEditor` from `test/utils/file-explorer/describeFileExplorer`. |
-| `useEditorKeyboard` | `src/internals/plugins/useEditorKeyboard/useEditorKeyboard.ts` | Owns keyboard a11y. Same blocker — restore the harness, then expand beyond ArrowDown to ArrowUp/Home/End/Space and the modifier-shift selection range cases. |
-| `useEditor` hook | `src/internals/useEditor/useEditor.tsx` | Root composition for plugins. Test currently has a duplicate-identifier bug; once fixed, add a render-with-no-plugins smoke and a `getRoot()` role assertion. |
-| `EditorEngine` lifecycle | `src/EditorEngine/EditorEngine.ts` (516 LOC) | Owns the play/pause/seek state machine and the WASM-vs-canvas branch (`_useWasm`, `_wasmRendererConfig`, `_compositorController`). Cover at minimum: `setRenderer` / `setStage` setters, `_actionMap` population on track changes, and the event emission in `EditorEvents`. The recorder/canvas paths can stay manual. |
-| Controllers' `preload` / `enter` / `leave` | `src/Controllers/{Animation,Audio,Compositor,Image,Video,Web}Controller.ts` | Each controller is the integration seam between editor actions and a media element. Test the deterministic helpers: `preload` returning an action with `duration`, controller `cacheMap` keying, `getItem` parameter shape. Skip anything that touches `<video>` decode or `AudioContext.createMediaElementSource`. |
+| `actionToWasmLayer`, `calculateFitTransform` (+ blend mapping *through* `actionToWasmLayer`) | `src/WasmPreview/actionMapper.ts` | Pure `IEditorAction → CompositorLayer` mapping (camel→snake, fit math, blend-mode enum). No WASM instance needed. Wrong math here = misplaced/wrong-blended layers. Guards **AX-MOD-SUI-EDITOR-003** (the mapper must keep working regardless of WASM availability). |
+| `getTrackFromMediaFile`, `getTracksFromMediaFiles` | `src/EditorTrack/EditorTrack.ts` (lines 46, 79) | Turns `IMediaFile[]` into editor tracks/actions with default `currentTime`/`duration`/`index`. Pure, deterministic, drives every drag-drop ingest. |
+| `getActionSelectionData`, `refreshActionState`, `refreshTrackState` | `src/EditorProvider/EditorState.ts` (lines 19, 35, 41) | Selection-index lookup and the `track.hidden → action.dim` fold. Pure given a state object; a rename here silently desyncs the detail view (see **AX-MOD-SUI-EDITOR-002** change-impact). |
 
-### Tier 2 — Important utilities
+### Tier 1B — Critical stateful logic (needs stubs, not a full browser)
 
-| Module | File | Why |
+| Target | File | What to cover |
 |---|---|---|
-| `EditorProvider` glue | `src/EditorProvider/*`, `src/internals/EditorProvider/*` | Renders the engine + plugins. RTL render-and-unmount tests catch effect-cleanup regressions. |
-| `EditorView` rendering | `src/EditorView/*` | Smoke render with `items: [{ id }]` to ensure the slot wiring is intact. |
-| `EditorControls` | `src/EditorControls/*` | Play/pause/seek button wiring against a stub engine. |
-| `EditorFileTabs` | `src/EditorFileTabs/*` | Active tab selection state. |
-| `db` helpers | `src/db/get.ts`, `src/db/init.ts` | Thin wrappers over `@stoked-ui/common` `LocalDb`. Verify they call through with the right store names; do not retest IDB itself. |
-| `useEditorApiRef` | `src/hooks/useEditorApiRef.tsx` | Imperative API ref — must be stable across renders. |
-| `Editor` styled root | `src/Editor/Editor.tsx`, `src/Editor/Editor.styled.tsx` | One conformance test using `packages/sui-editor/test/describeConformance.ts` (currently unused). |
+| `EditorFile` persistence | `src/EditorFile/EditorFile.ts` | `fromLocalFile(blob)` / `fromUrl(url)` reconstruct a file with correct `props` (id/name/version/tracks/actions); `updateStore()` writes through the injected `LocalDb`; `editorFileCache` / `EditorFile.fileCache` hit/miss. Round-trip a 2-track project. Corrupt-buffer input rejects. Guards **AX-MOD-SUI-EDITOR-004** (IDB schema is versioned) — assert the on-disk shape of `IEditorFileData` / `IEditorTrackData` survives. |
+| `Controllers` deterministic methods | `src/Controllers/{Audio,Video,Image,Compositor}Controller.ts` | Each extends timeline `Controller` with a `cacheMap`. Test: `getItem(params)` populates `cacheMap[track.id]` and reuses the cached entry on a second call (`VideoController.ts:40`); `preload(params)` resolves an `ITimelineAction` (`VideoController.ts:74`); `preload` with missing `track.file` resolves the action unchanged. **Skip** `enter` / `leave` / `draw` — they touch `<video>` decode, `Howl` playback, `AudioContext`, and `engine.renderCtx.drawImage`. |
+| `EditorEngine` state + wiring | `src/EditorEngine/EditorEngine.ts` (~516 LOC) | Constructor builds an `EditorEvents` emitter when none passed (`EditorEngine.ts:73–75`); `_useWasm` defaults to `false` (line 67); `_actionMap` (line 62) populates from a track list; setters store refs; `initWasmRenderer()` returns `false` (does not throw) when `!_useWasm || !_compositorController` (line 121–122). Spy `events.emit` for state transitions. **Exclude** the recorder and the real WASM branch. |
+| `StokedUiEditorApp` mime registration | `src/Editor/StokedUiEditorApp.ts` | `getInstance()` is a singleton (line 47); registers exactly `.sue` / `.suvid` / `.sua` (lines 22/28/34); `defaultInputFileType` is `.sue` (line 20). Guards **AX-MOD-SUI-EDITOR-007**. |
 
-### Tier 3 — Light coverage
+### Tier 2 — Component render / integration (needs a render harness)
 
-| Module | File | Coverage goal |
+| Target | File | Coverage goal |
 |---|---|---|
+| `EditorProvider` glue | `src/EditorProvider/*` | Renders children; mount→unmount emits no `console.error`; constructs a default `EditorEngine`; assigns `TimelineFile.Controllers = Controllers` **before** file deserialization (**AX-MOD-SUI-EDITOR-002**). |
+| `Editor` styled root | `src/Editor/Editor.tsx` | One conformance run via `test/describeConformance.ts` (`refForwarding`, `themeDefaultProps`, `themeStyleOverrides`). |
+| `EditorView` | `src/EditorView/EditorView.tsx` | Smoke render — renderer `<canvas>` and screener `<video>` refs wire into the engine (`_renderer`, `_screener`, `_stage`). |
+| `EditorControls` | `src/EditorControls/EditorControls.tsx` | Play/pause/stop/seek buttons dispatch against a stub engine; `Volume` value binding. |
+| `EditorFileTabs` | `src/EditorFileTabs/EditorFileTabs.tsx` | Active-tab state. |
+| `useEditorApiRef` | `src/hooks/useEditorApiRef.tsx` | Returns a stable ref across renders. |
+
+### Tier 3 — Light / smoke coverage
+
+| Target | File | Goal |
+|---|---|---|
+| `DetailView` | `src/DetailView/*` | Render with a mock `file.media`; document the `createSettings` Proxy footgun (§8) in-test. |
 | `EditorScreener` | `src/EditorScreener/*` | Render snapshot. |
-| `DetailView` | `src/DetailView/*` | Render with mock `file.media`; document the `createSettings` Proxy footgun (see `MEMORY.md`) in a comment. |
+| `WasmPreview` (UI) | `src/WasmPreview/WasmPreviewDemo.tsx`, `useWasmRenderer.ts` | Render with WASM disabled → asserts the 2D-canvas fallback path is taken (**AX-MOD-SUI-EDITOR-003**). |
 | `Loader`, `SizeSlider`, `Zoom`, `ContextMenu` | `src/Editor/*.tsx` | Smoke render only. |
-| `WasmPreview` | `src/WasmPreview/*` | Render with WASM disabled — assert it falls back to the 2D canvas path. |
 
 ### Out of scope
 
-- The actual WASM `render_frame` / `clear` / `get_metrics` calls in `EditorEngine.ts` — covered by `cargo test` in `packages/sui-video-renderer` (see root `video-renderer:test` script).
-- `MediaRecorder`-driven recording (`_recorder`, `_recordedChunks`) — JSDOM does not implement it; verify on `localhost:5199`.
-- `Plyr` integration in `Editor/AudioPlayer.tsx` — third-party, behind a peer dep.
-- `test/integration/*` legacy MUI specs — delete rather than maintain.
-- `test/typescript/*` — kept for `tsc`-time checks, not Mocha.
-- `Editor/Test.tsx`, `Editor/ExampleForm.tsx` — demo-only.
+- WASM `render_frame` / `clear` / `get_metrics` — covered by `cargo test` in
+  `packages/sui-video-renderer` (root `video-renderer:test`).
+- `MediaRecorder` recording (`_recorder`, `_recordedChunks`) — not in JSDOM; verify on 5199.
+- `AudioContext` mixing through one `destination` — not in JSDOM; manual.
+- `Howl` (howler) playback inside `AudioController` — third-party; manual.
+- `plyr-react` in `Editor/AudioPlayer.tsx` — third-party.
+- `AnimationController` / `WebController` — disabled (not in the map, §0.3); no ship-blocking
+  tests until re-registered.
+- `test/integration/*` MUI specs and `test/typescript/*` — not editor tests.
 
 ---
 
 ## 3. Tooling
 
-The current toolchain is correct. **Do not introduce Jest, Vitest, or RTL `jest-dom` matchers** — that diverges from `sui-timeline`, `sui-file-explorer`, and the rest of the umbrella runner.
+The toolchain is correct as-is. **Do not introduce Jest, Vitest, or RTL `jest-dom`
+matchers** — that diverges from `sui-timeline` / `sui-file-explorer` and breaks the umbrella
+Mocha glob (a Jest-only assertion in a publishable package poisons `packages/**/*.test.*`;
+cf. the dual-test-stacks note in project memory).
 
-- **Runner:** Mocha 10 via root `pnpm test` and `pnpm test:coverage` (`nyc` + `mocha 'packages/**/*.test.{js,ts,tsx}'`).
-- **DOM:** JSDOM via `@stoked-ui/internal-test-utils/setupJSDOM`.
-- **Compilation:** Babel via `@stoked-ui/internal-test-utils/setupBabel`. The root `.mocharc.js` already wires both.
-- **Assertions:** `chai` `expect` (already a dev dep). Use `sinon` `spy` / `stub` for mocks — already used in the keyboard plugin test.
-- **React testing:** `act`, `fireEvent`, and the `render` helper exposed by `describeEditor` (re-exports from `@stoked-ui/internal-test-utils`).
-- **Conformance:** `packages/sui-editor/test/describeConformance.ts` — wire it into `Editor.test.tsx` and `EditorView.test.tsx` once they exist.
-- **Karma (browser):** Optional. The repo has `test/karma.conf.js`; only opt in if a future suite needs real `<canvas>` / `MediaRecorder`.
+- **Runner:** Mocha 10 via root `pnpm test:unit` (or `pnpm test:coverage` for `nyc`).
+  Single file: `pnpm mocha packages/sui-editor/src/EditorTrack/EditorTrack.test.ts`.
+- **DOM:** JSDOM via `@stoked-ui/internal-test-utils/setupJSDOM` (auto-required by `.mocharc.js`).
+- **Compilation:** Babel via `@stoked-ui/internal-test-utils/setupBabel`.
+- **Assertions:** `chai` `expect`. Mocks: `sinon` `spy` / `stub` / `fake` / `replace`.
+- **Render:** `createRenderer()` from `@stoked-ui/internal-test-utils`; `act`, `fireEvent`,
+  `ErrorBoundary`, `toErrorDev` from the same. **Use Mocha's global `describe` / `it`** —
+  never `import { describe, it } from 'node:test'` (this is bug §0 in the existing file).
+- **Conformance:** wire `packages/sui-editor/test/describeConformance.ts` into a future
+  `Editor.conformance.test.tsx`.
+
+### ⚠️ Node version (blocker)
+
+The active runtime in this workspace breaks Mocha. Before running any test:
+
+```bash
+nvm use v20.20.0   # or: nvm install 20 && nvm use 20
+node -v            # must print v20.x
+```
+
+(Per project memory `node-version-for-tests`. The docs `tsc` also has pre-existing
+`sui-editor` / `sui-timeline` failures unrelated to this package's tests — see SC_MODULE §7
+TypeScript baseline: the `ReadableStream<Uint8Array<ArrayBufferLike>>` vs `<ArrayBuffer>`
+divergence rooted in `sui-media`, not a `sui-editor`-local fault.)
 
 ### Add a per-package script
 
-`package.json` is missing a test script. Add:
+`packages/sui-editor/package.json` has no `test` script. Add one so
+`turbo run test --filter=@stoked-ui/editor` works:
 
 ```jsonc
 "scripts": {
@@ -113,128 +214,189 @@ The current toolchain is correct. **Do not introduce Jest, Vitest, or RTL `jest-
 }
 ```
 
-This lets `turbo run test --filter=@stoked-ui/editor` work without going through the root.
+This is a structural change (no behavior) and does not itself require a TDD cycle, but it
+must not break the root glob.
 
 ---
 
 ## 4. Test File Organization & Naming
 
-Match the existing co-located pattern — do not centralize tests under a top-level `__tests__/`:
+Match the existing co-located convention — do **not** centralize under `__tests__/`:
 
-- **Unit/component tests:** `src/<Component>/<Component>.test.tsx` next to the source (mirrors `src/EditorFile/EditorFile.test.tsx`).
+- **Pure helpers / unit:** `src/<area>/<file>.test.ts` next to the source
+  (e.g. `src/WasmPreview/actionMapper.test.ts`, `src/EditorTrack/EditorTrack.test.ts`).
+- **Component tests:** `src/<Component>/<Component>.test.tsx`.
 - **Plugin tests:** `src/internals/plugins/<plugin>/<plugin>.test.tsx`.
 - **Hook tests:** `src/internals/<hook>/<hook>.test.tsx`.
-- **Type-only specs:** `*.spec.ts` / `*.spec.tsx` under `src/themeAugmentation/` or `test/typescript/` — these are validated by `tsc`, not Mocha (excluded via `tsconfig.build.json`).
-- **Shared editor harness:** `test/utils/editor-view/describeEditor.tsx` (sibling of the existing `test/utils/file-explorer/describeFileExplorer/`). Port the file-explorer version, swap the component + plugin signatures.
-- **Conformance:** `src/<Component>/<Component>.conformance.test.tsx`, importing `packages/sui-editor/test/describeConformance.ts`.
+- **Type-only specs:** `*.spec.ts` / `*.spec.tsx` (validated by `tsc`, excluded from the
+  build via `tsconfig.build.json` and from Mocha by intent).
+- **Conformance:** `src/<Component>/<Component>.conformance.test.tsx` importing
+  `packages/sui-editor/test/describeConformance.ts`.
+- **Shared harness (if built):** `packages/sui-editor/test/utils/editor-view/describeEditor.tsx`
+  (sibling of `test/utils/file-explorer/`).
 
-Naming conventions, in order of preference:
+Naming inside files:
 
-```
-describe('<ComponentName>', () => {
+```ts
+describe('<ComponentOrFunction>', () => {
   describe('<feature>', () => {
-    it('should <expected behavior> when <condition>', ...)
-  })
-})
+    it('should <expected behavior> when <condition>', () => { /* ... */ });
+  });
+});
 ```
-
-For plugin tests use `describeEditor<[…signatures]>('<pluginName>', …)` so the harness can render against both `EditorBasic` and the full `Editor` composition.
 
 ---
 
 ## 5. Mock & Stub Strategy
 
-The editor pulls in heavy browser APIs that JSDOM either doesn't provide or implements incompletely. Stub at the boundary, not deep inside the engine.
+Stub at the boundary, not deep in the engine. The editor pulls in browser APIs JSDOM either
+lacks or implements partially.
 
-| API | Mock approach |
+| Dependency / API | Mock approach |
 |---|---|
-| `HTMLCanvasElement.getContext('2d')` | Use `@stoked-ui/internal-test-utils` JSDOM canvas polyfill. If a test asserts draw calls, `sinon.stub(ctx, 'drawImage')`. |
-| `HTMLVideoElement` (`duration`, `videoWidth`, `videoHeight`) | Stub the element via `Object.defineProperty(video, 'duration', { get: () => 12.3 })`. Mirrors the DOM-fallback pattern noted in `MEMORY.md`. |
-| `MediaRecorder` | Not in JSDOM. Inject a fake `_recorder` onto `EditorEngine` — do not test through it. |
-| `AudioContext` / `createMediaElementSource` | Stub the constructor at module scope or skip the test under JSDOM (`if (typeof AudioContext === 'undefined') return this.skip()`). |
-| `IndexedDB` (`@stoked-ui/common` `LocalDb`, `openDB`, `getOrFetchVideo`) | Use `fake-indexeddb` if needed; otherwise inject a stub `LocalDb` via the constructor. The `editorFileCache` `Record` in `EditorFile.ts` makes this easy — clear it in `beforeEach`. |
-| `@stoked-ui/video-renderer-wasm` | Module is `optionalDependencies`. Mock with a minimal `{ render_frame, clear, get_metrics, free }` object as a `__mocks__` or a `proxyquire` stub. Default tests should run with `_useWasm = false`. |
-| `react-router-dom` | Wrap renders in a `MemoryRouter` from the test util. |
-| `plyr-react` | Stub to a `<div data-testid="plyr-stub" />` — no value testing the third-party player. |
-| `react-hook-form` | Render real, do not mock. |
+| `HTMLCanvasElement.getContext('2d')` | Use the internal-test-utils JSDOM canvas polyfill. To assert draw calls: `sinon.stub(ctx, 'drawImage')`. Prefer testing the data feeding `draw` over `draw` itself. |
+| `HTMLVideoElement` (`duration`, `videoWidth`, `videoHeight`) | `Object.defineProperty(video, 'duration', { get: () => 12.3 })` — mirrors the DOM-fallback the editor already uses (§8). |
+| `MediaRecorder` | Not in JSDOM. Inject a fake `_recorder` onto the engine; never drive a test through it. |
+| `AudioContext` / `createMediaElementSource` / `Howl` | Stub the constructor at module scope, or `if (typeof AudioContext === 'undefined') return this.skip()`. `AudioController` wraps `Howl` (howler) — stub `Howl` to a no-op with `duration()`. |
+| IndexedDB / `LocalDb` / `openDB` / `getOrFetchVideo` (`@stoked-ui/common`) | **Inject a stub `LocalDb`** through the constructor / `EditorFile` props rather than touching real IDB. `fake-indexeddb` only if a test genuinely needs the store. Clear `editorFileCache` and `EditorFile.fileCache` in `beforeEach`. |
+| `@stoked-ui/video-renderer-wasm` | It's an `optionalDependency`. Default tests run with `_useWasm = false` so the dynamic import never fires. If you must exercise the WASM path, stub a minimal `{ PreviewRenderer, render_frame, clear, get_metrics, free }`. |
+| `react-router-dom` | Wrap renders in `MemoryRouter`. |
+| `plyr-react` | Stub to `<div data-testid="plyr-stub" />`. |
+| `react-hook-form` + `yup` | Render real — do not mock; that's the contract under test in `DetailView`. |
 | Network (`fetch`, `getOrFetchVideo`) | `sinon.replace(global, 'fetch', sinon.fake.resolves(new Response(...)))`. |
 
-**Module-level static state** — `editorFileCache` (`src/EditorFile/EditorFile.ts:24`), the `MimeRegistry`, and the `Controllers` map all persist between tests. Add a `beforeEach` that clears them, or every test after the first sees stale entries.
+**Module-level shared state must be reset in `beforeEach`** or tests after the first see
+stale data:
+- `editorFileCache` — `src/EditorFile/EditorFile.ts:23`.
+- `EditorFile.fileCache` — `src/EditorFile/EditorFile.ts:272`.
+- The MIME registry behind `StokedUiEditorApp.getInstance()` (singleton, `StokedUiEditorApp.ts:47`).
+- The `Controllers` map and `TimelineFile.Controllers` static assignment.
 
 ---
 
 ## 6. Coverage Targets
 
-This package is `Medium` priority and ~50% UI/canvas. Aim for:
+Medium priority, ~50% of the surface is canvas / IDB / recorder that can't run in JSDOM.
+Target lines on the headlessly-testable code; accept low numbers on the rest.
 
 | Layer | Target line coverage |
 |---|---|
-| `src/EditorFile/**` | **80%** — pure logic, persistence-critical |
-| `src/internals/plugins/**` | **75%** — covered by `describeEditor` once the harness is restored |
-| `src/internals/useEditor/**` | **75%** |
-| `src/Controllers/**` (deterministic methods only) | **60%** — exclude lines that touch `play()` / `pause()` / canvas |
-| `src/EditorEngine/EditorEngine.ts` | **50%** — exclude WASM and recorder branches |
-| `src/Editor/**`, `src/EditorView/**`, `src/EditorControls/**` | **50%** — render + slot conformance |
-| `src/DetailView/**`, `src/EditorScreener/**`, `src/WasmPreview/**` | **30%** — smoke render only |
-| Package overall | **55–60% lines / 50% branches** |
+| `src/WasmPreview/actionMapper.ts` (pure) | **90%** |
+| `src/EditorTrack/EditorTrack.ts` (pure) | **85%** |
+| `src/EditorProvider/EditorState.ts` (pure selectors) | **80%** |
+| `src/EditorFile/**` | **75%** — persistence-critical (`fromLocalFile`/`fromUrl`/`updateStore`/caches) |
+| `src/Controllers/**` (deterministic methods only) | **55%** — exclude `enter`/`leave`/`draw`/playback |
+| `src/EditorEngine/EditorEngine.ts` | **45%** — exclude WASM + recorder branches |
+| `src/Editor/**`, `src/EditorView/**`, `src/EditorControls/**` | **45%** — render + conformance |
+| `src/DetailView/**`, `src/EditorScreener/**`, `src/WasmPreview/*Demo*` | **30%** — smoke render |
+| Package overall | **50–55% lines / 45% branches** |
 
-These are reasonable for a `Medium`-priority package whose hot path is canvas/IDB. Track via `pnpm test:coverage` (root) — it already includes `packages/**/*.test.{js,ts,tsx}`.
+Track via `pnpm test:coverage` from root (`nyc` already includes `packages/sui*/src/**`).
+These are realistic floors, not aspirations — raise them once the harness question (§7.1) is
+resolved.
 
 ---
 
 ## 7. Specific Test Cases to Implement First
 
-In order. Each is small enough to ship in one PR.
+Each step is one PR. **Follow TDD (axiom 5): write the test, watch it go red, then make it
+green.** Steps 2–5 are pure / near-pure and need no harness — start there, not with the
+harness.
 
-1. **Restore `describeEditor` harness.**
-   New file: `test/utils/editor-view/describeEditor.tsx`. Mirror `test/utils/file-explorer/describeFileExplorer/describeFileExplorer.tsx`, swap the slot/component signatures to `Editor` / `EditorView`. Export the `DescribeEditorRendererUtils` type referenced in `useEditor.test.tsx`.
+1. **DECISION FIRST — what to do about the three forked plugin tests.**
+   They assert a file-explorer tree contract the editor doesn't render, and reference
+   non-existent `EditorBasic` / `EditorComponent` + the missing `describeEditor` harness. Two
+   governed options (surface to the maintainer per axiom 6.2):
+   - **(A) Rebuild for the real surface** — render `<Editor>` with `EditorExample`
+     (`src/EditorFile/EditorFile.example.tsx`) and rewrite assertions against the timeline
+     track/action DOM and engine state. Build the harness at
+     `packages/sui-editor/test/utils/editor-view/describeEditor.tsx`. Higher value, more work.
+   - **(B) Quarantine** — move the forked tests to `*.fileexplorer-fork.test.tsx.skip` with a
+     TODO, since they duplicate `sui-file-explorer` coverage and the editor's plugins are
+     themselves forks. Do **not** delete silently (AX-MOD-SUI-EDITOR-005).
+   Recommended default: **(B) now, (A) later** — don't block Tier-1A coverage on it.
 
-2. **Fix and de-skip `src/EditorFile/EditorFile.test.tsx`.**
-   - Uncomment line 16 (`createdBlob = await EditorExample.createBlob(true);`).
-   - Add `beforeEach` that clears `editorFileCache`.
-   - Add cases: (a) round-trip with two tracks, (b) `readBlob` on a corrupt buffer rejects, (c) `version` field round-trips correctly.
+2. **`actionMapper` pure tests.** New: `src/WasmPreview/actionMapper.test.ts`.
+   - Blend mapping *through* `actionToWasmLayer`: each `BlendMode` produces its snake_case
+     WASM counterpart in the returned layer; `undefined` blend → the documented `'normal'`
+     default (`actionMapper.ts:43`). **Note: `mapBlendMode` is not exported — assert via the
+     `actionToWasmLayer` output, not a direct import (§0.2).**
+   - `calculateFitTransform` for `cover` / `contain` / `fill` against known w/h.
+   - `actionToWasmLayer` produces snake_case keys and copies x/y/scale/opacity.
+   *Red:* assert exact output in the test's expectations before any change.
 
-3. **Fix `src/internals/useEditor/useEditor.test.tsx`.**
-   The destructure on line 8 has duplicate `EditorComponent`. Rename the second to `EditorItemComponent` (or whatever the harness exports). Confirm both `editorViewComponentName === 'EditorBasic'` and the slot-driven branch render.
+3. **`EditorTrack` pure tests.** New: `src/EditorTrack/EditorTrack.test.ts`.
+   - `getTrackFromMediaFile(mediaFile)` returns a track with default `duration`/index and a
+     single action; `undefined` media → `undefined` (`EditorTrack.ts:46`).
+   - `getTracksFromMediaFiles([...])` preserves order and appends to `existingTracks`
+     (`EditorTrack.ts:79`).
 
-4. **Add `EditorEngine` unit tests.**
-   New file: `src/EditorEngine/EditorEngine.test.ts`.
-   - Constructor with `events: undefined` constructs an `EditorEvents`.
-   - `_actionMap` populates from a track list.
-   - `_useWasm = false` is the default; flipping `_wasmRendererConfig` does not throw without a real instance.
-   - State transitions emit events on the `EditorEvents` emitter (use `sinon.spy` on `events.emit`).
+4. **`EditorState` selector tests.** New: `src/EditorProvider/EditorState.test.ts`.
+   - `getActionSelectionData(actionId, state)` finds the track/action and returns the right
+     `selectedTrackIndex` / `selectedActionIndex`; unknown id → empty/undefined.
+   - `refreshActionState` folds `track.hidden` into `action.dim`.
 
-5. **Add Controller `preload` tests.**
-   New file: `src/Controllers/AnimationController.test.ts` (and one each for `Audio`, `Image`, `Video`, `Web`, `Compositor`).
-   - `preload` with a missing `track.file` resolves to the unchanged action (already a code path in `AnimationController.ts:30`).
-   - `preload` populates `action.duration` from `getItem(...).getDuration()` using a stubbed item.
-   - `cacheMap` reuses existing entries.
+5. **`EditorFile` persistence tests.** New (replace the broken file):
+   `src/EditorFile/EditorFile.test.tsx`.
+   - `beforeEach` clears `editorFileCache` + `EditorFile.fileCache`; remove the `node:test`
+     import (use Mocha globals); stub `LocalDb`.
+   - Round-trip: build a 2-track `EditorFile`, serialize via the **real** path, read back with
+     `EditorFile.fromLocalFile(blob, EditorFile)` (or `fromUrl`), assert `props`
+     (id/name/version) and tracks/actions deep-match.
+   - `updateStore()` calls through the injected `LocalDb` with the right store name.
+   - Corrupt/empty buffer → `fromLocalFile` rejects.
 
-6. **Wire conformance for `Editor`.**
-   New file: `src/Editor/Editor.conformance.test.tsx`. Import `describeConformance` from `packages/sui-editor/test/describeConformance.ts`. Cover `refForwarding`, `themeDefaultProps`, `themeStyleOverrides`, `slotPropsCallback`. Skip `componentsProp` until slots are documented.
+6. **`EditorEngine` unit tests.** New: `src/EditorEngine/EditorEngine.test.ts`.
+   - No `events` arg → constructs an `EditorEvents` emitter (`EditorEngine.ts:73–75`).
+   - `_useWasm` defaults `false`; `initWasmRenderer()` resolves `false` (no throw) when WASM
+     is off / no `_compositorController` (`EditorEngine.ts:121–122`).
+   - `_actionMap` populates from a track list; setters store refs.
+   - State transition emits on `events` (spy `events.emit`).
 
-7. **`EditorProvider` mount/unmount.**
-   New file: `src/EditorProvider/EditorProvider.test.tsx`.
-   - Renders children.
-   - On unmount, no warnings are emitted (catch via `sinon.stub(console, 'error')`).
-   - `useEditorApiRef()` returns the same ref instance across renders.
+7. **Controller `getItem` / `preload` tests.** New: `src/Controllers/VideoController.test.ts`
+   (+ `Audio`, `Image`, `Compositor`).
+   - `getItem` populates `cacheMap[track.id]` and a second call reuses the cache
+     (`VideoController.ts:40`).
+   - `preload` with missing `track.file` resolves the action unchanged; `preload` resolves an
+     `ITimelineAction` (`VideoController.ts:74`).
+   - **Do not** test `enter` / `leave` / `draw` / playback.
 
-8. **`useEditorKeyboard` — expand navigation matrix.**
-   In the existing `useEditorKeyboard.test.tsx`, add ArrowUp, Home, End, Shift+Arrow range selection, and Space-to-toggle.
+8. **`StokedUiEditorApp` registration test.** New: `src/Editor/StokedUiEditorApp.test.ts` —
+   `getInstance()` is a singleton; `.sue` / `.suvid` / `.sua` registered;
+   `defaultInputFileType === .sue` (AX-MOD-SUI-EDITOR-007).
 
-9. **Delete or rename the legacy `test/integration/*` MUI specs.**
-   They report green only because they're testing MUI's internals, not the editor. Either remove (preferred) or move under `test/integration/legacy-mui/` so coverage tooling doesn't credit them.
+9. **`EditorProvider` mount/unmount + conformance** (needs harness/RTL).
+   `src/EditorProvider/EditorProvider.test.tsx` (renders children; clean unmount; stable
+   `useEditorApiRef`; asserts `TimelineFile.Controllers` is wired before deserialization) and
+   `src/Editor/Editor.conformance.test.tsx` wiring `test/describeConformance.ts`.
 
-10. **Add a per-package `test` script** as described in §3.
+10. **Housekeeping.** Add the per-package `test` script (§3); delete or quarantine
+    `test/integration/*` MUI specs so coverage tooling stops crediting them.
 
 ---
 
-## 8. Known Gotchas (carry into tests)
+## 8. Known Gotchas (bake regressions for these)
 
-These are recurring failure modes documented in the project memory and visible in the source. Bake regression tests for them so a future fix doesn't silently regress:
+Recurring failure modes from project memory and source — write a guarding test so a future
+fix doesn't silently regress:
 
-- `file.media` uses a `createSettings` Proxy from `@stoked-ui/common`. Properties set via `Object.assign` don't always propagate through React state. `DetailView` reads duration/width/height directly from the DOM video as a fallback. Tests that mutate `file.media` should mutate via the setter, not `Object.assign`.
-- `extractVideoMetadata` previously created an empty `ScreenshotStore` that blocked thumbnail generation. Fix is in place; add a regression test that calling it on a fresh DB does not throw and creates the store with `count > 0` only when frames are actually captured.
-- IDB `saveVideo` may be called before its version entry exists — the fix creates it on demand. Test the pre-existing-vs-fresh-DB branch.
-- Recording audio mix: all sources route through one `AudioContext.destination`. JSDOM can't verify this; document and skip.
-- Canvas at `t=0` after playback shows only one track's frame — open bug. A test that asserts multi-track composition at `t=0` will fail today and should be marked `it.skip` with a TODO referencing the issue, not deleted.
+- **`createSettings` Proxy** — `file.media` is a `createSettings` Proxy from
+  `@stoked-ui/common`. Properties set via `Object.assign` don't reliably propagate through
+  React state; `DetailView` reads `duration` / `width` / `height` straight off the DOM
+  `<video>` as a fallback. Tests that mutate `file.media` must use the setter, not
+  `Object.assign`.
+- **`extractVideoMetadata` / empty `ScreenshotStore`** — previously created an empty store
+  that blocked thumbnail generation (fixed by checking `count > 0`). Add a regression: calling
+  it on a fresh DB does not throw and only creates a store when frames are actually captured.
+- **IDB `saveVideo` before a version entry exists** — the fix creates the version entry on
+  demand. Test the fresh-vs-existing-DB branch.
+- **Multi-track audio mix** — all sources route through one `AudioContext.destination`. JSDOM
+  can't verify; document and `this.skip()`.
+- **Canvas at `t=0` after playback shows only one track's frame** — open bug. A test asserting
+  multi-track composition at `t=0` will fail today; mark `it.skip` with a TODO referencing the
+  bug, do **not** delete.
+- **`Controllers` / `TimelineFile.Controllers` ordering** — `EditorProvider` must assign
+  `TimelineFile.Controllers = Controllers` before any file deserialization
+  (AX-MOD-SUI-EDITOR-002). A provider test that deserializes a file proves the wiring.
+- **Node 26 vs Mocha** — see §3; not a product bug but the #1 reason "the tests don't run" on
+  a fresh shell.

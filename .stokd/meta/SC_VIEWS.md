@@ -1,6 +1,6 @@
 # Stoked UI — View Classification
 
-> **Generated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) | **Refreshed:** 2026-06-06 | **Meta version:** 0.4.0
+> **Generated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) | **Refreshed:** 2026-06-06 (timed refresh — verified package/route topology, added §25 template/theme demo & experiment surfaces) | **Meta version:** 0.4.0
 > **Repository:** `@stoked-ui/sui`
 > **Root:** `/opt/worktrees/stoked-ui/stoked-ui-main`
 
@@ -8,6 +8,15 @@ A "view" here = a top-level rendered surface a user can directly perceive — a 
 
 All views below reference the single product doc in this repo:
 **Products:** `SC_PRODUCT_STOKED_UI_SUI.md` — `@stoked-ui/sui` (covers all `packages/*` and the `docs/` Next.js site).
+
+### Site topology (two public origins)
+
+The single `docs/` Next.js app serves **two** public origins, resolved at request time by `docs/src/modules/utils/siteRouting.ts`:
+
+- **`sui.stokd.cloud`** — the product/component marketing + docs surface (`STOKED_UI_ORIGIN`).
+- **`consulting.stokd.cloud`** — the consulting business surface (`STOKED_CONSULTING_ORIGIN`), which also fronts the auth-gated portal/admin.
+
+Many routes are **mirrored** across both origins. The same React view is reused, but the path is namespaced: e.g. Products Admin is reachable at both `/admin/products` and `/consulting/admin/products` (the latter re-exports the former), public product detail at `/products/<slug>` and `/consulting/products/<slug>`, and the consulting variants redirect non-public product ids back into the admin tree. Routing helpers (`toAbsoluteSitePath`, `toConsultingPublicPath`, `isConsultingPublicProductId`, `inferSiteForProductId`) decide which origin owns a given product/page. Where a view is mirrored this is called out inline rather than duplicated as a separate entry.
 
 The view inventory is grouped by surface:
 
@@ -31,10 +40,11 @@ The view inventory is grouped by surface:
 18. CLI / terminal output (`packages/sui-video-renderer/cli`)
 19. NestJS API documentation surface (`sui-media-api`)
 20. Standalone product surfaces (Mac Mixer, Focus Capture, Media Selector, Always Listening, Stokd Cloud, Common)
-21. Consulting service-line pages (AI, Back-End, Front-End, DevOps)
+21. Consulting service-line pages (AI, Back-End, Front-End, DevOps, Full-Stack)
 22. Video Renderer docs site
 23. Company / Contact
 24. Consulting Audit Bot — AI/cloud/security audit chat widget (`docs/src/modules/auditBot`)
+25. Template / theme demo & experiment surfaces (`premium-themes`, `experiments`, `performance`)
 
 ---
 
@@ -69,6 +79,7 @@ All routes resolve from `docs/pages/`. Shared chrome: `AppHeader` (`docs/src/lay
 - **Location:** `docs/pages/products/[product-slug].tsx`, `docs/src/modules/components/PublicProductDetailPage.tsx`
 - **Regions:** AppHeader · product hero · features list · documentation page list · CTA · AppFooter
 - **States:** loading, loaded, not-found, error
+- **Mirror (consulting origin):** `docs/pages/consulting/products/[product-slug].tsx` renders the same `PublicProductDetailPage` when `isConsultingPublicProductId(slug)`; non-public ids redirect to `/consulting/admin/products/<slug>`. Per-product legal pages live at `docs/pages/consulting/products/[product-slug]/{privacy,terms}.tsx` → `PublicLegalPage` (see §1.9).
 
 ### 1.4 Pricing
 
@@ -98,6 +109,7 @@ All routes resolve from `docs/pages/`. Shared chrome: `AppHeader` (`docs/src/lay
 - **Regions:** AppHeader · hero/value/team/role-accordion or feedback form · Footer
 - **States:**
   - About/Careers: static, accordion expanded/collapsed (careers)
+  - Careers role pages: each open role has its own page `docs/pages/careers/<role>.js` rendering `TopLayoutCareers` with the role's `<role>.md` markdown (e.g. `react-engineer-x`, `design-engineer`, `developer-advocate`, …); static (loaded)
   - Feedback: unauthenticated (signup form), authenticated (rating + textarea), email-verification-pending (code input), submitted/success, error
   - Subscription confirm (`/subscription?code=&email=`): code 200 verified, 201 already-verified, 401 invalid token, 402 system error, 404 email-not-found, 500 error, no-code (instructions)
 
@@ -148,6 +160,7 @@ Each product owns a `/products/<slug>/` route that renders a near-fullscreen "He
 | File Explorer | `/products/file-explorer/` | `HeroFileExplorer` | `docs/src/components/home/HeroFileExplorer.tsx` |
 | Flux | `/products/flux/` | `HeroFlux` | `docs/src/components/home/HeroFlux.tsx` |
 | Media | `/products/media/` | `AdvancedShowcase` / hero | `docs/src/components/home/AdvancedShowcase.tsx` |
+| Media API | `/products/media-api/` | `HeroMediaSelector` (reused) | `docs/pages/products/media-api/main.tsx` → `docs/src/components/home/HeroMediaSelector.tsx` |
 | GitHub | `/github/` | `HeroGithub` | `docs/src/components/home/HeroGithub.tsx` |
 | Focus Capture | `/products/focus-capture/` | `HeroFocusCapture` | `docs/src/components/home/HeroFocusCapture.tsx` |
 | Media Selector | `/products/media-selector/` | `HeroMediaSelector` | `docs/src/components/home/HeroMediaSelector.tsx` |
@@ -190,9 +203,10 @@ The consulting portal is auth-gated. Token stored under localStorage `auth`. Una
 ### 4.2 Consulting Home
 
 - **Products:** SC_PRODUCT_STOKED_UI_SUI.md
-- **Location:** `docs/pages/consulting/home.tsx`, `docs/pages/consulting/main.tsx`
-- **Regions:** Banner · Header · random product hero (home) **or** `HeroConsulting` + service cards + industry cards (main) · Footer
+- **Location:** `docs/pages/consulting/index.js` (consulting-origin root), `docs/pages/consulting/home.tsx`, `docs/pages/consulting/main.tsx`
+- **Regions:** Banner · Header · weighted-random service-line hero (root) **or** random product hero (home) **or** `HeroConsulting` + service cards + industry cards (main) · Footer
 - **States:** initial-load, randomized hero
+- **Notes:** `consulting/index.js` picks one service-line `main` to render via a weighted lottery — `ai` 50, `devops` 20, `front-end`/`back-end`/`full-stack` 10 each (SSR off, placeholder while loading).
 
 ### 4.3 Customer Dashboard
 
@@ -234,6 +248,7 @@ All require admin role; check from localStorage `auth` and redirect to `/consult
 - **Location:**
   - List: `docs/pages/admin/products/index.tsx` → `docs/src/modules/components/ProductsPage.tsx`
   - Detail: `docs/pages/admin/products/[product-slug].tsx` → `docs/src/modules/components/ProductDetailPage.tsx`
+  - **Mirror (consulting origin):** `docs/pages/consulting/admin/products/index.tsx` and `…/[product-slug].tsx` re-export the `/admin/products` views verbatim; `docs/pages/consulting/products/index.tsx` redirects to `/consulting/admin/products`.
 - **Regions:** Header · Container · `ProductsPage` (toolbar + product cards/table + create dialog) **or** `ProductDetailPage` (form: id/name/fullName/description/icon/url/live/managed/hideProductFeatures/prerelease/features/promo/privacyPolicy/termsAndConditions) · Footer
 - **States:** loading, loaded, empty, create-dialog-open, edit-mode, saving, validation-error, save-success, delete-confirm
 
@@ -272,6 +287,7 @@ All require admin role; check from localStorage `auth` and redirect to `/consult
 - **Location:** `docs/pages/consulting/deliverables/[id].tsx` → `docs/src/modules/components/DeliverableViewerPage.tsx`
 - **Regions:** Full-height (`100dvh`) flex container · viewer surface (loads deliverable by id; types: download/link/ux/html)
 - **States:** auth-not-checked (spinner), authenticated (viewer), unauthenticated (redirect with `?redirect=`), invalid-id (null render)
+- **Notes:** A completed audit-bot report can be mirrored into this viewer as a client deliverable via `promoteAuditToDeliverable` (`docs/src/modules/auditBot/deliverables.ts`, idempotent on `clientId`/`title`/`type`/`version`); the helper exists but is not yet wired into an API route or UI trigger.
 
 ### 5.7 Blog Admin (List + Editor)
 
@@ -701,15 +717,24 @@ These are product pages with custom (non-`PublicProductDetailPage`) layouts. The
 - **Location:** `docs/pages/products/mac-mixer/index.tsx` → `docs/src/modules/products/MacMixerProductPage.tsx`
 - **Regions:** `BrandingCssVarsProvider` · `AppHeaderBanner` · `AppHeader` · hero (title + alpha download CTA → `https://cdn.consulting.stokd.cloud/products/mac-mixer/releases/alpha/<v>/MacMixer-<v>.pkg`) · feature grid (route mapping cards: Zoom→AirPods, etc.) · device routing diagram (`Paper` cards with `Chip` route entries) · marketing copy sections (volume control, hotkeys, security, audio quality) · `NewsletterToast` · `AppFooter`
 - **States:** static (always loaded), hover (card transform), download CTA enabled/disabled
+- **Mirror (consulting origin):** `docs/pages/consulting/products/mac-mixer.tsx` renders the same `MacMixerProductPage`.
 
-### 20.2 Focus Capture / Media Selector / Always Listening / Stokd Cloud / Common
+### 20.2 Stokd Cloud Product Page
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/products/stokd-cloud/main.tsx` (+ `docs/pages/consulting/products/stokd-cloud.tsx`) → `docs/src/modules/products/StokdCloudProductPage.tsx` → `docs/src/modules/products/StokdCloudPitch.tsx` (content in `stokdCloudContent.ts`)
+- **Regions:** `BrandingCssVarsProvider` · `AppHeader` · `StokdCloudPitch` (bespoke pitch/landing body) · `AppFooter`
+- **States:** static (loaded)
+- **Notes:** `StokdCloudPitch` has a dedicated test (`StokdCloudPitch.test.tsx`). Mirrored on the consulting origin via `docs/pages/consulting/products/stokd-cloud.tsx`.
+
+### 20.3 Focus Capture / Media Selector / Always Listening / Common
 
 - **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 - **Location:** `docs/pages/products/<slug>/index.js` + `docs/pages/products/<slug>/main.tsx` (where present)
-- **Slugs:** `focus-capture`, `media-selector`, `always-listening`, `stokd-cloud`, `common`
+- **Slugs:** `focus-capture`, `media-selector`, `always-listening`, `common`
 - **Regions:** AppHeader · `HeroContainer` · `Section` blocks with feature cards · `Divider` · AppFooter
 - **States:** static (loaded), alpha-prerelease badge where applicable
-- **Notes:** `media-selector` retains a legacy `main.bac.tsx` backup alongside the live `main.tsx`. `always-listening` and `stokd-cloud` currently render docs trees only (no `main.tsx`).
+- **Notes:** `media-selector` retains a legacy `main.bac.tsx` backup alongside the live `main.tsx`. `always-listening` currently renders a docs tree only (no `main.tsx`).
 
 ---
 
@@ -719,9 +744,10 @@ Service-offering landing pages, one per practice area. Linked from `/consulting/
 
 - **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 - **Location:** `docs/pages/consulting/<service>/index.js` + `docs/pages/consulting/<service>/main.tsx`
-- **Services:** `ai`, `back-end`, `front-end`, `devops`
-- **Regions:** AppHeader · `HeroContainer` (gradient title via `GradientText`) · `ConsultingProofStrip` · `Section` blocks (stats grid, "how we work" steps, opportunity grid) · `Grid` of `ServiceCard` items (icon · service title · `CardContent` description) · `Divider` · AppFooter
+- **Services:** `ai`, `back-end`, `front-end`, `devops`, `full-stack`
+- **Regions:** AppHeader · `HeroContainer`/`HeroConsulting` (gradient title via `GradientText`) · `ConsultingProofStrip` · `Section` blocks (stats grid, "how we work" steps, opportunity grid) · `Grid` of `ServiceCard` items (icon · service title · `CardContent` description) · `Divider` · AppFooter
 - **States:** static, hovered (card lift + title color shift to `#3399ff`)
+- **Notes:** `full-stack` (greenfield product development, etc.) is the newest service line and reuses `HeroConsulting`.
 - **Notes:** The `ai` page (`docs/pages/consulting/ai/main.tsx`) additionally embeds the **Consulting Audit Bot** — the hero's right rail renders `AuditBotTrigger` (`variant="hero"`) and the hero CTA / trigger opens the `AuditBot` dialog with `playbook="ai-readiness"` (see §24). `calendlyUrl` comes from `NEXT_PUBLIC_CALENDLY_URL`.
 
 ---
@@ -788,6 +814,40 @@ An interactive lead-generation chat surface on the consulting site (`consulting.
 - **Regions:** company + one-liner header · playbook-specific summary chips (`MiniChip`) · `SectionLabel`-delimited blocks · ranked `OpportunityCard` list (`#rank`, title, effort/cost/savings chips, body, optional caveat) · "Brian would start with" · "Honest caveat" · "Next step"
 - **Variants (by `report.playbook`):** `ai-readiness` (readiness band + top opportunities with hours-saved chips), `cloud-cost` (cloud/spend/savings chips + monthly-savings cards), `security` (posture/compliance chips + severity-ranked findings)
 - **States:** rendered (one of three report shapes); purely presentational — no internal loading/error state (errors surface in the parent dialog)
+
+---
+
+## 25. Template / Theme Demo & Experiment Surfaces
+
+Legacy MUI-forked demo apps and benchmark/experiment pages that ship alongside the docs site. These are full rendered surfaces but are secondary to the product showcase — they exist as reference template apps and internal performance/experiment harnesses rather than marketing pages. All are wrapped in `AppTheme` (`docs/src/modules/components/AppTheme`).
+
+### 25.1 Onepirate Theme Demo App
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/premium-themes/onepirate/{index,sign-in,sign-up,forgot-password,terms,privacy}.js` → screens in `docs/src/pages/premium-themes/onepirate/` (`Home`, `SignIn`, `SignUp`, `ForgotPassword`, `Terms`, `Privacy`, plus `modules/`)
+- **Regions:** themed marketing landing (`Home`: hero, product values, "how it works", CTA, footer) **or** auth screens (`SignIn`/`SignUp`/`ForgotPassword` forms) **or** legal copy (`Terms`/`Privacy`)
+- **States:** static (loaded), form-input, form-submitting, form-error (auth screens)
+
+### 25.2 Paperbase Dashboard Demo App
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/premium-themes/paperbase/index.js` → `docs/src/pages/premium-themes/paperbase/Paperbase.tsx` (`Navigator` rail, `Header`, `Content`)
+- **Regions:** left `Navigator` drawer · top `Header` (tabs + search) · `Content` data table · footer
+- **States:** static (loaded), nav-item-selected, mobile-drawer-open/closed
+
+### 25.3 Experiments Index & Demo Pages
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/experiments/index.js` (link list of experiments) + `docs/pages/experiments/{base,blog,docs,website}/**`
+- **Regions:** `Container` · `List` of experiment links (index) · per-experiment bespoke demo body
+- **States:** static (loaded)
+
+### 25.4 Performance Benchmark Pages
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/performance/{slider-emotion,slider-jss,system,table-component,table-emotion,table-hook,table-mui,table-raw,table-styled-components}.js`
+- **Regions:** single benchmark widget per page (slider / table rendered via different styling engines) for render-cost comparison
+- **States:** static (rendered benchmark), interactive (slider drag / table re-render)
 
 ---
 

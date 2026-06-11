@@ -1,6 +1,6 @@
 # Module: @stoked-ui/timeline
 
-> **Generated:** 2026-05-05 (fresh, content) | **Updated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) | **Meta version:** 0.4.0
+> **Generated:** 2026-05-05 (fresh, content) | **Updated:** 2026-06-06 (timed refresh — verified against source; docs consumer paths corrected) | **Meta version:** 0.4.0
 > **Package location:** `packages/sui-timeline`
 > **NPM name:** `@stoked-ui/timeline` (v0.1.3)
 > **Source entry:** `packages/sui-timeline/src/index.ts`
@@ -32,10 +32,19 @@ The single public entry is `src/index.ts`. Re-exports surface the timeline by ca
 
 ```ts
 // packages/sui-timeline/src/index.ts
+import Timeline from './Timeline';
+
 export default Timeline;
-export { TimelineFile, TimelineCursor, TimelineLabels, TimelinePlayer,
-         TimelineScrollResizer, TimelineTime, TimelineTrack, TimelineTrackArea,
-         Engine, Controller };
+export { default as TimelineFile } from './TimelineFile';
+export { default as TimelineCursor } from './TimelineCursor';
+export { default as TimelineLabels } from './TimelineLabels';
+export { default as TimelinePlayer } from './TimelinePlayer';
+export { default as TimelineScrollResizer } from './TimelineScrollResizer';
+export { default as TimelineTime } from './TimelineTime';
+export { default as TimelineTrack } from './TimelineTrack';
+export { default as TimelineTrackArea } from './TimelineTrackArea';
+export { default as Engine } from './Engine';
+export { default as Controller } from './Controller';
 export * from './Controller';
 export * from './TimelineControls';
 export * from './TimelineFile';
@@ -54,6 +63,8 @@ export * from './Engine';
 export * from './interface/const';
 export * from './utils';
 ```
+
+> Note: the barrel above is the **only** public entry. `src/TimelineContext/TimelineContext.tsx` (a stray `ContextMenu` placeholder rendering lorem-ipsum) is **not** re-exported from `index.ts` — it is dead/example code, not part of the contract, and `src/TimelineContext/` has no `index.ts`. Mime registration (`.sut`/`.sua`) is performed as a side effect by `StokedUiTimelineApp` (exported via `./Timeline`), not by a separate entry point.
 
 ### Public surface by category
 
@@ -86,13 +97,15 @@ The package is **library-only**: no NestJS controllers, no CLI commands, no Next
 
 This module is consumed by the single product documented in this repo:
 
-- **SC_PRODUCT_STOKED_UI_SUI.md** — `@stoked-ui/sui`. The timeline is one of the marquee components in the suite and a hard peer dependency of `@stoked-ui/editor`. It powers the `/products/timeline/` showcase, the `timeline` MDX docs section under `docs/data/timeline/` and `docs/pages/timeline/docs/`, and the homepage `HeroTimeline` demo.
+- **SC_PRODUCT_STOKED_UI_SUI.md** — `@stoked-ui/sui`. The timeline is one of the marquee components in the suite and a hard peer dependency of `@stoked-ui/editor`. It powers the `/products/timeline/` showcase (`docs/pages/products/timeline/`), the `timeline` MDX docs section authored under `docs/data/timeline/` and routed via `docs/pages/products/timeline/docs/`, and the homepage timeline hero.
 
-Non-publishable consumers inside this repo:
+Non-publishable consumers inside this repo (verified 2026-06-06):
 
-- `docs/src/components/showcase/HeroTimeline.tsx` — homepage / showcase hero rendering an embedded `<Timeline />`.
-- `docs/src/components/home/ThemeTimeline.tsx`, `TimelineShowcase.tsx` — embedded demos.
-- `docs/data/timeline/**` and `docs/pages/timeline/docs/**` — MDX documentation tree.
+- `docs/src/components/showcase/TimelineHero.tsx` — `import Timeline, { TimelineProvider } from '@stoked-ui/timeline'`; the actual `<Timeline />` mount used by the homepage hero.
+- `docs/src/components/home/HeroTimeline.tsx` — homepage hero wrapper that `dynamic`-imports `../showcase/TimelineHero` (does not import `@stoked-ui/timeline` directly).
+- `docs/src/components/home/TimelineShowcase.tsx` — embedded showcase demo importing from `@stoked-ui/timeline`.
+- `docs/src/components/showcase/ThemeTimeline.tsx` — embedded theme demo importing `TimelineProvider`.
+- `docs/data/timeline/**` (MDX + `FirstComponent` examples) routed through `docs/pages/products/timeline/docs/**` — documentation tree. There is no `docs/pages/timeline/` directory; the timeline docs live under `docs/pages/products/timeline/`.
 - `@stoked-ui/editor` — extends `Engine`, `TimelineFile`, `TimelineProvider`, `TimelineState`, `IController`, `EngineState`, `PlaybackMode`, `ITimelineAction`, `ITimelineTrack`. Re-exports `Timeline` as the editor's timeline pane.
 
 There is no other product doc; the module participates in only this one.
@@ -112,7 +125,7 @@ From `SC_VIEWS.md` §10 ("Timeline Package Views — `@stoked-ui/timeline`"), th
 | §10.5 TimelineTrack & TimelineAction | `src/TimelineTrack/TimelineTrack.tsx`, `TimelineAction/TimelineAction.tsx` | Per-row action blocks with start/duration/preview, drag/resize via `interactjs`. Track states: selected, locked, muted, dragging, resizing, empty. Action states: selected, playing, hovered, dragging, resizing, error. |
 | §10.6 TimelineCursor / TimelineTime / TimelineScrollResizer | `src/TimelineCursor/`, `TimelineTime/`, `TimelineScrollResizer/` | Vertical playhead, tick header ruler, horizontal+vertical scroll/resize handles. States: playing/paused/seekable, zoomed scale, dragging/idle. |
 
-This module also **materially shapes** every view that embeds the editor or a timeline showcase: `§9.1 Editor (Root)` uses `Timeline` as its `timeline` slot; `§8 Embedded Showcase / Hero Components` includes `HeroTimeline`, `TimelineShowcase`, `ThemeTimeline`, all of which mount `<Timeline />` inside a `<TimelineProvider />`.
+This module also **materially shapes** every view that embeds the editor or a timeline showcase: `§9.1 Editor (Root)` uses `Timeline` as its `timeline` slot; `§8 Embedded Showcase / Hero Components` includes `TimelineHero` (homepage hero mount, loaded via `HeroTimeline`), `TimelineShowcase`, and `ThemeTimeline`, all of which mount `<Timeline />` inside a `<TimelineProvider />`.
 
 ---
 
@@ -156,8 +169,8 @@ This module also **materially shapes** every view that embeds the editor or a ti
 
 ### Engine + provider (the runtime spine)
 
-- **`src/Engine/Engine.ts`** (~666 LOC) — Core class extending `Emitter<EventTypes>`. Owns `_currentTime`, `_state`, `_playRate`, `_timerId`, `_actionMap`, `_actionTrackMap`, `_controllers`, `playbackMode` (`CANVAS | TRACK_FILE | …`), `playbackTimespans`. Implements `play`, `pause`, `setTime`, `setPlayRate`, `rewind`, `fastForward`, `tickAction`, `reRender`, `setTracks`, `getAction`, `getActionTrack`, `getSelectedActions`, plus internal `_dealData` / `_dealEnter` / `_dealLeave` / `_dealClear` lifecycle.
-- **`src/Engine/Engine.types.ts`** — `IEngine`, `EngineState` enum (`LOADING | PLAYING | PAUSED | READY | PREVIEW`), `EngineOptions`, `PlaybackMode`, `SetAction`, `Dispatch`.
+- **`src/Engine/Engine.ts`** (~665 LOC) — Core class extending `Emitter<EventTypes>`. Owns `_currentTime`, `_state`, `_playRate`, `_timerId`, `_actionMap`, `_actionTrackMap`, `_controllers`, `playbackMode` (`PlaybackMode = TRACK_FILE | CANVAS | MEDIA`), `playbackTimespans`. The constructor throws `'Error: No controllers set!'` when no controllers are supplied (see `AX-MOD-TIMELINE-001`). Implements `play`, `pause`, `setTime`, `setPlayRate`, `rewind`, `fastForward`, `tickAction`, `reRender`, `setTracks`, `getAction`, `getActionTrack`, `getSelectedActions`, plus internal `_dealData` / `_dealEnter` / `_dealLeave` / `_dealClear` lifecycle.
+- **`src/Engine/Engine.types.ts`** — `IEngine`, `EngineState` enum (`LOADING | PLAYING | PAUSED | READY | PREVIEW`), `EngineOptions` (`{ viewer?, controllers?, events? }`), `PlaybackMode` enum (`TRACK_FILE | CANVAS | MEDIA`), `Version`, `SetAction`, `Dispatch`.
 - **`src/Engine/events.ts`** — `Events` emitter constructor and `EventTypes` union (`beforeSetTime`, `afterSetTime`, `setTimeByTick`, `beforeSetPlayRate`, `afterSetPlayRate`, `play`, `paused`, `ended`, `setScrollLeft`, …).
 - **`src/Engine/emitter.ts`** (~64 LOC) — Generic `Emitter<T>` base class with `on`, `off`, `offAll`, `trigger`, `bind`, `exist`. Subscribers can return `false` from `before*` events to veto a state change.
 - **`src/TimelineProvider/TimelineProvider.tsx`** — React context provider; instantiates default `Engine` if none passed, wires controllers, registers `StokedUiTimelineApp`, exposes the reducer-managed state via `TimelineContext`. Hangs debug helpers off `window`.
@@ -176,7 +189,7 @@ This module also **materially shapes** every view that embeds the editor or a ti
 
 ### Domain model
 
-- **`src/TimelineFile/TimelineFile.ts`** (~373 LOC) — `TimelineFile extends AppFile`. Stores `_tracks`, applies `actionInitializer` to convert `ITimelineFileAction` → `ITimelineAction`. Static helpers: `getName`, `newTrack`, `getTrackColor` (composite controller color + alpha or red overlay if muted), `collapsedTrack` (flattens all actions across tracks), `Controllers` (static map plugged in by `TimelineProvider` / `EditorProvider`). Setter on `tracks` filters out the placeholder `id === 'newTrack'`. `data` getter returns serializable form with `controllerName` / `fileId` references instead of object refs.
+- **`src/TimelineFile/TimelineFile.ts`** (~371 LOC) — `TimelineFile extends AppFile`. Stores `_tracks`, applies `actionInitializer` to convert `ITimelineFileAction` → `ITimelineAction`. Static helpers: `getName`, `newTrack`, `getTrackColor` (composite controller color + alpha or red overlay if muted), `collapsedTrack` (flattens all actions across tracks), `Controllers` (static map plugged in by `TimelineProvider` / `EditorProvider`). Setter on `tracks` filters out the placeholder `id === 'newTrack'`. `data` getter returns serializable form with `controllerName` / `fileId` references instead of object refs.
 - **`src/TimelineFile/TimelineFile.types.ts`** — `ITimelineFile`, `ITimelineFileProps`, `ITimelineFileData`, `FileState`.
 - **`src/TimelineFile/Commands/RemoveActionCommand.ts`** (~49 LOC) — `Command` impl with `execute` / `undo`. **Known bug** (see `SC_TEST.md` §9.1): `this.trackIndex = index` stores the *action's index within a track* rather than the *track's index in `tracks`*; `undo()` then splices into the wrong track for multi-track files.
 - **`src/TimelineFile/Commands/RemoveTrackCommand.ts`** (~41 LOC) — Track removal with index-preserving undo.
@@ -213,7 +226,7 @@ This module also **materially shapes** every view that embeds the editor or a ti
 
 ### Utilities and constants
 
-- **`src/utils/deal_data.ts`** (~119 LOC) — Pure pixel/time math used everywhere in the UI: `parserTimeToPixel`, `parserPixelToTime`, `parserTransformToTime`, `parserTimeToTransform`, `getScaleCountByRows`, `getScaleCountByPixel`, `parserActionsToPositions`. The single source of truth for ruler / action / cursor positioning.
+- **`src/utils/deal_data.ts`** (~118 LOC) — Pure pixel/time math used everywhere in the UI: `parserTimeToPixel`, `parserPixelToTime`, `parserTransformToTime`, `parserTimeToTransform`, `getScaleCountByRows`, `getScaleCountByPixel`, `parserActionsToPositions`. The single source of truth for ruler / action / cursor positioning.
 - **`src/utils/deal_class_prefix.ts`** — `prefix(...)` helper for class-name composition.
 - **`src/utils/logger.ts`** — `ConsoleLogger` (prefix-tagged) used by engine and controllers when `logging: true`.
 - **`src/interface/const.ts`** — All shared defaults: `PREFIX = 'timeline'`, `DEFAULT_SCALE = 1`, `DEFAULT_SCALE_WIDTH = 100`, `DEFAULT_TRACK_HEIGHT = 36`, `DEFAULT_MOBILE_TRACK_HEIGHT = 60`, `MIN_SCALE_COUNT = 40`, `ADD_SCALE_COUNT = 5`, `NEW_ACTION_DURATION = 2`, `ERROR.{START_TIME_LESS_THEN_ZERO, END_TIME_LESS_THEN_START_TIME}`.
@@ -267,12 +280,13 @@ This module also **materially shapes** every view that embeds the editor or a ti
 
 - These are the **single source of truth** for pixel/time math in this package and the editor. A regression here distorts the entire UI silently.
 - Watch for `scale=0` / `scaleWidth=0` division-by-zero (see `SC_TEST.md` §3.1 / §9). Round-trip property tests are the cheapest guard.
+- `AX-MOD-TIMELINE-003`'s acceptance grep (`grep -rn "scaleWidth \* " src`) currently returns exactly one match outside `deal_data.ts`: `TimelineProvider/TimelineProviderFunctions.ts:122` inside `fitScaleData` (`scaleWidth: scaleWidth * newScale`). This is the one **approved call site** — it derives a new `scaleWidth` *setting* for zoom-to-fit, not a per-element screen position. Any new match the grep surfaces is a violation and should be folded back into a `deal_data.ts` helper.
 
 ### When you touch the public surface (`src/index.ts`)
 
 - Bump the patch version in `package.json` (`@stoked-ui/timeline`).
 - Verify `@stoked-ui/editor` still type-checks against the new exports — the editor imports from many sub-paths (`./Engine`, `./TimelineProvider`, `./TimelineFile`, etc.) and re-exports several types itself.
-- Verify docs MDX (`docs/data/timeline/**`, `docs/pages/timeline/docs/**`, `HeroTimeline.tsx`) still imports cleanly.
+- Verify docs MDX (`docs/data/timeline/**` routed via `docs/pages/products/timeline/docs/**`) and the showcase mounts (`docs/src/components/showcase/TimelineHero.tsx`, `docs/src/components/home/TimelineShowcase.tsx`, `docs/src/components/showcase/ThemeTimeline.tsx`) still import cleanly.
 - Run `pnpm typescript` from the package and `pnpm --filter @stoked-ui/editor typescript` after.
 - Re-run `pnpm build` (modern + node + stable + types + copy-files) before publishing.
 

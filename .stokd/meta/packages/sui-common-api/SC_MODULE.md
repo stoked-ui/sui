@@ -5,8 +5,8 @@
 > **NPM name:** `@stoked-ui/common-api` (v0.1.0)
 > **Source entry:** `packages/sui-common-api/src/index.ts`
 > **Build artifacts:** `packages/sui-common-api/build/` (modern + node + stable + types)
-> **Axioms:** `packages/sui-common-api/.axioms.md` (8 active: AX-MOD-SUICOMMONAPI-001…008)
-> **Last code change:** 2026-05-22 (verified at this refresh — source matches this document)
+> **Axioms:** `packages/sui-common-api/.axioms.md` (9 active: AX-MOD-SUICOMMONAPI-001…009; -009 added this refresh for the `.methods` copy idiom)
+> **Last code change:** 2026-05-22 (commit `41c62c9bfe`; `blogPost.model.ts` was the last source file touched). Timed refresh re-verified 2026-06-06: a full re-read of all 12 models, both decorators, the upload DTO, all three barrels, and the `sui-media-api` `forFeature([...])` registration confirms **no drift** from this document — the package source is unchanged since the prior refresh.
 
 ---
 
@@ -130,6 +130,17 @@ In-tree consumers (verified via `grep '@stoked-ui/common-api'`, excluding `build
 
 There are no external/published consumers other than what `pnpm-lock.yaml` records — this is a workspace utility package today.
 
+### ObjectId `ref` targets (populate-time contract)
+
+Several `@Prop` ObjectId fields declare a Mongoose `ref` whose target model name is **not** registered by this package — it is resolved (if ever) by the consuming app at `.populate()` time:
+
+- `BaseModel` (`likes`, `dislikes`, `denyAccess`, `canAccess`, `canEdit`) and `File` (`author`, `owners`, `starring`) ref **`"UserRef"`** — note this differs from `UserFeature`'s registered name **`"User"`**; they are *not* the same model name.
+- `UploadSession.userId`, `User.agentIds`, and `Video.featuredUsers` ref **`"User"`** (the name `UserFeature` registers).
+- `User.clientId` refs **`"Client"`** (registered here as `ClientFeature`).
+- `Video.mediaClass` refs **`"MediaClass"`** and `Video.recordingSessionId` refs **`"StreamRecording"`** — neither model is defined or exported by this package.
+
+Because none of these refs is dereferenced unless a consumer calls `.populate()`, the dangling targets are inert for plain reads/writes today (`sui-media-api`'s registered features don't populate them). But any consumer that *does* populate them must register a model under the exact ref string. This is the populate-time facet of the class-name-is-registered-name contract (AX-MOD-SUICOMMONAPI-004); the `"UserRef"` vs `"User"` split on engagement/authorship fields is a latent inconsistency to resolve before relying on population of those fields.
+
 ### Contracts that must hold for downstream
 
 1. **Single entry**: consumers import from `@stoked-ui/common-api`, never from deep paths.
@@ -155,8 +166,8 @@ There are no external/published consumers other than what `pnpm-lock.yaml` recor
 | `src/models/uploadSession.model.ts` (186 lines) | The multipart-upload state machine. 7-day expiry by convention; TTL index on `expiresAt`, compound index on `(userId, status, expiresAt)`, dedup index on `(hash, status)`. Three virtuals (`progress`, `completedPartsCount`, `uploadedBytes`) drive the resume UI. Division-by-zero guard on `progress`. |
 | `src/models/image.model.ts` | `Image extends File` with avatar/cover/dimensions/aspectRatio and a per-task `metadataProcessingFailures` array. **Known bugs (SC_TEST.md §1.2):** `like`/`dislike` use a callback-first signature `(cb, userId)` that conflicts with `BaseModel`'s `(userId, save)` and overwrite the wrong field with `Array.from(userId)` (which splits a string into characters). |
 | `src/models/video.model.ts` | `Video extends File` — codec/container/moovAtomPosition, scrubber-sprite metadata, stream-recording metadata (`isStreamRecording`, `streamPeakViewers`, `streamTotalViewMinutes`, `featuredUsers`), plus per-task `metadataProcessingFailures` and `playbackIssues` mirroring `Media`. |
-| `src/models/blogPost.model.ts` | `BlogPost extends File` — slug (unique), body, status (`draft`/`published`/`archived`), source (`native`/`nostr`/`import`), `targetSites` (default `['sui.stokd.cloud']`), `nostrEventId` (sparse). 5 indexes: text search, status+date, targetSites+status+date, unique slug, sparse nostrEventId. |
-| `src/models/license.model.ts` | Stripe-issued license records: `key` (unique), `email`, `productId`, `hardwareId`, `machineName`, `status` (`pending`/`active`/`expired`/`revoked`), `gracePeriodDays` (14), `stripeCustomerId`, `stripeSubscriptionId`, `deactivationCount`. 5 indexes for license lookup workflows. |
+| `src/models/blogPost.model.ts` | `BlogPost extends File` — slug (unique), `body` (required), `status` (`draft`/`published`/`archived`), `source` (`native`/`nostr`/`import`), `targetSites` (default `['sui.stokd.cloud']`), `nostrEventId` (sparse), `date` (required `Date`), `authors` (required `string[]`), optional `image`. 5 indexes: text search (`blogpost_text_search`, same `title:10/tags:5/description:1` weights as Media), status+date, targetSites+status+date, unique slug, sparse nostrEventId. Reuses `BaseModelSchema.methods` by reference. |
+| `src/models/license.model.ts` | Stripe-issued license records: `key` (unique), `email`, `productId`, `hardwareId`, `machineName`, `status` (`pending`/`active`/`expired`/`revoked`), `gracePeriodDays` (14), `stripeCustomerId`, `stripeSubscriptionId`, `deactivationCount` (0), `activationHistory` (`string[]`, default `[]`). 5 indexes for license lookup workflows. |
 | `src/models/product.model.ts` | Stripe product catalog. `productId` (unique), `keyPrefix`, Stripe IDs, pricing/currency, `licenseDurationDays` (365), `gracePeriodDays` (14), `trialDurationDays` (30). |
 | `src/models/invoice.model.ts` | Consulting invoice with nested `InvoiceWeek`/`InvoiceTask` subdocs. Indexes on `(customer, generatedAt)` and `(configId, generatedAt)`. |
 | `src/models/client.model.ts` | Consulting client record (name/slug/contactEmail/active). Slug is unique. |

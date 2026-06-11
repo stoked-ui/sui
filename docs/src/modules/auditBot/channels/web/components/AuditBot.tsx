@@ -28,11 +28,11 @@ interface UiMessage {
 
 const OPENING_MESSAGES: Record<PlaybookId, string> = {
   'ai-readiness':
-    "Hi — I'm an AI agent Brian Stoker built to do a quick, free AI readiness audit. Takes about 5 minutes. At the end you get a 1-page writeup with the 3 best places AI would actually save you time. Yours to keep, no pitch required.\n\nTo start: what does your business do, and what city are you based in?",
+    "Hi — I'm a Stokd Consulting AI agent designed to do a quick, free AI readiness audit. Takes about 5 minutes. At the end you get a 1-page writeup with the 3 best places AI would actually save you time. Yours to keep, no pitch required.\n\nTo start: what does your business do, and what city are you based in?",
   'cloud-cost':
-    "Hi — I'm an AI agent Brian Stoker built to do a quick, free cloud cost audit. Takes about 6 minutes. At the end you get a 1-page writeup with the 3 biggest savings opportunities on your AWS, GCP, or Azure bill. Yours to keep.\n\nTo start: which cloud(s), and roughly what's your monthly spend? (Range is fine.)",
+    "Hi — I'm a Stokd Consulting AI agent designed to do a quick, free cloud cost audit. Takes about 6 minutes. At the end you get a 1-page writeup with the 3 biggest savings opportunities on your AWS, GCP, or Azure bill. Yours to keep.\n\nTo start: which cloud(s), and roughly what's your monthly spend? (Range is fine.)",
   security:
-    "Hi — I'm an AI agent Brian Stoker built to do a quick, free security audit. Takes about 6 minutes. At the end you get a 1-page writeup with the 3 highest-impact security fixes for your stack. This is an app + infra review, not a pentest. Yours to keep.\n\nTo start: what does your business do, and what's your stack — ballpark?",
+    "Hi — I'm a Stokd Consulting AI agent designed to do a quick, free security audit. Takes about 6 minutes. At the end you get a 1-page writeup with the 3 highest-impact security fixes for your stack. This is an app + infra review, not a pentest. Yours to keep.\n\nTo start: what does your business do, and what's your stack — ballpark?",
 };
 
 export default function AuditBot({ open, onClose, playbook, calendlyUrl }: AuditBotProps) {

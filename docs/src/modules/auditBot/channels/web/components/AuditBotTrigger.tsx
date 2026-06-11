@@ -133,7 +133,7 @@ export default function AuditBotTrigger({ variant = 'hero', onOpen }: AuditBotTr
           }}
         />
         <Typography variant="body2" sx={{ fontWeight: 600 }}>
-          Stoked AI Readiness Audit
+          Stokd Consulting AI Readiness Audit
         </Typography>
         <Typography variant="caption" color="text.secondary" sx={{ ml: 'auto' }}>
           5 min · Free

@@ -1,6 +1,6 @@
 # Stoked UI — Product Classification
 
-> **Generated:** 2026-05-05 | **Updated:** 2026-05-21 | **Meta version:** 0.4.0
+> **Generated:** 2026-05-05 | **Updated:** 2026-06-06 (TIMED REFRESH — re-verified end-to-end: 11 package manifests + npm names, root version `v0.1.0-alpha.5`, pnpm `10.5.1` + MUI/React `pnpm.overrides`, video-renderer Cargo crate names (`video-compositor`/`wasm-preview`/`video-renderer-cli`→`video-render`) and `pkg/` artifact, `next.config.mjs` WASM alias + `asyncWebAssembly`, audit-bot module/channel/playbook layout, `docs/pages/api/**` topology. Confirmed `auditBot/channels/{linkedin,voice}` remain empty stubs and `promoteAuditToDeliverable` is still dormant. Content matched the codebase — no factual corrections required this pass.) | **Meta version:** 0.4.0
 > **Repository:** `@stoked-ui/sui` v0.1.0-alpha.5
 > **Root:** `/opt/worktrees/stoked-ui/stoked-ui-main`
 
@@ -8,42 +8,44 @@
 
 ## Product Name
 
-**`@stoked-ui/sui`** — the Stoked UI monorepo product. The repository ships a single integrated product offering: a media-centric React component suite plus the documentation/marketing/admin site, the supporting Media API, and the AWS infrastructure that hosts it. Although the repo contains many packages, they are constituent surfaces of the same product (component libraries, public site, embeddable demos, native CLI, Lambda APIs) — not independent products.
+**`@stoked-ui/sui`** — the Stoked UI monorepo product. The repository ships a single integrated product offering: a media-centric React component suite plus the documentation/marketing/consulting/admin site, the supporting Media API, the native/WASM video renderer, and the AWS infrastructure that hosts it. Although the repo contains many packages, they are constituent surfaces of the same product (component libraries, public site, embeddable demos, consulting lead-gen audit bot, native CLI, Lambda APIs) — not independent products.
 
 ### Constituent Packages
 
-Public, published `@stoked-ui/*` packages (workspace dirs under `packages/`):
+The eleven constituent packages named for this product (workspace dirs under `packages/`):
 
 | Package dir | npm name | Role in the product |
 |-------------|----------|---------------------|
+| `packages/sui-cdn` | `@stoked-ui/cdn` | Embeddable, browser-only `CdnBrowser` + `CdnApi` for browsing/managing an S3-backed CDN bucket (resumable multipart uploads, permissions, export). Reused by internal Vite apps and the docs admin surface. |
 | `packages/sui-common` | `@stoked-ui/common` | Shared client utilities (`LocalDb`, `Mime`, `FetchBackoff`, `UserMenu`, hooks) — foundation for every browser-side surface. |
-| `packages/sui-common-api` | `@stoked-ui/common-api` | Shared NestJS server building blocks (decorators, DTOs, Mongoose models) — foundation for `sui-media-api`. |
+| `packages/sui-common-api` | `@stoked-ui/common-api` | Shared NestJS server building blocks (decorators, DTOs, Mongoose models with `swapId` wire format) — foundation for `sui-media-api`. |
 | `packages/sui-docs` | `@stoked-ui/docs` | MDX/demo primitives (`Demo`, `CodeSandbox`, `StackBlitz`, `HighlightedCode`, `BrandingCssVarsProvider`) consumed by the Next.js docs app. |
-| `packages/sui-editor` | `@stoked-ui/editor` | Video/animation editor — root product surface combining timeline + media + file-explorer + WASM renderer. |
+| `packages/sui-editor` | `@stoked-ui/editor` | Video/animation editor — flagship product surface combining timeline + media + file-explorer + WASM renderer. |
 | `packages/sui-file-explorer` | `@stoked-ui/file-explorer` | Tree/grid file explorer with drag-and-drop (forked from `@mui/x-tree-view`). |
 | `packages/sui-github` | `@stoked-ui/github` | GitHub activity widgets (calendar, events, branch, commit, PR view). |
 | `packages/sui-media` | `@stoked-ui/media` | Framework-agnostic media core (`MediaFile`, `WebFile`, `FileSystemApi`, `Stage`, players, `MediaGallery`, `MediaViewer`, `WebUserDirectChat`). |
 | `packages/sui-media-api` | `@stoked-ui/media-api` | NestJS API for media-component endpoints (uploads, metadata, thumbnails). Runs as Express locally and as Lambda in production. |
 | `packages/sui-timeline` | `@stoked-ui/timeline` | Animation/scrubber timeline engine + UI (`Engine`, `Controller`, `TimelineProvider`, `TimelinePlayer`, tracks, actions). |
+| `packages/sui-video-renderer` | `@stoked-ui/video-renderer-wasm` (file dep) + `video-render` CLI | Rust Cargo workspace (3 crates) producing the WASM preview compositor consumed by `@stoked-ui/editor` and a native `video-render` CLI binary for offline `.sue` rendering. **Not** a Babel/Turbo-published npm package. |
 
 Adjacent in-repo surfaces that belong to the same product but are not in the listed package set:
 
-- **`docs/`** — Next.js 14 docs/marketing/admin app (`stokedui-com`) on port **5199**, which also hosts every non-media business API under `docs/pages/api/**`.
-- **`packages/sui-cdn`**, **`packages/sui-video-renderer`** (Rust → WASM/CLI), **`packages-internal/cdn` & `cdn-sui`**, **`api/`** Lambda handlers, **`infra/`** SST stack — supporting surfaces consumed by the same product.
+- **`docs/`** — Next.js 14 docs/marketing/consulting/admin app (`stokedui-com`) on port **5199**, which also hosts every non-media business API under `docs/pages/api/**` and the consulting audit-bot lead-gen subsystem (`docs/src/modules/auditBot/**`).
+- **`packages-internal/cdn` & `packages-internal/cdn-sui`** (Vite admin apps), **`api/`** standalone Lambda handlers, **`infra/`** SST stack — supporting surfaces consumed by the same product.
 
 ---
 
 ## Description
 
-Stoked UI is an integrated, media-first product for building, demonstrating, selling, and operating browser-based video / timeline / file / GitHub-activity experiences. It bundles:
+Stoked UI is an integrated, media-first product for building, demonstrating, selling, and operating browser-based video / timeline / file / GitHub-activity experiences — and, increasingly, for generating and servicing the consulting business behind it. It bundles:
 
 1. A React component suite (`@stoked-ui/editor`, `@stoked-ui/timeline`, `@stoked-ui/file-explorer`, `@stoked-ui/media`, `@stoked-ui/github`, `@stoked-ui/cdn`) for embedding rich media editing and visualization into host apps.
-2. A documentation + marketing + commerce + admin site (`docs/`, `stokedui-com`) that showcases the components, sells licenses via Stripe, and runs the consulting business backing the product.
+2. A documentation + marketing + commerce + consulting + admin site (`docs/`, `stokedui-com`) that showcases the components, sells licenses via Stripe, runs the consulting business, and captures leads via an LLM-driven audit bot.
 3. A media backend (`@stoked-ui/media-api`, NestJS) for uploads, metadata extraction, and thumbnail generation.
 4. A native Rust video renderer (`packages/sui-video-renderer`) that compiles to WASM for in-browser preview/render and ships a CLI binary (`video-render`) for offline rendering of `.sue` projects.
 5. SST-driven AWS infrastructure (CloudFront sites, API Gateway v2 + Lambda, certs) deploying the public surfaces to `sui.stokd.cloud` / `consulting.stokd.cloud`.
 
-**Problem solved:** Building production-grade media editing UIs (timelines, asset libraries, video preview, render pipelines) is painful — teams either reach for monolithic SaaS editors or stitch together low-level libraries. Stoked UI provides composable, MUI-consistent React primitives plus the WASM/native renderer, the API, and the licensing/admin plumbing needed to ship these experiences.
+**Problem solved:** Building production-grade media editing UIs (timelines, asset libraries, video preview, render pipelines) is painful — teams either reach for monolithic SaaS editors or stitch together low-level libraries. Stoked UI provides composable, MUI-consistent React primitives plus the WASM/native renderer, the API, and the licensing/admin plumbing needed to ship these experiences. The same surface doubles as the go-to-market engine for the consulting practice (marketing pages, audit-bot lead capture, licensing, deliverables).
 
 ---
 
@@ -51,11 +53,12 @@ Stoked UI is an integrated, media-first product for building, demonstrating, sel
 
 | Audience | What they use |
 |----------|---------------|
-| **Application developers** integrating editor / timeline / file-explorer / media / GitHub widgets into their own React apps | The published `@stoked-ui/*` npm packages, MDX docs at `/<product>/docs/...`, live demos under `/products/*`, MDX `<Demo>` blocks, CodeSandbox/StackBlitz launches. |
-| **End users of host apps** that embed Stoked UI components | The component runtime itself — Editor (record/scrub/preview/save), Timeline, FileExplorer, MediaGallery/MediaViewer, etc. |
+| **Application developers** integrating editor / timeline / file-explorer / media / GitHub / CDN widgets into their own React apps | The published `@stoked-ui/*` npm packages, MDX docs at `/<product>/docs/...`, live demos under `/products/*`, MDX `<Demo>` blocks, CodeSandbox/StackBlitz launches. |
+| **End users of host apps** that embed Stoked UI components | The component runtime itself — Editor (record/scrub/preview/save), Timeline, FileExplorer, MediaGallery/MediaViewer, CdnBrowser, etc. |
 | **License purchasers / commercial customers** | `/pricing`, Stripe embedded checkout (`/consulting/checkout`), self-service `/consulting/{licenses, billing, settings}`, license activation/validation/deactivation APIs. |
+| **Consulting prospects / leads** | Service-line marketing pages (`/consulting/{ai, front-end, back-end, devops, full-stack}`), bespoke product pitches (`/products/stokd-cloud`, `/products/mac-mixer`), and the **audit bot** (`AuditBot` on `/consulting/ai`) that generates a free AI-readiness audit and captures contact info. |
 | **Consulting clients & partners** | Auth-gated `/consulting/{home, customer, clients, deliverables, invoices, partners}` portal. |
-| **Stoked UI internal admins / operators** | `/consulting/admin` dashboard, `/admin/products`, blog editor (`/blog/editor`), CDN admin (`packages-internal/cdn`, `packages-internal/cdn-sui`, embedded `CdnBrowser`), Swagger UIs. |
+| **Stoked UI internal admins / operators** | `/consulting/admin`, `/admin/products`, blog editor (`/blog/editor`), CDN admin (`packages-internal/cdn`, `cdn-sui`, embedded `CdnBrowser`), Swagger UIs; Brian receives Telegram lead notifications. |
 | **Operators of the native renderer** | `video-render` CLI (`render`, `info` subcommands) for batch / headless rendering of `.sue` projects. |
 | **Repo contributors / maintainers** | pnpm/Turbo/Lerna toolchain, package build pipelines, SST deploy (`pnpm deploy:prod`), Playwright / Karma / Mocha test harness. |
 
@@ -69,11 +72,17 @@ Public marketing & content:
 - `/` (`docs/pages/index.tsx`) — Home with `RandomHome` hero rotation
 - `/products`, `/products/[product-slug]` — Product index + public detail
 - `/products/<slug>/main`, `/github` — Live showcase pages (`HeroEditor`, `HeroTimeline`, `HeroFileExplorer`, `HeroFlux`, `HeroStokedUi`, `AdvancedShowcase`, `HeroGithub`)
-- `/<product>/docs/**` — Per-package MDX documentation trees (`timeline`, `editor`, `file-explorer`, `media`, `github`)
+- Bespoke product pitch pages — `/products/stokd-cloud` (`StokdCloudProductPage`/`StokdCloudPitch`), `/products/mac-mixer` (`MacMixerProductPage`), plus showcase dirs `always-listening`, `focus-capture`, `media-api`, `media-selector`
+- `/<product>/docs/**` — Per-package MDX documentation trees (`timeline`, `editor`, `file-explorer`, `media`, `github`, `video-renderer`)
 - `/pricing`, `/material-ui`, `/base-ui`, `/design-kits`, `/templates`, `/components`
 - `/blog`, `/blog/[slug]` — Blog index + post
 - `/about`, `/careers`, `/products/feedback`, `/subscription`, `/legal/{privacy,terms}`, `/404`
 - `/cli/auth?token=...` — CLI/SDK pairing callback
+
+Consulting marketing / lead-gen (public):
+- `/consulting/ai` (`docs/pages/consulting/ai/main.tsx`) — AI service line hosting the **audit bot** (`AuditBotTrigger` → `AuditBot`, playbook `ai-readiness`)
+- `/consulting/{front-end, back-end, devops, full-stack}` — Service-line marketing pages
+- `/consulting/products/{stokd-cloud, mac-mixer, [product-slug]}` — Consulting-scoped product pitches
 
 Auth-gated consulting / admin:
 - `/consulting/{login, home, main, customer, settings, billing, licenses, groupies, api-docs, checkout}`
@@ -86,7 +95,11 @@ Auth-gated consulting / admin:
 ### HTTP APIs
 
 Business / domain APIs (per the boundary rule, all live under `docs/pages/api/**`):
-`account/*`, `auth/*` (login, register, google, session, logout, exchange, impersonate, transfer, cli/authorize, api-keys), `blog/*`, `cdn/*` (contents, folders, move, delete, permissions, export, multipart upload session/part/abort/complete, public path resolver), `chat/session/*`, `clients/*`, `deliverables/*` (incl. `proxy/[...path]`, `render`, `upload-file`), `github/*` (contributions, events, branch, commit), `invoices/*`, `licenses/*` (checkout, checkout-complete, activate/validate/deactivate, create, promo-codes), `products/*` (incl. `public/[slug]`, `feedback/{register,verify}`), `upload/blog-image`, `users/*`, `webhooks/stripe`, `logs`, `openapi`.
+`account/*`, `auth/*` (login, register, google, session, logout, exchange, impersonate, transfer, cli/authorize, api-keys), `audit/*` (turn, save-lead), `blog/*`, `cdn/*` (contents, folders, move, delete, permissions, export, multipart upload session/part/abort/complete, public path resolver), `chat/session/*`, `clients/*`, `deliverables/*` (incl. `proxy/[...path]`, `render`, `upload-file`), `github/*` (contributions, events, branch, commit), `invoices/*`, `licenses/*` (checkout, checkout-complete, activate/validate/deactivate, create, promo-codes), `products/*` (incl. `public/[slug]`, `feedback/{register,verify}`), `upload/blog-image`, `users/*`, `webhooks/stripe`, `logs`, `openapi`.
+
+Audit-bot lead-gen APIs (NEW — under `docs/pages/api/audit/**`):
+- `POST /api/audit/turn` (`docs/pages/api/audit/turn.ts`) — one conversational turn; `runTurn` loops LLM tool calls server-side (`fetch_company_site`, `generate_report`, `save_lead`).
+- `POST /api/audit/save-lead` (`docs/pages/api/audit/save-lead.ts`) — explicit lead capture (name/email, optional Calendly booking) → `{ ok, emailedReport }`.
 
 Media-component APIs (NestJS, `packages/sui-media-api/src/**`):
 - Local entry: `packages/sui-media-api/src/main.ts` → `Server.start()` (default port 3001, base path `/v1`).
@@ -109,7 +122,7 @@ Wired into SST API Gateway v2 by `infra/api.ts`:
 - `packages/sui-file-explorer/src/index.ts` — `FileExplorer`, `FileExplorerBasic`, `FileDropzone`, `FileExplorerTabs`
 - `packages/sui-media/src/index.ts` — `MediaFile`, `WebFile`, `FileSystemApi`, `Stage`, `MediaGallery`, `MediaViewer`, players, hooks
 - `packages/sui-github/src/index.ts` — `GithubCalendar`, `GithubEvents`, `GithubBranch`, `GithubCommit`, `PullRequestView`
-- `packages/sui-cdn/src/index.ts` — `CdnApi`, `CdnBrowser`
+- `packages/sui-cdn/src/index.ts` — `CdnBrowser`, `createCdnApi`, `collectDroppedEntries`, `beginDesktopDownload`, content utils, `mockObjects`
 - `packages/sui-docs/*` — Subpath exports per primitive (`./Demo`, `./CodeSandbox`, etc.)
 
 ### CLI
@@ -120,7 +133,7 @@ Wired into SST API Gateway v2 by `infra/api.ts`:
 
 ### Internal Vite operations apps
 
-- `packages-internal/cdn/src/main.jsx` — Legacy CDN admin
+- `packages-internal/cdn/src/main.jsx` — Legacy CDN admin (standalone reimplementation sharing the `/api/cdn/*` contract)
 - `packages-internal/cdn-sui/src/main.jsx` — Thin wrapper rendering `CdnBrowser` from `@stoked-ui/cdn`
 
 ### Infrastructure / startup
@@ -129,9 +142,10 @@ Wired into SST API Gateway v2 by `infra/api.ts`:
 - `pnpm dev` (Turbo watch graph), `pnpm docs:dev` (port 5199), `pnpm deploy:prod` (SST → AWS profile `stokd-cloud`)
 - `pnpm video-renderer:build-wasm` / `pnpm build:wasm` — Builds `packages/sui-video-renderer/pkg/` consumed by editor as `@stoked-ui/video-renderer-wasm` (file dep)
 
-### Webhooks
+### Webhooks & system events
 
 - `POST /api/webhooks/stripe` (`docs/pages/api/webhooks/stripe.ts`) — Stripe event reconciliation
+- Audit-bot completion side effects (server-side): Telegram lead notification (`notifyTelegram.ts`) + SES report email (`auditMailer.ts`)
 - SES bounce/confirm flows triggered out of `api/subscribe.ts` and `docs/pages/api/products/feedback/register.ts`
 
 ---
@@ -142,7 +156,7 @@ All user flows in `.stokd/meta/SC_FLOWS.md` belong to this product. Grouped by d
 
 ### Marketing & content discovery
 - **1.1 Visit Home & Pick a Product**
-- **1.2 Browse Public Product Detail**
+- **1.2 Browse Public Product Detail** (incl. bespoke `StokdCloudProductPage` / `MacMixerProductPage`)
 - **1.3 Read Product Documentation**
 - **1.4 Read Blog Index → Post**
 - **1.5 Subscribe to Newsletter / Confirm Subscription**
@@ -191,9 +205,10 @@ All user flows in `.stokd/meta/SC_FLOWS.md` belong to this product. Grouped by d
 ### Blog publishing
 - **8.1 Author / Publish Blog Post**
 
-### Customer feedback
+### Customer feedback & lead capture
 - **9.1 Submit Product Feedback**
 - **9.2 Chat / Direct Messaging**
+- **9.3 Run a Consulting Audit Bot Conversation (Lead Generation)** — LLM-driven AI-readiness audit on `/consulting/ai`; SSRF-guarded company-site scrape, structured `AuditReport`, lead capture.
 
 ### GitHub widgets / activity
 - **10.1 Render Repo Activity (Calendar / Branch / Commits / Events)**
@@ -214,28 +229,30 @@ All user flows in `.stokd/meta/SC_FLOWS.md` belong to this product. Grouped by d
 - **13.2 SES Subscribe-Confirm Email**
 - **13.3 SMS Notifications (Lambda)**
 - **13.4 Centralized Logging Endpoint**
+- **13.5 Audit Lead Notification & Report Email** — Telegram notify + SES report email on audit completion (best-effort, idempotent send guard).
 
 ---
 
 ## Modules
 
-All module docs in `.stokd/meta/packages/*` support this product. Per-module contribution:
+All eleven per-package module docs in `.stokd/meta/packages/*` support this product, plus the docs-app audit-bot module. Per-module contribution:
 
 | Module doc | Contribution to the product |
 |------------|------------------------------|
+| `.stokd/meta/packages/sui-cdn/SC_MODULE.md` | Embeddable, browser-only `CdnBrowser` + `CdnApi` — the product's CDN admin capability (flows §6.1, §6.2). Resumable presigned-URL multipart uploads, permissions, export; reused by `packages-internal/cdn-sui` and the docs admin. Consumes `docs/pages/api/cdn/**` (boundary-governed). |
 | `.stokd/meta/packages/sui-common/SC_MODULE.md` | Foundational client utilities used everywhere — `LocalDb` (IndexedDB) backs editor save/version/recording flows; `Mime`, `FetchBackoff`, `useResize` are consumed across packages; `UserMenu`, `GrokLoader`, `SocialLinks` are shared chrome rendered in the docs app. |
-| `.stokd/meta/packages/sui-common-api/SC_MODULE.md` | Server foundation — NestJS decorators, validation DTOs, and Mongoose model patterns reused by `sui-media-api` and (indirectly) by `docs/pages/api/*` business endpoints. |
+| `.stokd/meta/packages/sui-common-api/SC_MODULE.md` | Server foundation — NestJS decorators, validation DTOs, and Mongoose model patterns (`swapId` `_id`→`id` wire format) reused by `sui-media-api` and (indirectly) by `docs/pages/api/*` business endpoints. |
 | `.stokd/meta/packages/sui-docs/SC_MODULE.md` | Documentation primitives (`Demo`, `DemoEditor`, `DemoSandbox`, `CodeSandbox`, `StackBlitz`, `HighlightedCode`, `MarkdownElement`, `BrandingCssVarsProvider`) that drive the per-product MDX docs trees and live demos in the Next.js site. |
-| `.stokd/meta/packages/sui-editor/SC_MODULE.md` | The flagship component — `Editor`, `EditorEngine`, `EditorProvider`, `WasmPreview`, `EditorFile`, `EditorView`, `EditorControls`, `DetailView`, `EditorFileTabs`, `EditorScreener`. Drives editor flows §4.1–4.3 and the home/products `EditorShowcase`. |
+| `.stokd/meta/packages/sui-editor/SC_MODULE.md` | The flagship component — `Editor`, `EditorEngine`, `EditorProvider`, `WasmPreview`, `EditorFile`, `EditorView`, `EditorControls`, `DetailView`, `EditorFileTabs`, `EditorScreener`. Drives editor flows §4.1–4.3 and the home/products `EditorShowcase`. Primary consumer of the WASM renderer. |
 | `.stokd/meta/packages/sui-file-explorer/SC_MODULE.md` | Tree/grid file UI used both standalone (§5.1, file-explorer showcase) and embedded inside the editor's `EditorFileTabs`. Includes `FileDropzone` for external file ingestion. |
 | `.stokd/meta/packages/sui-github/SC_MODULE.md` | GitHub activity widgets (`GithubCalendar`, `GithubEvents`, `GithubBranch`, `GithubCommit`, `PullRequestView`) — drives flow §10.1 and the `/github` showcase. Backed by `docs/pages/api/github/*`. |
-| `.stokd/meta/packages/sui-media/SC_MODULE.md` | Framework-agnostic media core — `MediaFile`, `WebFile`, `FileSystemApi`, `Stage`, players, `MediaGallery`/`MediaViewer`/`MediaCard`, `WebUserDirectChat`, `extractVideoMetadata`. Underpins the editor, the media product surface, and the chat flow. |
+| `.stokd/meta/packages/sui-media/SC_MODULE.md` | Framework-agnostic media core — `MediaFile`, `WebFile`, `FileSystemApi`, `Stage`, players, `MediaGallery`/`MediaViewer`/`MediaCard`, `WebUserDirectChat`, `extractVideoMetadata`. Underpins the editor, the media product surface, and the chat flow (§9.2). |
 | `.stokd/meta/packages/sui-media-api/SC_MODULE.md` | NestJS server-side surface for media — uploads (multipart S3 sessions), metadata extraction (Sharp + fluent-ffmpeg), thumbnails, persistence to MongoDB. Runs as Express locally (`pnpm --filter @stoked-ui/media-api dev`, port 3001) and as Lambda in production (`lambda.ts`). |
 | `.stokd/meta/packages/sui-timeline/SC_MODULE.md` | Animation/scrubber timeline primitives (`Engine`, `Controller`, `Timeline`, `TimelinePlayer`, `TimelineLabels`, `TimelineTrackArea`, `TimelineTrack`, `TimelineAction`, `TimelineCursor`, `TimelineTime`, `TimelineScrollResizer`). Drives flow §4.4 standalone and powers the timeline rail inside `Editor`. |
+| `.stokd/meta/packages/sui-video-renderer/SC_MODULE.md` | Rust Cargo workspace (3 crates: `video-compositor` rlib, `wasm-preview` cdylib, `video-renderer-cli` bin). Produces the WASM compositor (`pkg/`, surfaced as `@stoked-ui/video-renderer-wasm`) that powers editor preview/render (§4.1, §4.3) and the `video-render` CLI for offline `.sue` rendering (§12.1–12.2). |
 
-Adjacent supporting modules not in the listed package set but part of the same product:
-- `packages/sui-cdn` — Embeddable `CdnBrowser` consumed by both internal Vite apps and the docs admin.
-- `packages/sui-video-renderer` — Rust workspace producing the WASM preview consumed by `@stoked-ui/editor` and the `video-render` CLI binary.
+Docs-app module (not a publishable package, lives under `docs/src/modules/`):
+- **`docs/src/modules/auditBot/**`** — the consulting lead-gen audit bot. `conversationRunner.ts` (server-side tool loop), `llmClient.ts` (LM Studio / Qwen), `playbooks/` (`ai-readiness`, `cloud-cost`, `security` — only `ai-readiness` mounted), `tools.ts` + `urlSafety.ts` (SSRF-guarded `fetch_company_site`), `reportValidation.ts`, `leadFields.ts`, `auditStore.ts` (Mongo), `notifyTelegram.ts`, `auditMailer.ts` (SES). Web channel UI at `channels/web/components/{AuditBot,AuditBotTrigger,AuditReportView}.tsx`; `channels/{linkedin,voice}` are reserved (empty) stubs. Drives flows §9.3 and §13.5.
 
 ---
 
@@ -243,7 +260,7 @@ Adjacent supporting modules not in the listed package set but part of the same p
 
 ### Critical guardrails (from `.stokd/meta/SC_CONTEXT.md`, `CLAUDE.md`, `AGENTS.md`)
 
-- **Media-API boundary:** `packages/sui-media-api` is **media-component endpoints only**. New non-media business routes (products, clients, licenses, invoices, users, non-media auth) MUST go in `docs/pages/api/*`, never in `sui-media-api`.
+- **Media-API boundary:** `packages/sui-media-api` is **media-component endpoints only**. New non-media business routes (products, clients, licenses, invoices, users, non-media auth, audit, blog, cdn admin, deliverables) MUST go in `docs/pages/api/*`, never in `sui-media-api`.
 - **Local dev port:** Docs site runs on **port 5199** (never 3000). Media API runs on port 3001.
 - **AWS profile:** All deploys use `--profile stokd-cloud`. The default AWS profile is a customer production account and must not be used for Stoked UI work (`deploy:prod` script enforces via `dotenvx run -- sst deploy --stage production`).
 - **No `git stash`, no branch switching** in workflows that touch this repo.
@@ -255,30 +272,34 @@ Adjacent supporting modules not in the listed package set but part of the same p
 | OAuth | Google OAuth 2.0 (`@react-oauth/google`, `google-auth-library`) — `/api/auth/google`, Lambda `api/auth/google.ts` |
 | Auth tokens | JWT via `jsonwebtoken` / Passport JWT in NestJS; client persists token to `localStorage["auth"]` |
 | Payments | Stripe Checkout (embedded) + Customer Portal + Webhooks (`POST /api/webhooks/stripe`) |
-| Email | AWS SES (newsletter, feedback verification) via `api/subscribe.ts` |
+| Email | AWS SES (newsletter, feedback verification, audit-report delivery via `auditMailer.ts`) |
 | SMS | AWS SNS via Lambda `api/sms.ts` |
+| Chat notifications | Telegram bot (`notifyTelegram.ts`) — Brian receives audit-completion lead alerts |
+| LLM inference | Local LM Studio / Qwen, OpenAI-compatible API at `AUDIT_BOT_BASE_URL`, model `AUDIT_MODEL` (`llmClient.ts`) — powers the audit bot; **not** the Anthropic SDK |
 | Search | DocSearch (`@docsearch/react`) on docs pages |
 | GitHub data | GitHub REST/GraphQL through `docs/pages/api/github/*` (contributions, events, branch, commit) |
 | Image processing | Sharp 0.34 in `sui-media-api` |
-| Video processing | fluent-ffmpeg in `sui-media-api`; Rust compositor + `wasm-bindgen` for WASM preview |
+| Video processing | fluent-ffmpeg in `sui-media-api`; Rust compositor + `wasm-bindgen` for WASM preview; FFmpeg binary on PATH for the `video-render` CLI |
 
 ### Data stores
 
 | Store | Used by |
 |-------|---------|
-| **MongoDB** (Mongoose 8 / mongodb 6.12) | All business domain data — products, clients, deliverables, invoices, licenses, users, blog posts, API keys, feedback, chat, logs (via `docs/pages/api/*`); media metadata (via `sui-media-api`). |
+| **MongoDB** (Mongoose 8 / mongodb 6.12) | All business domain data — products, clients, deliverables, invoices, licenses, users, blog posts, API keys, feedback, chat, logs, audit leads/transcripts/reports (`auditStore.ts`) via `docs/pages/api/*`; media metadata via `sui-media-api`. |
 | **AWS S3** | CDN buckets (`@stoked-ui/cdn`, `docs/pages/api/cdn/*`); media uploads from `sui-media-api`; multipart upload sessions via signed URLs. |
 | **IndexedDB** (browser) | `LocalDb` from `@stoked-ui/common` — editor `.sue` projects, version snapshots, `ScreenshotStore` for `extractVideoMetadata`, recording blobs. |
-| **localStorage** | `auth` key (JWT bearer token) shared across docs pages, Swagger UIs, internal Vite apps. |
+| **localStorage** | `auth` key (JWT bearer token) shared across docs pages, Swagger UIs, internal Vite apps; CDN upload session fingerprint + view mode. |
 
 ### Runtime constraints
 
-- **WASM build dependency:** `@stoked-ui/editor` dynamically imports `@stoked-ui/video-renderer-wasm` (file dep on `packages/sui-video-renderer/pkg`). Editor flows degrade if the WASM build is missing. Build with `pnpm video-renderer:build-wasm` (target `web`) or `cd packages/sui-video-renderer/wasm-preview && wasm-pack build --target bundler --out-dir pkg` (bundler target). `EditorEngine.ts` auto-detects bundler vs web target.
-- **Webpack config:** `docs/next.config.mjs` requires `experiments.asyncWebAssembly: true` and aliases `@stoked-ui/video-renderer-wasm` to the WASM `pkg/` directory. Changes to `next.config.mjs` require a dev-server restart (not HMR).
+- **WASM build dependency:** `@stoked-ui/editor` dynamically imports `@stoked-ui/video-renderer-wasm` (file dep on `packages/sui-video-renderer/pkg`). Editor flows degrade if the WASM build is missing. Build with `pnpm build:wasm` (`scripts/build-wasm.sh`, target `web`, rewrites `pkg/package.json` name) or the quick `pnpm video-renderer:build-wasm`. `EditorEngine.initWasmRenderer()` `await init()`s before `new PreviewRenderer(canvas,w,h)`.
+- **WasmLayer contract:** the `WasmLayer` JSON shape (`wasm-preview/src/lib.rs`) is an untyped runtime contract with the editor's `packages/sui-editor/src/WasmPreview/actionMapper.ts`; field/blend-mode/layer-type changes must be mirrored on both sides + `wasm-module.d.ts`.
+- **Webpack config:** `docs/next.config.mjs` requires `experiments.asyncWebAssembly: true` and aliases `@stoked-ui/video-renderer-wasm` to `packages/sui-video-renderer/pkg`. Changes to `next.config.mjs` require a dev-server restart (not HMR).
 - **Pinned MUI / React:** `@mui/material@5.17.1`, `@mui/system@5.17.1`, `@mui/utils@5.17.1`, `@mui/base@5.0.0-beta.40`, `react@18.3.1`, `react-dom@18.3.1` (via `pnpm.overrides`).
 - **Package manager:** pnpm 10.5.1 enforced via `preinstall` (`only-allow pnpm`).
-- **Build pipeline per package:** Babel-driven `build:modern` → `build:node` → `build:stable` → `build:types` → `build:copy-files` (`scripts/build.mjs`, `scripts/buildTypes.mjs`, `scripts/copyFiles.mjs`). Turbo orchestrates with `dev:prepare` priming downstream watches.
+- **Build pipeline per package:** Babel-driven `build:modern` → `build:node` → `build:stable` → `build:types` → `build:copy-files` (`scripts/build.mjs`, `scripts/buildTypes.mjs`, `scripts/copyFiles.mjs`). Turbo orchestrates with `dev:prepare` priming downstream watches. `sui-video-renderer` is exempt — it builds through Cargo/`wasm-pack`.
 - **Dual-bundle backend:** `sui-media-api` runs identically as Express (NestJS standalone) or as AWS Lambda via `@codegenie/serverless-express` adapter (`lambda.ts`).
+- **Audit bot best-effort posture:** the audit bot (§9.3 / §13.5) is **unauthenticated**, runs tool execution server-side in `conversationRunner.ts`, validates untrusted model report args via `reportValidation.ts` before they reach the UI/mailer, and treats Mongo persistence, SES email, and Telegram notification as best-effort — none may fail a chat turn. Visitor-supplied URL fetches MUST pass `urlSafety.ts` (SSRF guard, see `AX-AUDIT-BOT-URL-SAFETY`).
 - **Editor known issues** (carry through to flows §4.x):
   - `file.media` is a `createSettings`-Proxy — properties set via `Object.assign` don't always propagate through React state updates; detail views fall back to DOM `<video>` element for duration/width/height.
   - `extractVideoMetadata` previously blocked on empty `ScreenshotStore`; fixed by `count > 0` guard.
@@ -300,19 +321,20 @@ Adjacent supporting modules not in the listed package set but part of the same p
 
 ## Product Axioms
 
-Repo-global invariants this product depends on. These are candidates for promotion into `.stokd/meta/SC_AXIOMS.md` by the axiom-enrichment pass.
+Repo-global invariants this product depends on. These are candidates for promotion into `.stokd/meta/SC_AXIOMS.md` by the axiom-enrichment pass (several already promoted as `AX-REPO-*`).
 
-- `AX-PROD-SUI-001`: The Next.js docs/marketing/admin app (`docs/`, `stokedui-com`) is the single canonical web surface and MUST run on port **5199** in local development; no other port (e.g. 3000) is supported by tooling, links, or CORS configuration.
-- `AX-PROD-SUI-002`: `packages/sui-media-api` MUST host only media-component endpoints; any non-media business route (products, clients, licenses, invoices, users, non-media auth, blog, cdn admin, deliverables) MUST be implemented under `docs/pages/api/**`.
+- `AX-PROD-SUI-001`: The Next.js docs/marketing/consulting/admin app (`docs/`, `stokedui-com`) is the single canonical web surface and MUST run on port **5199** in local development; no other port (e.g. 3000) is supported by tooling, links, or CORS configuration.
+- `AX-PROD-SUI-002`: `packages/sui-media-api` MUST host only media-component endpoints; any non-media business route (products, clients, licenses, invoices, users, non-media auth, audit, blog, cdn admin, deliverables) MUST be implemented under `docs/pages/api/**`.
 - `AX-PROD-SUI-003`: All AWS deploys for this product MUST target the `stokd-cloud` AWS profile via `pnpm deploy:prod` (`dotenvx run -- sst deploy --stage production`); the default/ambient AWS profile points at a customer production account and MUST NOT be used.
 - `AX-PROD-SUI-004`: `@stoked-ui/editor` depends on the WASM build at `packages/sui-video-renderer/pkg/` (resolved via the `@stoked-ui/video-renderer-wasm` file dep + webpack alias); editor render/preview flows MUST NOT regress when this artifact is present, and the docs app webpack config MUST keep `experiments.asyncWebAssembly: true`.
-- `AX-PROD-SUI-005`: The repository is a pnpm 10.5.1 monorepo enforced by `preinstall` (`only-allow pnpm`); package builds MUST go through Turbo + the Babel-driven `build:modern` / `build:node` / `build:stable` / `build:types` / `build:copy-files` pipeline — no per-package ad-hoc bundlers.
+- `AX-PROD-SUI-005`: The repository is a pnpm 10.5.1 monorepo enforced by `preinstall` (`only-allow pnpm`); publishable package builds MUST go through Turbo + the Babel-driven `build:modern` / `build:node` / `build:stable` / `build:types` / `build:copy-files` pipeline — no per-package ad-hoc bundlers (the Rust `sui-video-renderer` is the sole exception, built via Cargo/`wasm-pack`).
 - `AX-PROD-SUI-006`: MUI and React versions are pinned via `pnpm.overrides` (`@mui/material@5.17.1`, `@mui/system@5.17.1`, `@mui/utils@5.17.1`, `@mui/base@5.0.0-beta.40`, `react@18.3.1`, `react-dom@18.3.1`); product code MUST be compatible with these exact versions.
 - `AX-PROD-SUI-007`: `sui-media-api` MUST run identically as a NestJS Express server locally (port 3001, base path `/v1`) and as an AWS Lambda function via `@codegenie/serverless-express` (`lambda.ts` + `lambda.bootstrap.ts`); behavior MUST NOT diverge across these two runtimes.
-- `AX-PROD-SUI-008`: All persistent business-domain data (products, clients, deliverables, invoices, licenses, users, blog posts, API keys, feedback, chat sessions, media metadata) MUST live in MongoDB; the browser-side `LocalDb` (IndexedDB) is reserved for editor project/version/recording state and MUST NOT be treated as a source of truth for business data.
+- `AX-PROD-SUI-008`: All persistent business-domain data (products, clients, deliverables, invoices, licenses, users, blog posts, API keys, feedback, chat sessions, audit leads/reports, media metadata) MUST live in MongoDB; the browser-side `LocalDb` (IndexedDB) is reserved for editor project/version/recording state and MUST NOT be treated as a source of truth for business data.
 - `AX-PROD-SUI-009`: Stripe is the sole payment processor for license commerce; `POST /api/webhooks/stripe` is the authoritative reconciliation point for license state changes, and license activate/validate/deactivate flows MUST NOT bypass it.
 - `AX-PROD-SUI-010`: User-facing flows enumerated in `.stokd/meta/SC_FLOWS.md` (§1–§13) constitute the product's contract; any change that alters or removes one of these flows MUST be driven through a governed `stokd task` or `stokd project` with explicit acceptance criteria, never as an incidental edit.
 - `AX-PROD-SUI-011`: Git workflows for this product MUST NOT use `git stash`, MUST NOT switch the working-tree branch via `git checkout <branch>`, and MUST NOT use `git reset --hard` or `git restore .` on a dirty tree — branch divergence is handled exclusively via `git worktree add`.
+- `AX-PROD-SUI-012`: The consulting audit bot (`docs/src/modules/auditBot/**`, flows §9.3 / §13.5) MUST loop tool execution server-side, validate untrusted model report args via `reportValidation.ts` before they reach the UI or mailer, fetch visitor-supplied URLs only through the `urlSafety.ts` SSRF guard, and treat Mongo persistence, SES report email, and Telegram notification as best-effort side effects that MUST NOT fail a chat turn.
 
 ---
 
@@ -324,4 +346,5 @@ Repo-global invariants this product depends on. These are candidates for promoti
 - Flow / data-path inventory: `.stokd/meta/SC_FLOWS.md`
 - Test inventory: `.stokd/meta/SC_TEST.md`
 - Guardrails: `.stokd/meta/SC_CONTEXT.md`, `CLAUDE.md`, `AGENTS.md`
+- Repo & module axioms: `.stokd/meta/SC_AXIOMS.md`, `packages/*/.axioms.md`
 - Recommendations log: `.stokd/meta/SC_RECOMMENDATIONS.md`

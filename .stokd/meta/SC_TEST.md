@@ -3,7 +3,7 @@
 **Package:** `@stoked-ui/sui` (Monorepo Root — workspace-wide)
 **Priority:** Critical
 **Stack:** pnpm 10.5.1 / TypeScript 5.4 / React 18.3 / NestJS 10 / Turbo 2.7 / Mocha + Chai + Jest + Playwright + Karma + cargo
-**Date:** 2026-06-06 (re-verified live; **material change since 2026-05-28:** the `docs/` business layer is now actively tested — 13 Mocha/Chai suites in `docs/src/modules/**`, three added 2026-06-06 around the audit bot. Framework guidance for docs corrected accordingly. CI test-execution gap unchanged.)
+**Date:** 2026-06-06 (re-verified live against the working tree; **material changes since prior pass:** (1) the `docs/` business layer is actively tested — **16** newer Mocha/Chai business-logic suites in `docs/src/modules/**` (audit-bot lead-gen added `leadFields.test.ts`, `reportValidation.test.ts`, and the first docs **component** test `products/StokdCloudPitch.test.tsx`, chai via `renderToStaticMarkup`, not Jest); (2) **count correction** — `docs/` actually carries **27** test suites total, because **11 legacy MUI docs-tooling `.test.js` suites** under `docs/src/modules/{sandbox,utils,components}/**` were previously uncounted — and they too import `{ expect } from 'chai'`, reinforcing the docs=Mocha/Chai rule; (3) `sui-media-api` carries **8** `*.spec.ts` in `src/` (not 9) + 1 e2e. CI test-execution gap unchanged.)
 
 ---
 
@@ -30,7 +30,7 @@ Counts across `packages/` and `docs/` (excluding `node_modules`, `dist`, `build`
 
 | Package / Area | `*.test.*` | `*.spec.*` (runtime) | Framework | Notes |
 |----------------|-----------:|---------------------:|-----------|-------|
-| `sui-media-api` | 0 | 9 (`src/`) + 1 e2e (`test/uploads-e2e.spec.ts`) | Jest + `@nestjs/testing` | auth, s3, health, uploads (controller+service), media, thumbnail-generation, metadata-extraction; `testRegex: .*\.spec\.ts$`, `testEnvironment: node` |
+| `sui-media-api` | 0 | 8 (`src/`) + 1 e2e (`test/uploads-e2e.spec.ts`) | Jest + `@nestjs/testing` | auth, s3, health, uploads (controller+service), media, thumbnail-generation, metadata-extraction; `testRegex: .*\.spec\.ts$`, `testEnvironment: node` |
 | `sui-media` | 11 | 0 | Jest + ts-jest + jsdom | `MediaCard`, `MediaViewer`, `WebUserDirectChat`, abstractions (Auth/Router/Queue/KeyboardShortcuts/Payment) |
 | `sui-file-explorer` | 19 | 1 (type) | Mocha/Chai + `describeConformance` | Components, plugins, dropzone |
 | `sui-editor` | 12 (8 MUI-fork integration in `test/integration/*.test.js` + 4 product) | 1 (type) | Mocha/Chai | `EditorFile`, `useEditor`, `useEditorMetadata`, `useEditorKeyboard`, plus inherited MUI menu/dialog/select harness |
@@ -41,19 +41,22 @@ Counts across `packages/` and `docs/` (excluding `node_modules`, `dist`, `build`
 | `sui-docs` | 0 | 0 | — | **Gap** — doc-tooling untested |
 | `sui-cdn` | 0 | 0 | — | **Gap** — only `src/` + `sst-env.d.ts` |
 | `sui-video-renderer` | Rust unit + integration | — | `cargo test` | Native side; WASM bridge not exercised in JS |
-| **`docs/` (app)** | **13** | 0 | **Mocha/Chai** | **NEW since last snapshot** — see §1.3 |
+| **`docs/` (app)** | **27** | 0 | **Mocha/Chai** | 16 newer business-logic suites (15 `.test.ts` + 1 `.test.tsx` `products/StokdCloudPitch`) **plus 11 legacy MUI docs-tooling `.test.js`** in `src/modules/{sandbox,utils,components}/**` — see §1.3 |
 
-**Workspace runtime totals (2026-06-06):** `packages/` ≈ **65** runtime JS/TS suites (53 `*.test.*` + 12 `*.spec.*`, excluding `test/typescript/**`), plus **13** in `docs/`, for **≈ 78** runtime suites. The bulk of `sui-editor` and `sui-github` test files remain forked MUI integration harnesses, not product-level coverage.
+**Workspace runtime totals (2026-06-06):** `packages/` carries **62** runtime JS/TS suites (53 `*.test.*` + 8 `sui-media-api` `*.spec.ts` in `src/` + 1 e2e `*.spec.ts`), plus **3** compile-only type specs (`themeAugmentation.spec.ts` in `sui-editor`/`sui-file-explorer`/`sui-timeline`, excluded from the runtime count), plus **27** in `docs/`, for **≈ 89** runtime suites workspace-wide. The bulk of `sui-editor` and `sui-github` test files remain forked MUI integration harnesses, not product-level coverage.
 
 ### 1.3 `docs/` Business-Logic Suite (the material change)
 
-The repo guardrail (`.stokd/meta/SC_AXIOMS.md` → `AX-REPO-MEDIA-API-BOUNDARY`) puts all non-media business logic under `docs/pages/api/**` and `docs/src/modules/**`. That layer is now being tested with Mocha + Chai (run via root `.mocharc.js`, glob `docs/**/*.test.*`):
+The repo guardrail (`.stokd/meta/SC_AXIOMS.md` → `AX-REPO-MEDIA-API-BOUNDARY`) puts all non-media business logic under `docs/pages/api/**` and `docs/src/modules/**`. That layer is tested with Mocha + Chai (run via root `.mocharc.js`, glob `docs/**/*.test.*`). The 16 newer **business-logic** suites are catalogued below; in addition there are **11 legacy MUI docs-tooling** `.test.js` suites (`sandbox/{CodeSandbox,Dependencies,StackBlitz}`, `components/HighlightedCode`, and `utils/{componentDocs,extractTemplates,findActivePage,getProductInfoFromUrl,helpers,replaceMarkdownLinks,siteRouteAudit}`) that **also** use `import { expect } from 'chai'` — they are low-risk infra coverage but confirm the docs-wide convention:
 
 | Suite | `describe`/`it` | Subject under test |
 |-------|----------------:|--------------------|
-| `docs/src/modules/auditBot/tools.test.ts` | 2 / 10 | **NEW 2026-06-06** — `executeTool('fetch_company_site')` SSRF guard: rejects loopback/link-local (`169.254.169.254`), private ranges, non-public hosts before any network call |
-| `docs/src/modules/auditBot/urlSafety.test.ts` | 4 / 12 | **NEW 2026-06-06** — URL allow/deny classification powering the SSRF guard |
-| `docs/src/modules/auditBot/auditMailer.test.ts` | 1 / 6 | **NEW 2026-06-06** — audit-result email composition/dispatch |
+| `docs/src/modules/auditBot/tools.test.ts` | 3 / 12 | `executeTool('fetch_company_site')` SSRF guard: rejects loopback/link-local (`169.254.169.254`), private ranges, non-public hosts before any network call |
+| `docs/src/modules/auditBot/urlSafety.test.ts` | 4 / 12 | URL allow/deny classification powering the SSRF guard |
+| `docs/src/modules/auditBot/auditMailer.test.ts` | 1 / 6 | audit-result email composition/dispatch |
+| `docs/src/modules/auditBot/leadFields.test.ts` | 1 / 4 | **NEW 2026-06-06** — `extractLeadFields()`: keep only known fields (trimmed, length-capped), drop invalid emails, ignore non-string/garbage input |
+| `docs/src/modules/auditBot/reportValidation.test.ts` | 1 / 6 | **NEW 2026-06-06** — `validateReportShape()`: ranked-list length ≥3, required scalar fields, per-playbook required keys (e.g. `top_findings` for security), reject non-objects |
+| `docs/src/modules/products/StokdCloudPitch.test.tsx` | 1 / 11 | **NEW 2026-06-06** — first docs **component** test; renders `<StokdCloudPitch>` via `renderToStaticMarkup` and asserts value-prop / pricing / governance content (chai, not Jest) |
 | `docs/src/modules/clients/contactUser.test.ts` | 1 / 4 | client contact record handling |
 | `docs/src/modules/invoices/invoiceNormalization.test.ts` | 1 / 3 | invoice normalisation |
 | `docs/src/modules/utils/legalLocalization.test.ts` | 1 / 3 | legal-copy localisation |
@@ -65,7 +68,7 @@ The repo guardrail (`.stokd/meta/SC_AXIOMS.md` → `AX-REPO-MEDIA-API-BOUNDARY`)
 | `docs/src/modules/joy/generateThemeAugmentation.test.ts` | 1 / 3 | Joy theme-augmentation codegen |
 | `docs/src/modules/joy/literalToObject.test.ts` | 1 / 1 | literal→object AST transform |
 
-**All 13 import `{ expect } from 'chai'`; zero use Jest.** This corrects the prior plan, which recommended Jest + `node-mocks-http` for the docs layer. The established, working pattern for docs **pure-logic** modules is Mocha/Chai — extend it, do not introduce a second runner for the same files.
+**All 27 docs suites import `{ expect } from 'chai'`; zero use Jest** — even the new component test (`StokdCloudPitch.test.tsx`) stays on chai by rendering with `react-dom/server`'s `renderToStaticMarkup` rather than pulling in React Testing Library/Jest. This corrects any prior plan that recommended Jest + `node-mocks-http` for the docs layer. The established, working pattern for docs **pure-logic** modules is Mocha/Chai — extend it, do not introduce a second runner for the same files. Note the `test:coverage`/`test:unit` globs are `docs/**/*.test.{js,ts,tsx}`, so both the `.tsx` component test and every `.test.js` infra suite are already picked up.
 
 **Still a gap in `docs/`:** `docs/src/modules/license/*` (revenue) and `docs/src/modules/auth/*` (security) remain untested. These are the highest-value targets (see §7).
 
@@ -161,10 +164,13 @@ Modules with **zero coverage** in `sui-media-api/src/`: `blog/`, `clients/`, `da
 | Critical Path | File | Status | Risk |
 |---------------|------|--------|------|
 | License activation/validation/deactivation | `docs/src/modules/license/licenseStore.ts` | **Untested** | Revenue loss |
-| License product catalogue | `licenseStore.ts → listLicenseProducts()/findLicenseProduct()` | **Untested** | Can't purchase |
+| License product catalogue | `licenseStore.ts → listLicenseProducts()/getLicenseProductOrThrow()` | **Untested** | Can't purchase |
 | Stripe checkout & webhook | `docs/src/modules/license/stripeClient.ts`, `docs/pages/api/webhooks/stripe.ts` | **Untested** | Payment breakage (`AX-REPO-STRIPE-LICENSE-COMMERCE`) |
 | User register/login/JWT | `docs/src/modules/auth/authStore.ts` | **Untested** | Account lockout / breach |
-| Role determination | `authStore.ts → determineRole()` | **Untested** | Privilege escalation |
+| Role determination | `authStore.ts → calculateUserRole()` | **Untested** | Privilege escalation |
+| User impersonation | `authStore.ts → impersonateUser()` | **Untested** | Privilege escalation / account takeover |
+| API-key issuance/validation | `docs/src/modules/auth/apiKeyStore.ts` | **Untested** | Unauthorized API access |
+| Route auth wrapper / session | `docs/src/modules/auth/withAuth.ts`, `session.ts` | **Untested** | Endpoint bypass |
 | Audit-bot SSRF guard | `docs/src/modules/auditBot/tools.ts` | **Covered** (`tools.test.ts`, `urlSafety.test.ts`) | Server-side request forgery — keep green, extend to new tools |
 | Audit-bot email | `docs/src/modules/auditBot/auditMailer.ts` | **Covered** (`auditMailer.test.ts`) | Lead leakage / mis-delivery |
 | Deliverables / CDN origin gating | `docs/src/modules/deliverables/*`, `docs/src/modules/cdn/*` | **Partially covered** | Content exposure |
@@ -561,13 +567,16 @@ describe('licenseStore', () => {
     it('deactivates an active license');
     it('no-ops for an already deactivated license');
   });
-  describe('createLicense / listLicenseProducts', () => {
+  describe('createLicense / listLicenseProducts / getLicenseProductOrThrow', () => {
     it('generates a unique license key');
     it('sets initial status to pending');
-    it('returns all products and normalises via normalizeLicenseProduct()');
+    it('listLicenseProducts() returns the full catalogue');
+    it('getLicenseProductOrThrow() throws for an unknown product id');
+    it('toPublicLicenseResponse() strips internal fields from the wire shape');
   });
-  describe('renewLicenseBySubscriptionId', () => {
-    it('extends expiration for an active subscription');
+  describe('findLicenseBySubscriptionId / renewLicenseBySubscriptionId', () => {
+    it('findLicenseBySubscriptionId() returns null for an unknown subscription');
+    it('extends expiration for an active subscription on renewal');
     it('reactivates an expired license on renewal');
   });
 });
@@ -608,13 +617,21 @@ describe('authStore', () => {
     it('rejects login for nonexistent email');
   });
   describe('verifyToken', () => {
-    it('decodes valid JWT and returns user');
+    it('decodes valid JWT and returns the token payload');
     it('rejects expired JWT');
     it('rejects malformed JWT');
   });
-  describe('determineRole', () => {
+  describe('calculateUserRole', () => {
     it('returns admin for @sui.stokd.cloud');
     it('returns client for other domains');
+  });
+  describe('loginWithGooglePayload', () => {
+    it('creates an account on first Google login');
+    it('returns an AuthResult for an existing Google-linked user');
+  });
+  describe('impersonateUser', () => {
+    it('issues a token carrying the impersonatedId for an admin actor');
+    it('rejects impersonation by a non-admin actor');   // privilege escalation guard
   });
 });
 ```

@@ -1,6 +1,6 @@
 # SC_AXIOMS.md — Repo-Global Invariants
 
-> **Generated:** 2026-05-21 | **Meta version:** 0.4.0
+> **Generated:** 2026-05-21 | **Updated:** 2026-06-06 (TIMED REFRESH — re-verified existing axioms against the codebase; appended `AX-REPO-AUDIT-BOT-BEST-EFFORT`, `AX-REPO-WASMLAYER-CONTRACT`, `AX-REPO-CDN-API-CONTRACT`; added candidate blocks for the `.sue` round-trip format and Mongoose ref/registration matching) | **Meta version:** 0.4.0
 > **Scope:** Repository-wide invariants for `@stoked-ui/sui`. Module-scoped
 > axioms live in each package's `.axioms.md`. Product-scoped axioms live in
 > `.stokd/meta/SC_PRODUCT_*.md`. Legacy numbered axioms continue to live in
@@ -143,6 +143,31 @@ Every server-side fetch of a visitor-supplied URL in the audit bot MUST pass the
 - `grep -n "redirect: 'follow'" docs/src/modules/auditBot/tools.ts` returns no hits.
 - manual: any new visitor-URL-fetching code path under `docs/src/modules/auditBot/**` imports `urlSafety` (and dials through the SSRF-safe agent) rather than re-implementing checks.
 
+## AX-REPO-AUDIT-BOT-BEST-EFFORT: Audit Bot Loops Tools Server-Side, Validates Reports, And Treats Side Effects As Best-Effort
+The consulting audit bot (`docs/src/modules/auditBot/**`, flows §9.3 / §13.5) MUST execute every LLM tool call server-side inside `runTurn` (`conversationRunner.ts`) — the browser never invokes the LLM or the `fetch_company_site` / `generate_report` / `save_lead` tools directly; untrusted model report arguments MUST pass `validateReportShape` (`reportValidation.ts`) before they reach the UI or the report mailer; and Mongo persistence (`auditStore.ts`), SES report email (`auditMailer.ts`), and Telegram notification (`notifyTelegram.ts`) MUST be best-effort side effects that log-and-continue rather than fail a chat turn. (Generalizes `AX-PROD-SUI-012`; the SSRF portion is covered by `AX-AUDIT-BOT-URL-SAFETY`.)
+
+### Acceptance Checks
+- `NODE_ENV=test npx mocha docs/src/modules/auditBot/reportValidation.test.ts docs/src/modules/auditBot/auditMailer.test.ts docs/src/modules/auditBot/leadFields.test.ts` exits 0.
+- `grep -n "validateReportShape" docs/src/modules/auditBot/conversationRunner.ts` shows report args validated before use.
+- manual: `runTurn` (`conversationRunner.ts`) is the single server-side tool loop; no browser code path under `docs/src/modules/auditBot/channels/**` calls the LLM or audit tools directly.
+- manual: `auditStore` / `auditMailer` / `notifyTelegram` calls in the turn path are wrapped so a thrown error is caught and logged, never propagated out of a chat turn.
+
+## AX-REPO-WASMLAYER-CONTRACT: The `WasmLayer` JSON Shape Is A Mirrored Editor↔Renderer Contract
+The untyped `WasmLayer` / `WasmTransform` JSON contract emitted by `@stoked-ui/editor` (`packages/sui-editor/src/WasmPreview/actionMapper.ts` + `types.ts`, typed by `wasm-module.d.ts`) and consumed by the Rust WASM compositor (`packages/sui-video-renderer/wasm-preview/src/lib.rs`, `PreviewRenderer.render_frame` → `convert_layer`) MUST stay mirrored: any change to a field name, `type` string (`solidColor`/`image`/`video`/`text`), or `blend_mode` string on one side MUST be applied to the other side and the editor ambient typings in the same change, because the boundary is runtime-only and produces no compile error when it drifts (silently dropped or mis-rendered layers).
+
+### Acceptance Checks
+- `pnpm --filter @stoked-ui/editor typescript`
+- `grep -nE "WasmLayer|WasmTransform|blend_mode|z_index" packages/sui-video-renderer/wasm-preview/src/lib.rs` and `grep -nE "blend_mode|blendMode|zIndex|z_index|solidColor" packages/sui-editor/src/WasmPreview/actionMapper.ts packages/sui-editor/src/WasmPreview/types.ts` enumerate the same field/enum surface on both sides.
+- manual: after `pnpm build:wasm`, the editor preview renders every layer type (solidColor/image/video/text) without a layer silently disappearing.
+
+## AX-REPO-CDN-API-CONTRACT: The `/api/cdn/*` REST Contract Is Shared Across Four Surfaces
+The `/api/cdn/*` REST contract (contents, folders, move, delete, permissions, export, multipart upload, public path resolver) is the single coupling point between the `@stoked-ui/cdn` client (`createCdnApi`), the docs API handlers (`docs/pages/api/cdn/**`), the legacy internal admin app (`packages-internal/cdn`), and the Vite wrapper (`packages-internal/cdn-sui`). Any change to a route's path, request, or response shape MUST update the `@stoked-ui/cdn` `CdnApi` client and both internal apps in the same change; no surface is allowed to drift behind the docs handler that owns the route.
+
+### Acceptance Checks
+- `pnpm --filter @stoked-ui/cdn typescript`
+- `ls docs/pages/api/cdn` (server side, route owner) and `grep -rnE "/api/cdn" packages/sui-cdn/src/CdnApi/CdnApi.ts packages-internal/cdn/src/lib/cdnApi.js` (the two direct `/api/cdn/*` clients) enumerate both ends of the contract; `cdn-sui` consumes it transitively via `import { CdnBrowser } from '@stoked-ui/cdn'`.
+- manual: a PR changing a `/api/cdn/*` route shape lists the `@stoked-ui/cdn` `createCdnApi` method and the `packages-internal/cdn` `lib/cdnApi.js` call site it updated (and re-verifies `cdn-sui` still renders).
+
 ---
 
 ## Candidates (Not Yet Promoted)
@@ -182,11 +207,42 @@ handlers are unit-tested with mocked models). Cannot promote to a binding
 repo-wide invariant until the test strategy in SC_TEST.md aligns.
 -->
 
+<!--
+stokd-axiom-candidate
+id: AX-CANDIDATE-REPO-SUE-PROJECT-FORMAT
+suggested_targets: .stokd/meta/SC_AXIOMS.md
+notes: The `.sue` project JSON model parsed by the native CLI
+(`packages/sui-video-renderer/cli/src/project.rs`: Project / ProjectTrack /
+TrackType / TrackAction / TrackTransform) is conceptually the same project file
+produced/consumed by `@stoked-ui/editor` serialization and the timeline action
+model — a candidate cross-package wire contract alongside
+AX-REPO-MEDIA-TYPE-COORDINATION. NOT promoted: the end-to-end round-trip
+(editor export → `video-render`) is unverified and the CLI currently rejects
+`video` and `text` tracks (`anyhow::bail!` in `to_timeline`), so the two formats
+are not yet proven identical. Promote once an editor-export → CLI-render round-trip
+test exists.
+-->
+
+<!--
+stokd-axiom-candidate
+id: AX-CANDIDATE-REPO-MONGOOSE-REF-REGISTRATION
+suggested_targets: .stokd/meta/SC_AXIOMS.md
+notes: Every Mongoose ObjectId `ref` string must resolve to a model name actually
+registered (via `MongooseModule.forFeature`) in whichever app `.populate()`s it.
+`packages/sui-common-api` has a latent mismatch — `BaseModel`/`File`
+engagement+authorship fields ref `"UserRef"` while the exported `UserFeature`
+registers as `"User"` (see `.stokd/meta/packages/sui-common-api/SC_MODULE.md` §5).
+NOT promoted: the invariant is currently violated and would need a cross-package
+audit of every ref/registration pair (`sui-media-api`, `docs/pages/api/**`) before
+it can be stated as a binding, satisfiable repo-wide rule. Promote (and fix the
+mismatch) together.
+-->
+
 ---
 
 ## Cross-References
 
-- Product axioms: `.stokd/meta/SC_PRODUCT_STOKED_UI_SUI.md` (`AX-PROD-SUI-001` … `AX-PROD-SUI-011`)
+- Product axioms: `.stokd/meta/SC_PRODUCT_STOKED_UI_SUI.md` (`AX-PROD-SUI-001` … `AX-PROD-SUI-012`)
 - Module axioms: `packages/*/.axioms.md`
 - Guardrails: `.stokd/meta/SC_CONTEXT.md`, `CLAUDE.md`, `AGENTS.md`
 - Flows / acceptance surface: `.stokd/meta/SC_FLOWS.md`

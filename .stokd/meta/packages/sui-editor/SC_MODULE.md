@@ -1,6 +1,6 @@
 # Module: @stoked-ui/editor
 
-> **Generated:** 2026-05-21 (upgraded 0.3.0 → 0.4.0) | **Timed refresh:** 2026-06-06 | **Meta version:** 0.4.0
+> **Generated:** 2026-05-21 (upgraded 0.3.0 → 0.4.0) | **Timed refresh:** 2026-06-06 (re-verified against source; corrected docs-consumer paths in §3, added the `EditorWithFileView` consumer, and corrected the WASM artifact path to `packages/sui-video-renderer/pkg/` + build target to `--target web` in §5/§7) | **Meta version:** 0.4.0
 > **Package location:** `packages/sui-editor`
 > **NPM name:** `@stoked-ui/editor` (v0.1.2)
 > **Source entry:** `packages/sui-editor/src/index.ts`
@@ -91,14 +91,14 @@ The package is **library-only**: no NestJS controllers, no CLI commands, no Next
 
 This module is consumed by the single product documented in this repo:
 
-- **SC_PRODUCT_STOKED_UI_SUI.md** — `@stoked-ui/sui`. The editor is one of the marquee components in the suite. It powers the `/products/editor/` showcase, the `editor` MDX docs section under `docs/data/editor/`, and the homepage `HeroEditor` demo.
+- **SC_PRODUCT_STOKED_UI_SUI.md** — `@stoked-ui/sui`. The editor is one of the marquee components in the suite. It powers the `/products/editor/` showcase, the `editor` MDX docs section under `docs/data/editor/`, and the homepage editor hero (`docs/src/components/home/HeroEditor.tsx`, which lazy-loads `docs/src/components/showcase/EditorHero.tsx`).
 
-Non-publishable consumers inside this repo:
+Non-publishable consumers inside this repo (verified `@stoked-ui/editor` importers as of this refresh):
 
-- `docs/src/components/showcase/HeroEditor.tsx`, `EditorBackendProcessingDemo.tsx`, `EditorHero.tsx`, `EditorFileTest*.tsx`, `ExampleShowcaseFiles.tsx`
-- `docs/src/components/home/EditorShowcase.tsx`, `EditorSandbox.tsx`
-- `docs/data/editor/components/editor/BasicEditor.js`, `EditorWithContent.js`, `MinimalEditor.js`, `EditorUsage.js`
-- `docs/data/editor/docs/overview/CoreDemo.tsx`, `getting-started.md`, `backend-processing.md`
+- `docs/src/components/showcase/EditorHero.tsx`, `EditorBackendProcessingDemo.tsx`, `EditorFileTest.tsx`, `EditorFileTestHero.tsx`, `ExampleShowcaseFiles.tsx`
+- `docs/src/components/home/EditorShowcase.tsx`, `EditorSandbox.tsx` (and `home/HeroEditor.tsx`, which `next/dynamic`-imports `showcase/EditorHero.tsx` rather than importing the package directly)
+- `docs/data/editor/components/editor/BasicEditor.js`, `EditorWithContent.js`, `EditorWithFileView.js`, `MinimalEditor.js`, `EditorUsage.js`, `EditorModes.js`, `EditorWithLabels.js`, `FullscreenEditor.js` (the `editor.md` section landing page references the same set)
+- `docs/data/editor/docs/overview/CoreDemo.tsx` (+ generated `CoreDemo.js`), `overview.md`, `getting-started/getting-started.md`, and the `backend-processing/` section (`backend-processing.md` + its `EditorBackendProcessingDemo.js`)
 
 There is no other product doc; the module participates in only this one.
 
@@ -117,7 +117,7 @@ From `SC_VIEWS.md` §9 ("Editor Package Views — `@stoked-ui/editor`"), this mo
 | §9.5 EditorFileTabs (Asset Browser) | `src/EditorFileTabs/EditorFileTabs.tsx` | Tab strip + embedded `FileExplorer` + `FileDropzone`. States: active-tab, loading, empty, drag-over, expanded, collapsed. |
 | §9.6 EditorScreener (Version Selector) | `src/EditorScreener/EditorScreener.tsx` | Version dropdown over recorded outputs. States: loading, versioned, unversioned. |
 
-This module also **materially shapes** every showcase / docs view that embeds the editor (`HeroEditor`, `EditorShowcase`, `CoreDemo`, etc. — see §3 Products) by supplying the runtime they render.
+This module also **materially shapes** every showcase / docs view that embeds the editor (`EditorHero`, `EditorShowcase`, `CoreDemo`, etc. — see §3 Products) by supplying the runtime they render.
 
 ---
 
@@ -239,6 +239,7 @@ This module also **materially shapes** every showcase / docs view that embeds th
 
 - **`src/models/items.ts`** — Shared item model types.
 - **`src/themeAugmentation/`** — MUI theme augmentation for `MuiEditor*` and `MuiDetailView` slot/class names.
+- **`src/icons/`** — Editor-local SVG icon components (`FilesView`, `TimelineView`, plus `icons.tsx`); used by the view-mode toggle and asset tabs. Not re-exported from the package barrel.
 
 ### Hooks
 
@@ -252,7 +253,7 @@ This module also **materially shapes** every showcase / docs view that embeds th
 
 - **Re-validate timeline integration** — `EditorEngine extends Engine`; any new state in `EngineStateEx` or new emitter event must round-trip through `TimelineProvider`.
 - **Re-validate every controller** (`Audio`, `Video`, `Image`, `Web`, `Compositor`, `Animation`) — they consume `_renderCtx`, `_actionMap`, and `DrawData`. Adding/removing a `_render*` field breaks all controllers.
-- **Re-validate WASM mode** — `_useWasm`, `_compositorController`, and `_wasmRendererConfig` are toggle-driven. Confirm both code paths (canvas fallback and WASM) still render via the docs `HeroEditor` / `WasmPreviewDemo`.
+- **Re-validate WASM mode** — `_useWasm`, `_compositorController`, and `_wasmRendererConfig` are toggle-driven. Confirm both code paths (canvas fallback and WASM) still render via the docs `EditorHero` showcase / `WasmPreviewDemo`.
 - **Re-validate recording** — `MediaRecorder` setup, `_recordedChunks`, audio context plumbing. Mute/unmute and multi-track audio mix should still survive (see Editor Issues memory).
 - Run docs locally on **port 5199** (`pnpm docs:dev`) and exercise the `/products/editor/` showcase.
 
@@ -283,8 +284,8 @@ This module also **materially shapes** every showcase / docs view that embeds th
 
 ### When you touch the WASM integration
 
-- `EditorEngine` `import()`s the WASM module dynamically. Auto-detection of bundler-target vs web-target is in `EditorEngine.ts`.
-- The WASM artifact lives at `packages/sui-video-renderer/wasm-preview/pkg/` (built with `wasm-pack build --target bundler --out-dir pkg`). `next.config.mjs` sets `experiments.asyncWebAssembly = true` and aliases `@stoked-ui/video-renderer-wasm` to that path; **a Next.js config change requires a dev-server restart** (per project memory).
+- `EditorEngine.initWasmRenderer()` (`src/EditorEngine/EditorEngine.ts`) only runs when **both** `_useWasm` and `_compositorController` are set. It dynamically `import('@stoked-ui/video-renderer-wasm')`, `await init()`s the module (the `--target web` init pattern), then constructs `new PreviewRenderer(renderer, renderWidth, renderHeight)` and hands it to `_compositorController.setRenderer(...)`. On any failure it logs and — unless `_wasmRendererConfig.fallbackToCanvas === false` — sets `_useWasm = false`, drops `_compositorController`, and returns `false` so the canvas pipeline takes over. **Preserve this try/catch fallback** (this is what `AX-MOD-SUI-EDITOR-003` guards).
+- The WASM artifact lives at **`packages/sui-video-renderer/pkg/`** — built by `pnpm build:wasm` → `packages/sui-video-renderer/scripts/build-wasm.sh`, which runs `wasm-pack build --target web --out-dir pkg` and then rewrites `pkg/package.json` `name` → `@stoked-ui/video-renderer-wasm` (quick rebuild: `pnpm video-renderer:build-wasm`). The sibling `packages/sui-video-renderer/wasm-preview/pkg/` is a **stale raw-output duplicate** (its `package.json` name is `wasm-preview`) and is **not** what the editor resolves. `next.config.mjs` sets `experiments.asyncWebAssembly = true` and aliases `@stoked-ui/video-renderer-wasm` → `packages/sui-video-renderer/pkg` (`next.config.mjs:146`); the `optionalDependency` in `package.json` is `file:../sui-video-renderer/pkg`. **A Next.js config change requires a dev-server restart** (per project memory).
 - `WasmPreview/types.ts` mirrors the Rust struct; if the Rust enum (`LayerType`, `BlendMode`) changes, both `types.ts` and `actionMapper.ts` must be updated, and the WASM artifact rebuilt.
 
 ### When you touch the public surface (`src/index.ts`)
@@ -294,9 +295,13 @@ This module also **materially shapes** every showcase / docs view that embeds th
 - Run `pnpm typescript` from the package to catch downstream type breaks (peer deps include workspace `^` versions).
 - Re-run `pnpm build` (modern + node + stable + types + copy-files) before publishing.
 
+### TypeScript baseline (caveat — verified 2026-06-06)
+
+`pnpm --filter @stoked-ui/editor typescript` (`tsc -p tsconfig.json`) **currently fails with a pre-existing, repo-wide error**, not a fault in this package's own logic. Every diagnostic traces to a single root cause: `MediaFile.stream()` (`packages/sui-media/src/MediaFile/MediaFile.ts`) returns `ReadableStream<Uint8Array<ArrayBufferLike>>`, but the resolved TS DOM lib now types `File.stream()` / `Blob` as `Uint8Array<ArrayBuffer>` (the TS-5.7-era generic-`Uint8Array` change). It propagates `MediaFile → TimelineFile → EditorFile` and surfaces in `DetailView.tsx`, `EditorFile.ts`, `EditorFile.example.tsx`, `EditorFileTabs.tsx`, and `EditorProvider.types.ts`. Fixing it is a **coordinated cross-package media-type change** (`AX-REPO-MEDIA-TYPE-COORDINATION`) rooted in `sui-media`, not a `sui-editor`-local edit. **Before claiming a regression, diff against this baseline** — only errors *outside* the `ArrayBufferLike` vs `ArrayBuffer` family are new. (Consistent with project memory's "pre-existing sui-editor/sui-timeline tsc failures.")
+
 ### Tests (caveat)
 
-Per `.stokd/meta/packages/sui-editor/SC_TEST.md`: there are currently **zero passing editor-specific runtime tests**. The three plugin test files require a `describeEditor` test utility at `test/utils/editor-view/describeEditor.tsx` that does not yet exist. Until that's built, expect to validate behavior manually through the docs `HeroEditor` showcase and the `EditorExample` demo at `src/EditorFile/EditorFile.example.tsx`.
+Per `.stokd/meta/packages/sui-editor/SC_TEST.md`: there are currently **zero passing editor-specific runtime tests**. The three plugin test files require a `describeEditor` test utility at `test/utils/editor-view/describeEditor.tsx` that does not yet exist. Until that's built, expect to validate behavior manually through the docs `EditorHero` showcase and the `EditorExample` demo at `src/EditorFile/EditorFile.example.tsx`.
 
 ### CI / build
 

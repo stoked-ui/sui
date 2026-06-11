@@ -43,9 +43,12 @@ The package layers a **thin REST client (`CdnApi`)** beneath a **feature-rich UI
 (`utils/contents.ts`). It is intentionally dependency-light: only `react` /
 `react-dom` are peer dependencies — no MUI, no data-fetching library, no AWS SDK.
 
-The same `CdnBrowser` is reused by both internal Vite admin apps and the docs
-admin surface, so the component must remain portable and free of host-specific
-assumptions beyond the `apiBaseUrl` / `authEndpoint` / `publicBaseUrl` props.
+The only UI consumer today is the internal Vite admin app
+`packages-internal/cdn-sui` (`cdn-sui.stokd.cloud`); the docs app is the **server
+half** of the contract (`docs/pages/api/cdn/**`), not a `CdnBrowser` host. The
+component must therefore remain portable and free of host-specific assumptions
+beyond the `apiBaseUrl` / `authEndpoint` / `publicBaseUrl` / `loginUrl` /
+`logoutUrl` props.
 
 ---
 
@@ -100,8 +103,9 @@ All public API flows exclusively through `src/index.ts`:
 - **`SC_PRODUCT_STOKED_UI_SUI.md`** (`@stoked-ui/sui`) — this module is one of the
   embeddable React component suite packages. It powers the product's **CDN admin**
   capability (SC_PRODUCT §6.1 *Browse / Upload via `CdnBrowser`*, §6.2 *Resume /
-  Abort Multipart Upload*) and is consumed by the internal admin apps and the docs
-  admin surface (SC_PRODUCT §3 audience table, §"Module map").
+  Abort Multipart Upload*). Its sole UI consumer is the internal Vite admin app
+  `packages-internal/cdn-sui`; the docs app participates only as the server-side
+  `/api/cdn/*` contract host (SC_PRODUCT §3 audience table, §"Module map").
 
 ---
 
@@ -128,33 +132,39 @@ This module renders / materially shapes the following views in
 ## Integration Points
 
 ### Downstream consumers (who imports this module)
-- **`packages-internal/cdn-sui`** (`src/App.jsx`) — thin Vite wrapper rendering
-  `CdnBrowser` with `apiBaseUrl="/api/cdn"`, `publicBaseUrl`, `authEndpoint`,
-  `loginUrl` / `logoutUrl` factories, and controlled `prefix`/`onPrefixChange`.
-  Imports `@stoked-ui/cdn/styles.css`.
-- **Docs admin surface** (`@stoked-ui/sui` product) — embeds `CdnBrowser` against
-  the docs API CDN routes.
+- **`packages-internal/cdn-sui`** (`src/App.jsx`) — the **only** importer of this
+  package today (`import { CdnBrowser } from '@stoked-ui/cdn'` +
+  `import '@stoked-ui/cdn/styles.css'`). A thin Vite wrapper rendering `CdnBrowser`
+  with `title`, `apiBaseUrl="/api/cdn"`, `publicBaseUrl`, `authEndpoint`,
+  `loginUrl` (a `(returnTo) => …` factory) / `logoutUrl`, and controlled
+  `prefix`/`onPrefixChange`. (`package.json` dep `"@stoked-ui/cdn": "workspace:^"`.)
 - **`media-pairing-poster-detection` project** — gallery/poster work in
-  `.stokd/projects/media-pairing-poster-detection/` integrates against the
-  `CdnBrowser` gallery view.
+  `.stokd/projects/media-pairing-poster-detection/` exercises the `CdnBrowser`
+  gallery view (`isMediaHeavy` auto-switch).
+
+> Note: the docs Next.js app is **not** a `CdnBrowser` consumer — a repo-wide
+> grep for `@stoked-ui/cdn` under `docs/` returns no imports. It is the upstream
+> server contract host (see below).
 
 ### Upstream contracts (what this module depends on)
 - **CDN REST API under `apiBaseUrl` (default `/api/cdn`)** — implemented by
-  `docs/pages/api/cdn/**`:
-  - `GET  /api/cdn/contents?prefix=&delimiter=/` (S3 XML or JSON)
-  - `POST /api/cdn/folders`, `POST /api/cdn/delete`, `POST /api/cdn/move`
-  - `GET|PUT|DELETE /api/cdn/permissions`
-  - `GET /api/cdn/export?path=`
-  - Multipart: `POST /api/cdn/upload/initiate`,
-    `GET /api/cdn/upload/{sessionId}/status`,
-    `POST /api/cdn/upload/{sessionId}/urls`,
-    `POST /api/cdn/upload/{sessionId}/part/{partNumber}`,
-    `POST /api/cdn/upload/{sessionId}/complete`,
-    plus `…/active` and `…/abort` session lifecycle (see `docs/pages/api/cdn/upload/`).
-  - Public path resolver under `docs/pages/api/cdn/path/[format]`.
-  All requests use `credentials: 'include'` and JSON content type. This contract
-  is governed by **AX-REPO-MEDIA-API-BOUNDARY** (CDN admin routes live under
-  `docs/pages/api/**`, **not** `sui-media-api`).
+  `docs/pages/api/cdn/**` (verified file layout):
+  - `GET  /api/cdn/contents?prefix=&delimiter=/` (S3 XML or JSON) — `contents.ts`
+  - `POST /api/cdn/folders`, `POST /api/cdn/delete`, `POST /api/cdn/move` —
+    `folders.ts`, `delete.ts`, `move.ts`
+  - `GET|PUT|DELETE /api/cdn/permissions` — `permissions.ts`
+  - `GET /api/cdn/export?path=` — `export.ts`
+  - Multipart (`upload/`): `POST initiate.ts`, `GET active.ts`, and the
+    session-scoped `upload/[sessionId]/`: `status.ts`, `urls.ts`,
+    `part/[partNumber].ts`, `complete.ts`, `abort.ts`.
+  - Public path resolver: `path/[format]/[[...prefix]].ts`.
+  The `contents` fetch lives in `utils/contents.ts` (`fetchRemote`, with
+  `credentials: 'include'`); every other verb flows through `CdnApi.apiRequest`,
+  which always sends `credentials: 'include'` + JSON. This contract is governed by
+  **AX-REPO-MEDIA-API-BOUNDARY** (CDN admin routes live under `docs/pages/api/**`,
+  **not** `sui-media-api`) and has its own server-side axiom file at
+  `docs/pages/api/cdn/.axioms.md`; the client/server coupling is tracked by the
+  `AX-CANDIDATE-REPO-CDN-API-CONTRACT` candidate in `packages/sui-cdn/.axioms.md`.
 - **Auth-session endpoint** (`authEndpoint`) — returns
   `{ authenticated, user: { name, role, avatarUrl? } }`. Admin role (`role === 'admin'`)
   gates management UI. 401 / credential-expiry errors force a logout redirect.
@@ -177,9 +187,9 @@ This module renders / materially shapes the following views in
 |------|----------------|
 | `src/index.ts` | The publishable barrel — the entire public contract. Any add/remove/rename here is a consumer-facing change. |
 | `src/CdnApi/CdnApi.ts` (~363 LOC) | The REST client + resumable multipart upload engine. Highest correctness risk: chunk retry (`MAX_RETRIES=3`, no retry on `AbortError`, ETag required), URL batching (`URL_BATCH_SIZE=50`), `localStorage` session fingerprinting (`uploadFingerprint`), and the `/api/cdn/*` endpoint shapes all live here. Also `collectDroppedEntries` and `beginDesktopDownload`. |
-| `src/CdnBrowser/CdnBrowser.tsx` (~1,400 LOC) | The whole UI: listing, search (`useDeferredValue`), breadcrumbs, controlled/uncontrolled prefix, list/gallery view modes (auto-switch via `isMediaHeavy` ≥90%, persisted per-prefix in `localStorage`), drag-drop upload + move, rename, delete, permissions editor, and auth/role gating (`canManage`, `shouldForceLogout`, `isCredentialFailure`). Root class is `suiCdnBrowser`. |
+| `src/CdnBrowser/CdnBrowser.tsx` (~1,442 LOC) | The whole UI: listing, search (`useDeferredValue`), breadcrumbs, controlled/uncontrolled prefix, list/gallery view modes (auto-switch via `isMediaHeavy` ≥90%, persisted per-prefix in `localStorage`), drag-drop upload + move, rename, delete, permissions editor, and auth/role gating (`canManage`, `shouldForceLogout`, `isCredentialFailure`). Root class is `suiCdnBrowser`. |
 | `src/CdnBrowser/CdnBrowser.types.ts` | `CdnBrowserProps` — the component's documented prop contract and defaults. |
-| `src/utils/contents.ts` (~267 LOC) | Pure data layer: `normalizePrefix`, `fromFlatObjects` (groups flat S3 keys into folders/objects), `parseS3Xml`, `normalizeJson`, `getContents` (remote fetch + localhost mock fallback), and presentation helpers (`getFileKind`, `formatBytes`, `formatTimestamp`, `buildCrumbs`, `buildPublicUrl`). Cheap to test, high ROI. |
+| `src/utils/contents.ts` (~266 LOC) | Pure data layer: `normalizePrefix`, `fromFlatObjects` (groups flat S3 keys into folders/objects), `parseS3Xml`, `normalizeJson`, `getContents` (remote fetch via `fetchRemote` + localhost mock fallback), and presentation helpers (`getFileKind`, `formatBytes`, `formatTimestamp`, `buildCrumbs`, `buildPublicUrl`). Cheap to test, high ROI. |
 | `src/data/mockContents.ts` | `mockObjects` fixture — the fallback dataset when no endpoint is configured or on localhost credential failure. |
 | `src/styles.css` | All component styling, scoped under `.suiCdnBrowser`; shipped as a side-effect import. |
 | `package.json` | Build pipeline (`build:modern`→`node`→`stable`→`types`→`copy-files`), peer deps (React 18), `sideEffects`. |
@@ -225,6 +235,8 @@ When this module changes, validate the following:
 ```bash
 pnpm --filter @stoked-ui/cdn typescript     # type contract
 pnpm -w build                               # build pipeline / accidental server imports
-# once a jest config is added (see SC_TEST.md):
+# tests run under the umbrella Mocha runner (NOT Jest — see SC_TEST.md §1):
+#   nyc mocha 'packages/**/*.test.{js,ts,tsx}'   (root pnpm test:coverage)
+# once a *.test.ts(x) file + per-package test script land:
 pnpm --filter @stoked-ui/cdn test
 ```

@@ -1,6 +1,6 @@
 # Module: @stoked-ui/file-explorer
 
-> **Generated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) · **Refreshed:** 2026-06-06 (timed refresh — verified against source) | **Meta version:** 0.4.0
+> **Generated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) · **Refreshed:** 2026-06-06 (timed refresh — re-verified against source; corrected DnD reducer action names) | **Meta version:** 0.4.0
 > **Package location:** `packages/sui-file-explorer`
 > **NPM name:** `@stoked-ui/file-explorer` (v0.1.2)
 > **Source entry:** `packages/sui-file-explorer/src/index.ts`
@@ -122,7 +122,7 @@ From `SC_VIEWS.md` §11 ("File-Explorer Package Views — `@stoked-ui/file-explo
 
 This module also **materially shapes** these views authored elsewhere:
 
-- §1.1 Home Page hero — `HeroFileExplorer` (`docs/src/components/showcase/HeroFileExplorer.tsx`) embeds `FileExplorer`.
+- §1.1 Home Page hero — `HeroFileExplorer` (`docs/src/components/home/HeroFileExplorer.tsx`) dynamically renders the showcase `FileExplorerCard` → `FileExplorerHero` (`docs/src/components/showcase/FileExplorerHero.tsx`), which embeds `FileExplorer`.
 - §1.2 Products Index — file-explorer card.
 - §3.x Showcase pages (`/products/file-explorer/`) — full demo grid.
 - §8 Embedded showcase — `FileExplorerShowcase`, `FileExplorerCard`, `FolderTreeView`, `ConsultingDocumentBrowserCard`.
@@ -191,7 +191,9 @@ This module also **materially shapes** these views authored elsewhere:
 | `src/internals/plugins/useFileExplorerGrid/` | Adds `FileExplorerGridHeaders`, columns, header cells, sorting/resizing. |
 | `src/internals/plugins/useFileExplorerJSXItems/` | Alternative JSX-children-based item declaration (used when `items` prop is not provided). |
 | `src/internals/plugins/useFileExplorerDnd/useFileExplorerDnd.tsx` (~800 lines) | The DnD plugin: registers Atlassian Pragmatic adapters (`draggable`, `dropTargetForElements`, `monitorForElements`, external adapters), tracks drop-target hitboxes, fires post-move flashes. |
-| `src/internals/plugins/useFileExplorerDnd/FileExplorerDndContext.ts` | DnD reducer (`fileListStateReducer`) + context value. Drives all DnD state transitions (`instruction`, `create-children`, `modal-move`, `external-drop`, `toggle-expand`). |
+| `src/internals/plugins/useFileExplorerDnd/FileExplorerDndContext.ts` | DnD reducer (`fileListStateReducer`) + `getFileExplorerStateDefault` + context value (`FileExplorerDndContext`). Drives all DnD state transitions; the reducer dispatches on `action.type` ∈ `set-state`, `create-child`, `create-children`, `remove`, `instruction` — where `instruction` further branches on the Pragmatic-hitbox instruction (`reparent`, `reorder-above`, `reorder-below`, `make-child`). |
+| `src/internals/plugins/useFileExplorerDnd/FileExplorerDndAction.ts` | The `FileExplorerDndAction<R>` discriminated union consumed by the reducer (one variant per `action.type` above). |
+| `src/internals/plugins/useFileExplorerDnd/FileExplorerDndItemContext.ts`, `useFileExplorerDnd.types.ts`, `constants.ts` (`indentPerLevel = 32`), `index.ts` | Per-item DnD context, plugin type surface, indentation constant, and the DnD barrel. |
 | `src/internals/plugins/useFileExplorerDnd/fileValidation.ts` (249 lines, security-critical) | `isDangerousExtension`, `isAllowedMimeType`, `isAcceptableFileSize`, `validateFile`, `validateFiles`, `getRejectionReason` (+ `FileValidationResult` / `FileValidationBatchResult` types). The gate between OS drops and consumer code. |
 | `src/internals/plugins/useFileExplorerDnd/fileExportUtils.ts` | Blob creation, download URL generation, file export helpers. |
 | `src/internals/plugins/useFileExplorerDnd/muiXDndAdapters.ts` | Adapter shims that bridge Pragmatic DnD events to the MUI-X tree's data model (`ItemPositionChangeParams`). |
@@ -224,7 +226,7 @@ When this module changes, the following is what usually breaks or needs validati
 
 1. **Plugin order in `FILE_EXPLORER_PLUGINS`** — reordering changes which plugin sees which state. Selection and keyboard navigation depend on focus/expansion being initialized first. Any change here demands the full plugin test suite run.
 2. **`FileBase` shape changes** — every consumer (editor tracks, docs demos, showcase cards) constructs `FileBase` literals. Required-field changes break compile site-wide. Bumping `mediaType` enum requires coordinating `@stoked-ui/media`.
-3. **DnD reducer (`fileListStateReducer`)** — handles `instruction`, `create-children`, `modal-move`, `external-drop`, `toggle-expand`. Logic regressions silently corrupt tree state mid-drop; cover with the (currently missing) `FileExplorerDndContext.test.ts`.
+3. **DnD reducer (`fileListStateReducer`)** — dispatches on `action.type` ∈ `set-state`, `create-child`, `create-children`, `remove`, `instruction` (the `instruction` branch further handles the Pragmatic-hitbox sub-types `reparent` / `reorder-above` / `reorder-below` / `make-child`). Logic regressions silently corrupt tree state mid-drop; cover with the (currently missing) `FileExplorerDndContext.test.ts`.
 4. **`fileValidation.ts`** — security-critical gate against executable/script drops. Any loosening of `isDangerousExtension` / `isAllowedMimeType` defaults must be reviewed; tighten only after auditing every consumer that overrides `dndFileTypes` / `dndMaxFileSize`.
 5. **Atlassian Pragmatic DnD upgrade** — adapter API has shifted between minor versions; bumps to `@atlaskit/pragmatic-drag-and-drop*` need full DnD test coverage and manual verification of internal reorder + external drop in the editor.
 6. **`@mui/x-tree-view` upgrade** — the legacy renderer relies on internal MUI-X primitives. A major bump can change accessibility roles and slot mounting; toggle `useMuiXRendering` flag in both states to check.

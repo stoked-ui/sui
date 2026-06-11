@@ -1,7 +1,7 @@
 # SC_MODULE — sui-github
 
 **Meta version:** 0.4.0
-**Last refreshed:** 2026-06-06 (timed refresh)
+**Last refreshed:** 2026-06-06 (timed refresh — re-verified against source: barrel, file tree, LOC, cache constants, dispatch chain, handler cache headers, and docs-app wiring all confirmed unchanged)
 **Module name:** `@stoked-ui/github`
 **Package location:** `packages/sui-github/`
 **Package version:** `0.1.0-alpha.11.3`
@@ -119,12 +119,14 @@ Also materially shapes the marketing showcase row at `/github/` (`HeroGithub` in
 
 The docs app wires all four factories one-to-one:
 
-| Route | Factory |
-|---|---|
-| `docs/pages/api/github/contributions.ts` | `createGithubContributionsHandler()` |
-| `docs/pages/api/github/events.ts` | `createGithubEventsHandler()` |
-| `docs/pages/api/github/commit.ts` | `createGithubCommitHandler()` |
-| `docs/pages/api/github/branch.ts` | `createGithubBranchHandler()` |
+| Route | Factory | Success `Cache-Control` |
+|---|---|---|
+| `docs/pages/api/github/contributions.ts` | `createGithubContributionsHandler()` | `s-maxage=3600, stale-while-revalidate=86400` |
+| `docs/pages/api/github/events.ts` | `createGithubEventsHandler()` | `s-maxage=300, stale-while-revalidate=3600` |
+| `docs/pages/api/github/commit.ts` | `createGithubCommitHandler()` | `s-maxage=300, stale-while-revalidate=3600` |
+| `docs/pages/api/github/branch.ts` | `createGithubBranchHandler()` | `s-maxage=300, stale-while-revalidate=3600` |
+
+All four reject non-GET with `405` + `Allow: GET`, map missing required params to `400`, and map upstream/query failures to `502`.
 
 ### Workspace integration
 
@@ -139,7 +141,7 @@ Consumed by the docs app at `docs/data/github/docs/**` (demos and MDX) and surfa
 | `src/index.ts` | Single barrel — components + handler factories + server helpers + types |
 | `src/apiHandlers/index.ts` | Re-export hub for the handler/helper set the barrel forwards |
 | `src/GithubCalendar/GithubCalendar.tsx` (~464 LOC) | Calendar component; payload normalization, responsive block sizing, SVG `punch`/`highlight` animation that mutates `react-activity-calendar` DOM directly |
-| `src/GithubEvents/GithubEvents.tsx` (~1,377 LOC) | Core events pipeline: quota-aware localStorage cache (key `github_events_<username>`, 8h TTL, `CACHE_PERSIST_LIMITS = [200,150,100,50,25]` truncation, `get/set/removeStorageItem` wrappers; sessionStorage de-dup), filters, pagination, master/detail rendering, `processEvents` switch + detail-panel renderer dispatch, `JsonFallbackView` for unhandled types |
+| `src/GithubEvents/GithubEvents.tsx` (~1,377 LOC) | Core events pipeline: quota-aware localStorage cache (key `github_events_<username>` where `<username>` is lowercased, 8h TTL, `CACHE_PERSIST_LIMITS = [200,150,100,50,25]` truncation, `get/set/removeStorageItem` wrappers; sessionStorage de-dup), filters, pagination, master/detail rendering, `processEvents` switch + detail-panel renderer dispatch (`PullRequest → Push → Delete → Create → Issues → IssueComment → JsonFallbackView`, around `GithubEvents.tsx:1355`), `JsonFallbackView` for unhandled types |
 | `src/GithubEvents/EventTypes/PullRequest/` | PR row (`PullRequestEvent`) + `PullRequestView` (tabbed) + `CommitsList` + `FileChanges` (`@mui/x-tree-view` diff viewer) — full PR detail surface |
 | `src/GithubEvents/EventTypes/{Push,Issues,IssueComment,Create,Delete}Event.tsx` | Per-event-type renderers currently wired into the detail panel |
 | `src/GithubEvents/EventTypes/{Fork,ProjectsV2,ProjectsV2Column,ProjectsV2Field,ProjectsV2Item}Event.tsx` | Renderer files that **exist but are not imported/wired** anywhere in `src/` — these types currently render via `JsonFallbackView` until wired |
@@ -149,7 +151,7 @@ Consumed by the docs app at `docs/data/github/docs/**` (demos and MDX) and surfa
 | `src/apiHandlers/getGithubContributions.ts` | GraphQL contribution fetch + week/day → calendar payload normalization |
 | `src/apiHandlers/getGithubEvents.ts` | Paginates upstream events (up to 30 pages), applies repo/action/date/description filters, derives facet lists; exports `githubEventsQuery` + `EventsQuery` |
 | `src/apiHandlers/getPullRequestDetails.ts` | One-call PR fetch (metadata + commits + parsed file diffs); used both client and server side |
-| `src/apiHandlers/create*Handler.ts` | Thin route adapters (method gate, request validation, token resolution, error → status mapping: 400/404/405/500/502, cache headers) |
+| `src/apiHandlers/create*Handler.ts` | Thin route adapters (method gate, request validation, token resolution, error → status mapping: 400/404/405/500/502, `Cache-Control` headers). The contributions handler sets a long TTL (`s-maxage=3600, stale-while-revalidate=86400`); events/commit/branch use the shorter `s-maxage=300, stale-while-revalidate=3600`. |
 | `src/components/GithubContributorsList.tsx` | Shared contributor-card list used by both commit and branch views |
 | `src/components/fetchGithubViewData.ts` | Shared client fetcher used by `GithubCommit` / `GithubBranch` for `apiUrl`-mode loads |
 | `src/types/github.ts` | Canonical types: `EventDetails`, `GitHubEvent`, `CachedData`, `GithubChangedFile`, `GithubContributor`, `GithubCommitData`, `GithubBranchData`, `GithubContributionsResponse`, `PullRequestDetails`, etc. |
@@ -167,7 +169,7 @@ Consumed by the docs app at `docs/data/github/docs/**` (demos and MDX) and surfa
 
 ### Events (`GithubEvents` / `getGithubEvents` / `createGithubEventsHandler`)
 
-- `localStorage` cache key is `github_events_<username>` with no version field — any change to `CachedData` shape requires a key bump or invalidation, or existing user caches will fail to parse. Writes are quota-aware: `persistCachedEvents` retries against `CACHE_PERSIST_LIMITS` and drops the key on `QuotaExceededError`.
+- `localStorage` cache key is `github_events_<username>` (username lowercased) with no version field — any change to `CachedData` shape requires a key bump or invalidation, or existing user caches will fail to parse. Writes are quota-aware: `persistCachedEvents` retries against `CACHE_PERSIST_LIMITS` and drops the key on `QuotaExceededError`.
 - Adding a new GitHub event type that needs a rich detail view requires **two** dispatch updates: a `case` in `processEvents` (for list metadata/description/link) **and** a renderer arm in the detail-panel ternary near `GithubEvents.tsx:1355`, plus a matching file under `src/GithubEvents/EventTypes/`. Unhandled types degrade to `JsonFallbackView` rather than crashing.
 - `Fork` and the `ProjectsV2*` renderers exist as files but are not wired — wiring them is purely additive (import + ternary arm).
 - Client-side `filterEvents` and server-side filter logic in `githubEventsQuery` must stay in lockstep when an `apiUrl` is used.
