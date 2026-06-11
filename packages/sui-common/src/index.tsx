@@ -22,3 +22,6 @@ export * from './SocialLinks';
 // User Menu component
 export * from './UserMenu';
 
+// Calendar Booking component
+export * from './CalendarBooking';
+
