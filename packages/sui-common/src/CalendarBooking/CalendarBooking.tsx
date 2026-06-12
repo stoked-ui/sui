@@ -22,6 +22,30 @@ const TIME_SLOTS = [
 
 const GRID_HEIGHT = ROW_HEIGHT * TIME_SLOTS.length;
 
+// Slot instants from the API are pinned to the business timezone; map them to
+// grid rows in that zone so visitors in any timezone see the same grid.
+const BUSINESS_TIMEZONE = 'America/Chicago';
+
+const businessZoneFormatter = new Intl.DateTimeFormat('en-US', {
+  timeZone: BUSINESS_TIMEZONE,
+  hour12: false,
+  year: 'numeric', month: '2-digit', day: '2-digit',
+  hour: '2-digit', minute: '2-digit',
+});
+
+// Grid row index for a server slot instant, or -1 if it falls outside the
+// given calendar day / known time slots (in the business timezone)
+function slotRowForIso(iso: string, dateStr: string): number {
+  const parts: Record<string, string> = {};
+  for (const p of businessZoneFormatter.formatToParts(new Date(iso))) {
+    if (p.type !== 'literal') {parts[p.type] = p.value;}
+  }
+  if (`${parts.year}-${parts.month}-${parts.day}` !== dateStr) {return -1;}
+  const hour = Number(parts.hour) % 24;
+  const minute = Number(parts.minute);
+  return TIME_SLOTS.findIndex(s => s.hour === hour && s.minute === minute);
+}
+
 const WEEK_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 
 const MONTH_NAMES = [
@@ -137,7 +161,7 @@ interface DayState {
   date: string;
   dayName: string;
   dayNum: number;
-  availableIsos: Set<string>; // ISO strings from API
+  slotIsoByRow: Map<number, string>; // grid row index → server slot instant (ISO)
   loading: boolean;
 }
 
@@ -170,7 +194,7 @@ export default function CalendarBooking({ apiBaseUrl = '', onSuccess, onError }:
   function buildWeekDays(ws: Date): DayState[] {
     return Array.from({ length: 5 }, (_, i) => {
       const date = addDays(ws, i);
-      return { date: toDateStr(date), dayName: WEEK_DAYS[i], dayNum: date.getDate(), availableIsos: new Set(), loading: date >= today };
+      return { date: toDateStr(date), dayName: WEEK_DAYS[i], dayNum: date.getDate(), slotIsoByRow: new Map(), loading: date >= today };
     });
   }
 
@@ -180,7 +204,12 @@ export default function CalendarBooking({ apiBaseUrl = '', onSuccess, onError }:
       const res = await fetch(`${apiBaseUrl}/api/calendar/availability?date=${day.date}`);
       if (!res.ok) {return { ...day, loading: false };}
       const data = await res.json();
-      return { ...day, loading: false, availableIsos: new Set(data.slots || []) };
+      const slotIsoByRow = new Map<number, string>();
+      for (const iso of (data.slots || []) as string[]) {
+        const row = slotRowForIso(iso, day.date);
+        if (row >= 0) {slotIsoByRow.set(row, iso);}
+      }
+      return { ...day, loading: false, slotIsoByRow };
     } catch {
       return { ...day, loading: false };
     }
@@ -196,18 +225,9 @@ export default function CalendarBooking({ apiBaseUrl = '', onSuccess, onError }:
      
   }, [weekStart, apiBaseUrl]);
 
-  // Local Date for a given day + time-slot index
-  function slotDate(dateStr: string, idx: number): Date {
-    const [y, m, d] = dateStr.split('-').map(Number);
-    return new Date(y, m - 1, d, TIME_SLOTS[idx].hour, TIME_SLOTS[idx].minute, 0, 0);
-  }
-
-  function slotIso(dateStr: string, idx: number): string {
-    return slotDate(dateStr, idx).toISOString();
-  }
-
   function isAvailable(day: DayState, idx: number): boolean {
-    return day.availableIsos.has(slotIso(day.date, idx)) && slotDate(day.date, idx).getTime() > Date.now();
+    const iso = day.slotIsoByRow.get(idx);
+    return !!iso && new Date(iso).getTime() > Date.now();
   }
 
   function isPastDay(day: DayState): boolean {
@@ -257,6 +277,8 @@ export default function CalendarBooking({ apiBaseUrl = '', onSuccess, onError }:
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedDay || selectedTimeIndex < 0) {return;}
+    const startTime = days.find(d => d.date === selectedDay)?.slotIsoByRow.get(selectedTimeIndex);
+    if (!startTime) {return;}
     setSubmitting(true);
     setSubmitError('');
     try {
@@ -265,7 +287,7 @@ export default function CalendarBooking({ apiBaseUrl = '', onSuccess, onError }:
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
-          startTime: slotIso(selectedDay, selectedTimeIndex),
+          startTime,
           durationMinutes: duration,
         }),
       });
