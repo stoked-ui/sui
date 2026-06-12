@@ -16,7 +16,8 @@
   "homepage": "https://github.com/stoked-ui/timeline#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/stoked-ui/timeline.git"
+    "url": "https://github.com/stoked-ui/sui.git",
+    "directory": "packages/sui-timeline"
   },
   "sideEffects": false,
   "publishConfig": {
