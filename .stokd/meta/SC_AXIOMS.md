@@ -240,6 +240,16 @@ mismatch) together.
 
 ---
 
+## AX-REPO-PUBLISH-NO-HOL-BLOCKING: The npm Publish Pipeline Attempts Every Selected Package Independently
+The publish loop in `scripts/npmRelease.mjs publish` (driven by `publish-packages.yml`) MUST attempt every selected package independently: a per-package publish failure (e.g. a package missing its npmjs.com trusted-publisher config, as `@stoked-ui/cdn` was on 2026-06-11) is recorded and summarized, never aborts the remaining packages, and the job exits non-zero if any package failed. An exact `name@version` that already exists on the registry is skipped with a log line, not treated as an error.
+
+### Acceptance Checks
+- `node --check scripts/npmRelease.mjs` exits 0.
+- sandbox: with a fake repo of three `@stoked-ui/*` packages and an `npm` shim on PATH (publish fails for the first, `view` reports the third already published), `node npmRelease.mjs publish --mode prerelease --packages '[all three]'` attempts the first two, skips the third, prints a failure summary naming only the first, and exits 1.
+- manual: a `publish-packages.yml` run with one misconfigured package still publishes every other changed package and reports the failure in the job log.
+
+---
+
 ## Cross-References
 
 - Product axioms: `.stokd/meta/SC_PRODUCT_STOKED_UI_SUI.md` (`AX-PROD-SUI-001` … `AX-PROD-SUI-012`)

@@ -324,23 +324,37 @@ async function publish() {
     originalSourceManifests.set(name, structuredClone(pkg.manifest));
   }
 
+  // Attempt every package independently: one failure (e.g. a missing npm
+  // trusted-publisher config) must not block the packages after it.
+  const failures = [];
   for (const name of orderedNames) {
     const pkg = packagesByName.get(name);
     const version = versionMap.get(name);
-    await patchManifestVersion(pkg.publishManifestPath, version, versionMap, packagesByName);
 
-    const publishArgs = ['publish', '--access', 'public', '--provenance'];
-    if (mode === 'prerelease') {
-      publishArgs.push('--tag', preid);
+    try {
+      await patchManifestVersion(pkg.publishManifestPath, version, versionMap, packagesByName);
+
+      if (npmViewVersion(name, version)) {
+        console.log(`Skipping ${name}@${version} — already published.`);
+        continue;
+      }
+
+      const publishArgs = ['publish', '--access', 'public', '--provenance'];
+      if (mode === 'prerelease') {
+        publishArgs.push('--tag', preid);
+      }
+      console.log(`Publishing ${name}@${version} from ${pkg.publishPath}`);
+      execFileSync('npm', publishArgs, {
+        cwd: path.join(rootDir, pkg.publishPath),
+        stdio: 'inherit',
+      });
+    } catch (error) {
+      console.error(`Failed to publish ${name}@${version}: ${error.message}`);
+      failures.push(`${name}@${version}`);
     }
-    console.log(`Publishing ${name}@${version} from ${pkg.publishPath}`);
-    execFileSync('npm', publishArgs, {
-      cwd: path.join(rootDir, pkg.publishPath),
-      stdio: 'inherit',
-    });
   }
 
-  if (mode === 'release') {
+  if (mode === 'release' && failures.length === 0) {
     for (const name of orderedNames) {
       const pkg = packagesByName.get(name);
       const restoredManifest = originalSourceManifests.get(name);
@@ -348,6 +362,12 @@ async function publish() {
       await writeJson(path.join(rootDir, pkg.manifestPath), restoredManifest);
     }
     await writeJson(path.join(rootDir, planPath), {});
+  }
+
+  if (failures.length > 0) {
+    throw new Error(
+      `Publish failed for ${failures.length} package(s): ${failures.join(', ')}. All other selected packages were attempted.`,
+    );
   }
 }
 
