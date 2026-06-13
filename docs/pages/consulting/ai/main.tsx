@@ -51,7 +51,7 @@ export default function Main() {
     },
     {
       title: 'AI Agent Development',
-      description: 'Autonomous agents that reason, plan, and execute multi-step workflows. Tool use, function calling, memory systems, and human-in-the-loop patterns. Built on Claude, GPT-4, and open-source models.',
+      description: 'Autonomous agents that reason, plan, and execute multi-step workflows. Tool use, function calling, memory systems, and human-in-the-loop patterns. Built on Claude, OpenAI, and open-source models.',
     },
     {
       title: 'AI Infrastructure & MLOps',
@@ -81,7 +81,7 @@ export default function Main() {
 
   const technologies = [
     { name: 'Claude (Anthropic)', detail: 'Frontier reasoning models' },
-    { name: 'GPT-4/o1 (OpenAI)', detail: 'Advanced language models' },
+    { name: 'OpenAI models', detail: 'Advanced language models' },
     { name: 'Vercel AI SDK', detail: 'LLM application framework' },
     { name: 'LangChain / LlamaIndex', detail: 'Agent & RAG frameworks' },
     { name: 'Vector Databases', detail: 'Pinecone, Weaviate, pgvector' },
