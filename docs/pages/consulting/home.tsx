@@ -2,7 +2,6 @@ import * as React from 'react';
 import NoSsr from "@mui/material/NoSsr";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
-import { PRODUCTS } from 'docs/src/products';
 import { BrandingCssVarsProvider } from '@stoked-ui/docs';
 import dynamic from 'next/dynamic';
 import AppFooter from "docs/src/layouts/AppFooter";
@@ -14,6 +13,17 @@ import { styled } from '@mui/material/styles';
 
 const EditorHero = dynamic(() => import('docs/src/components/showcase/EditorHero'), {ssr: false });
 
+
+// Explicit, statically-analyzable loaders for each consulting home. A
+// template-literal dynamic import resolves its `.default` to undefined in the
+// production webpack build and crashes the client with React error #130.
+const CONSULTING_HOME_LOADERS: Record<string, () => Promise<any>> = {
+  'front-end': () => import('./front-end/main'),
+  'back-end': () => import('./back-end/main'),
+  'full-stack': () => import('./full-stack/main'),
+  devops: () => import('./devops/main'),
+  ai: () => import('./ai/main'),
+};
 
 function randomHome(homePages: string[]) {
   return homePages[Math.floor(Math.random()*homePages.length)];
@@ -33,8 +43,9 @@ const StyledHead = styled(Head)(({ theme }) => [
   }),
 ]);
 
-const homeUrl = randomHome(PRODUCTS.pages);
-const RandomHome = dynamic(() => import(`.${homeUrl}/main`), { ssr: false });
+const consultingHomeKeys = Object.keys(CONSULTING_HOME_LOADERS);
+const homeKey = randomHome(consultingHomeKeys);
+const RandomHome = dynamic(CONSULTING_HOME_LOADERS[homeKey], { ssr: false });
 
 export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
   const Main: React.ComponentType = HomeMain || RandomHome;

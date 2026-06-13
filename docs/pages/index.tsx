@@ -48,7 +48,21 @@ const MainView: React.ComponentType<{}> = function MainView() {
   )
 }
 
-const productHomePaths = PRODUCTS.live.map(p => `products/${p.id}`);
+// Explicit, statically-analyzable loaders for each product home. A
+// template-literal dynamic import (`import(`./${x}/main`)`) builds a webpack
+// context module whose resolved `.default` comes back undefined in the
+// production build, which surfaces as a client-side "Minified React error #130"
+// on load. Keep these literal so webpack splits real, resolvable chunks.
+const PRODUCT_HOME_LOADERS: Record<string, () => Promise<any>> = {
+  'file-explorer': () => import('./products/file-explorer/main'),
+  media: () => import('./products/media/main'),
+  timeline: () => import('./products/timeline/main'),
+  editor: () => import('./products/editor/main'),
+};
+
+const productHomeKeys = PRODUCTS.live
+  .map((p) => p.id)
+  .filter((id) => id in PRODUCT_HOME_LOADERS);
 
 function randomHome(homePages: string[]) {
   return homePages[Math.floor(Math.random()*homePages.length)];
@@ -67,9 +81,11 @@ const StyledHead = styled(Head)(({ theme }) => [
   }),
 ]);
 
-const homeChoice = randomHome([...productHomePaths, 'rusty-editor']);
+const homeChoice = randomHome([...productHomeKeys, 'rusty-editor']);
 const RandomHome =
-  homeChoice === 'rusty-editor' ? MainView : dynamic(() => import(`./${homeChoice}/main`), { ssr: false });
+  homeChoice === 'rusty-editor' || !(homeChoice in PRODUCT_HOME_LOADERS)
+    ? MainView
+    : dynamic(PRODUCT_HOME_LOADERS[homeChoice], { ssr: false });
 
 export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
   const router = useRouter();

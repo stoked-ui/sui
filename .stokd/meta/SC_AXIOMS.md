@@ -248,6 +248,13 @@ The publish loop in `scripts/npmRelease.mjs publish` (driven by `publish-package
 - sandbox: with a fake repo of three `@stoked-ui/*` packages and an `npm` shim on PATH (publish fails for the first, `view` reports the third already published), `node npmRelease.mjs publish --mode prerelease --packages '[all three]'` attempts the first two, skips the third, prints a failure summary naming only the first, and exits 1.
 - manual: a `publish-packages.yml` run with one misconfigured package still publishes every other changed package and reports the failure in the job log.
 
+## AX-REPO-NO-TEMPLATE-LITERAL-DYNAMIC-IMPORT: Docs Pages Use Literal `import()` Specifiers
+Every `next/dynamic` loader (and any bare dynamic `import()` used to load a component) under `docs/pages/**` MUST use a literal string specifier — never a template-literal or otherwise computed path. A computed specifier (e.g. `dynamic(() => import(`./${x}/main`))`) makes webpack emit a context module whose resolved `.default` comes back `undefined` in the production build, so `next/dynamic` renders an undefined element and the client crashes on load with "Minified React error #130" (this took down `consulting.stokd.cloud` and `sui.stokd.cloud` on 2026-06-12). To pick among several pages at runtime, build an explicit map of literal loaders keyed by id (as `docs/pages/consulting/index.js`, `docs/pages/index.tsx`, and `docs/pages/consulting/home.tsx` now do) and index into it.
+
+### Acceptance Checks
+- `grep -rnE "import\(\`" docs/pages` returns no template-literal dynamic imports (comments aside).
+- `cd docs && pnpm build` exits 0 and a headless load of `/` shows no React #130 / client-side exception in the console.
+
 ---
 
 ## Cross-References
