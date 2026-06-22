@@ -2,7 +2,10 @@ import {
   CloudFrontClient,
   CreateInvalidationCommand,
 } from '@aws-sdk/client-cloudfront';
-import { CDN_REGION } from './cdnMutations';
+// Inline rather than importing from cdnMutations to break the circular dep
+// (cdnMutations → cdnInvalidation → cdnMutations) that causes a webpack TDZ
+// ReferenceError at module init time.
+const CDN_REGION = process.env.AWS_REGION || 'us-east-1';
 
 // The CloudFront distribution that fronts the CDN bucket (cdn.stokd.cloud).
 // Wired in via SST (infra/cdn-site.ts) as an environment variable on the docs
