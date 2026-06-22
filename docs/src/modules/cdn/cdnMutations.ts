@@ -6,6 +6,7 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 import { normalizeCdnPath } from './cdnAccess';
+import { invalidateCdnPaths } from './cdnInvalidation';
 
 export const CDN_BUCKET =
   process.env.CDN_S3_BUCKET || process.env.BLOG_IMAGE_S3_BUCKET || 'cdn.stokd.cloud';
@@ -96,6 +97,9 @@ export async function deletePath(path: string) {
   if (normalizedPath.endsWith('/')) {
     const keys = await listAllKeys(normalizedPath);
     await deleteKeys(keys);
+    // Wildcard-invalidate the whole prefix so cached listings/objects under the
+    // deleted folder stop being served from the edge.
+    await invalidateCdnPaths(`${normalizedPath}*`);
     return {
       deleted: keys.length,
       path: normalizedPath,
@@ -103,6 +107,7 @@ export async function deletePath(path: string) {
   }
 
   await deleteKeys([normalizedPath]);
+  await invalidateCdnPaths(normalizedPath);
   return {
     deleted: 1,
     path: normalizedPath,
@@ -138,6 +143,10 @@ export async function movePath(sourcePath: string, destinationPath: string) {
 
     await deleteKeys(sourceKeys);
 
+    // Invalidate both prefixes: the source is now gone and the destination may
+    // have replaced existing objects.
+    await invalidateCdnPaths([`${source}*`, `${destination}*`]);
+
     return {
       moved: sourceKeys.length,
       source,
@@ -153,6 +162,8 @@ export async function movePath(sourcePath: string, destinationPath: string) {
     }),
   );
   await deleteKeys([source]);
+
+  await invalidateCdnPaths([source, destination]);
 
   return {
     moved: 1,

@@ -1,8 +1,8 @@
 # Stoked UI — User Flow Classification
 
-> **Generated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) | **Refreshed:** 2026-06-06 (timed refresh — re-verified API/route topology end-to-end; added §1.6 consulting service-line discovery, cited the `useAllProducts()` → `GET /api/products/public` data source for the product menu/index grid) | **Meta version:** 0.4.0
+> **Generated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) | **Refreshed:** 2026-06-06 (timed refresh — re-verified API/route topology end-to-end; added §1.6 consulting service-line discovery, cited the `useAllProducts()` → `GET /api/products/public` data source for the product menu/index grid) | **Updated:** 2026-06-22 (upgrade 0.4.0 → 0.6.0 — re-verified route/API topology against current tree; added §6.3 CloudFront cache invalidation as a best-effort CDN-mutation side effect, §9.4 Book-a-Call (`CalendarBooking`, not yet wired), and §14 Agent Activity Visualization (`@stoked-ui/stokd`); fixed root path) | **Meta version:** 0.6.0
 > **Repository:** `@stoked-ui/sui`
-> **Root:** `/opt/worktrees/stoked-ui/stoked-ui-main`
+> **Root:** `/opt/worktrees/stoked-ui/sui/main`
 
 A "flow" here = an end-to-end user journey that crosses one or more views (`SC_VIEWS.md`) and one or more product surfaces (`SC_PRODUCT_STOKED_UI_SUI.md`). Flows are derived from Next.js page routes (`docs/pages/**`), API routes (`docs/pages/api/**` + `packages/sui-media-api/src/**`), Lambda handlers (`api/**`), docs modules (`docs/src/modules/**`, e.g. `auditBot`), package components (`packages/*/src/**`), and the Rust CLI (`packages/sui-video-renderer/cli/src/main.rs`).
 
@@ -24,6 +24,7 @@ Flows are grouped by domain:
 11. Developer & contributor flows
 12. CLI / native tooling
 13. Webhooks & system events
+14. Agent activity visualization (`@stoked-ui/stokd`)
 
 ---
 
@@ -412,6 +413,19 @@ Flows are grouped by domain:
 - **Views:** §13 CdnBrowser (Upload list region), §17.1 Internal CDN Browser
 - **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
+### 6.3 Edge-Cache Invalidation After a CDN Mutation (Best-Effort Side Effect)
+
+- **Actor:** System (triggered by an operator's upload-complete / delete / move in §6.1)
+- **Goal:** Make a same-name overwrite, delete, or move visible immediately at the edge instead of serving stale `immutable`-cached bytes until the TTL expires
+- **Entry points:** server-side after a CDN write — upload completion (`docs/src/modules/cdn/cdnUploadStore.ts:315`), delete (`docs/src/modules/cdn/cdnMutations.ts:102,110`), move/rename (`docs/src/modules/cdn/cdnMutations.ts:148,166`)
+- **Steps:**
+  1. The mutation finishes the S3 write, then calls `invalidateCdnPaths(...)` (`docs/src/modules/cdn/cdnInvalidation.ts`) with the affected object key(s) (delete/move issue prefix-wildcard `key*` plus exact-path invalidations).
+  2. The helper maps each S3 key (e.g. `brian.stokd.cloud/drums/song.mp3`) to a slash-prefixed CloudFront path, de-dupes/caps, and issues a `CreateInvalidationCommand` against `CDN_DISTRIBUTION_ID` (control plane in `us-east-1`).
+  3. When `CDN_DISTRIBUTION_ID` is unset (local dev) invalidation is skipped silently; any failure is logged and swallowed so it never blocks the user-facing mutation response.
+- **Views:** None (server-only); §13 CdnBrowser / §17.1 Internal CDN Browser reflect the refreshed object on the next listing
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Note:** `CDN_DISTRIBUTION_ID` is wired onto the docs Lambda via SST (`infra/cdn-site.ts`). This is the cache-coherence companion to the §6.1 mutations, not a user-initiated flow.
+
 ---
 
 ## 7. Consulting / Business Operations (Admin)
@@ -565,6 +579,20 @@ Flows are grouped by domain:
 - **Views:** §24.1 Audit Bot Trigger, §24.2 Audit Bot Dialog, §24.3 Audit Report View; hosted on §21 Consulting Service-Line Pages (`/consulting/ai`)
 - **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 - **Note:** Three playbooks are defined in `docs/src/modules/auditBot/playbooks/index.ts` (`ai-readiness` ~5 min, `cloud-cost` ~6 min, `security` ~6 min); only `ai-readiness` is mounted in the UI today. The persistence/notify/email steps are best-effort — a Mongo/SES/Telegram blip must not fail the turn.
+
+### 9.4 Book a Call via the Self-Hosted Calendar (`CalendarBooking`)
+
+- **Actor:** Anonymous visitor / prospect
+- **Goal:** Pick an available 30–120 min slot in the business week and submit a booking request (name/email/phone/company/reason + invitee emails) without leaving the site
+- **Entry points:** Host mounts `CalendarBooking` (`packages/sui-common/src/CalendarBooking/CalendarBooking.tsx`)
+- **Steps:**
+  1. Component renders a left mini-calendar + right week-grid (5 business days × 30-min slots, 10:30 AM–5:30 PM); per-day availability is fetched from `GET /api/calendar/availability?date=YYYY-MM-DD` → `{ slots: string[] }` (ISO instants), cached in `sessionStorage` (`sui-availability:{date}`, 30-min TTL).
+  2. All slot instants are pinned to the business timezone (`America/Chicago`) via `Intl.DateTimeFormat`, so a server slot maps to the correct grid row regardless of the visitor's local zone.
+  3. Visitor selects a slot, optionally drags the bottom handle to extend duration (30–120 min in 15-min steps), fills the booking form + invitee-email chips.
+  4. Submit → `POST /api/calendar/book` (form + `startTime` + `durationMinutes` + `inviteEmails`); UI transitions submitting → success banner (or error).
+- **Views:** §16 `CalendarBooking` (Common package shared chrome)
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Status — NOT yet wired:** As of this refresh the `CalendarBooking` component exists and is unit-tested (`packages/sui-common/src/CalendarBooking/__tests__/CalendarBooking.test.tsx`), but it is **not mounted on any docs page route**, and the `GET /api/calendar/availability` / `POST /api/calendar/book` handlers do **not** exist under `docs/pages/api/**`. This is a component-level flow ready for a host to embed, not a live end-to-end journey. It is the self-hosted counterpart to the Calendly "Book a 30-min call" button in the §9.3 audit-bot email-capture panel.
 
 ---
 
@@ -744,6 +772,24 @@ Flows are grouped by domain:
 
 ---
 
+## 14. Agent Activity Visualization (`@stoked-ui/stokd`)
+
+### 14.1 Render Live Agent / Work Activity in a Host Dashboard
+
+- **Actor:** Operator watching autonomous agent work (Stokd web dashboard user, or developer inside the VS Code extension)
+- **Goal:** See the current state of agent sessions, tasks, and projects — work-type, status, plan/acceptance progress, command timeline, cost — as a live, theme-aware activity surface
+- **Entry points:** A host app imports the components from `@stoked-ui/stokd` (`packages/sui-stokd/src/index.ts`) and feeds them view-model props; this package ships **no page routes of its own**
+- **Steps:**
+  1. The host resolves status/work-type/provider from its own session store and passes view-model objects (`SessionModel`, `TaskModel`, `DisplayStatusModel`, `WorkTypeModel`, `ShipStatusModel`, …) into the components.
+  2. Sessions are grouped/formatted with the exported helpers (`groupSessionsByRequest`, `pickGroupDisplayStatus`, `displayStatusLabel`, `formatDuration`, `formatCurrency`, `normalizeProviderId`).
+  3. `ActiveTaskCard` renders a task/project execution card (stage stepper, plan bullets, line items, collapsible acceptance criteria, last-16 command timeline auto-scrolled to bottom, final summary, footer with provider/cost); `InteractiveSessionCard` renders the planning chat feed; `PipelineShellCard` renders the project-pipeline skeleton placeholder.
+  4. Badges (`StatusBadge`, `ShipStatusChips`, `ProviderBadge`, `PrerequisiteBadge`) and `LiveTimer` (ticks every 1s) decorate state; everything is driven by CSS variables (`--sui-card`, `--sui-border`, `--sui-accent-*`) and `data-theme="light|dark"`.
+- **Views:** §26 Stokd Activity-UX components (26.1 `ActiveTaskCard`, 26.2 `InteractiveSessionCard`, 26.3 `PipelineShellCard`, 26.4 Badges & Indicators)
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Note:** `@stoked-ui/stokd` (npm, v0.2.2) is host-agnostic and stateless — it renders whatever the consumer's `SC_AXIOMS` work-type model (planning / chore / task / project) and provider id map into; the live data source, polling, and persistence live in the host (Stokd web dashboard + VS Code extension), not in this repo.
+
+---
+
 ## Cross-Cutting Notes
 
 - **Auth model:** Token in `localStorage["auth"]`. Auth-gated pages call `/api/auth/session` on mount; missing/invalid → redirect to `/consulting/login` with `?redirect=` capture. Bearer tokens are also injected into Swagger UI try-it (`/consulting/api-docs`) and into Media API Swagger separately.
@@ -759,7 +805,7 @@ Flows are grouped by domain:
 ## Cross-References
 
 - View inventory: `.stokd/meta/SC_VIEWS.md`
-- Per-package module docs: `.stokd/meta/packages/<package>/SC_MODULE.md` (one per workspace package: `sui-cdn`, `sui-common`, `sui-common-api`, `sui-docs`, `sui-editor`, `sui-file-explorer`, `sui-github`, `sui-media`, `sui-media-api`, `sui-timeline`, `sui-video-renderer`)
+- Per-package module docs: `.stokd/meta/packages/<package>/SC_MODULE.md` (one per workspace package: `sui-cdn`, `sui-common`, `sui-common-api`, `sui-docs`, `sui-editor`, `sui-file-explorer`, `sui-github`, `sui-media`, `sui-media-api`, `sui-timeline`, `sui-video-renderer`). The newest package, `sui-stokd` (§14 / SC_VIEWS §26), does not yet have a generated `SC_MODULE.md`.
 - Codebase overview: `.stokd/meta/SC_OVERVIEW.md`
 - Test inventory: `.stokd/meta/SC_TEST.md` (root) + `.stokd/meta/packages/<package>/SC_TEST.md`
 - Product doc: `.stokd/meta/SC_PRODUCT_STOKED_UI_SUI.md`

@@ -1,8 +1,8 @@
 # Module: @stoked-ui/common
 
-> **Generated:** 2026-05-05 · **Last upgraded:** 2026-05-21 · **Last refreshed:** 2026-06-06 (timed) · **Meta version:** 0.4.0
+> **Generated:** 2026-05-05 · **Last upgraded:** 2026-06-22 (0.4.0 → 0.6.0 — added `CalendarBooking` across exports / views / integration / key files / change impact; bumped recorded NPM version to v0.2.2) · **Last refreshed:** 2026-06-06 (timed) · **Meta version:** 0.6.0
 > **Package location:** `packages/sui-common`
-> **NPM name:** `@stoked-ui/common` (v0.1.2)
+> **NPM name:** `@stoked-ui/common` (v0.2.2)
 > **Source entry:** `packages/sui-common/src/index.tsx`
 > **Build artifacts:** `packages/sui-common/build/` (modern + node + stable + types)
 
@@ -39,6 +39,7 @@ export { GrokLoader };
 export * from './interfaces';        // publicity, embed-visibility, upload-types
 export * from './SocialLinks';       // SocialLinks, SocialLinkField, PLATFORM_REGISTRY, getPlatformByKey
 export * from './UserMenu';          // UserMenu component + types
+export * from './CalendarBooking';   // CalendarBooking component + CalendarBookingProps/BookingFormData/TimeSlot/DayColumn types
 ```
 
 ### Public surface by category
@@ -54,6 +55,7 @@ export * from './UserMenu';          // UserMenu component + types
 | IndexedDB | `LocalDb` static class, `VideoDb`, `IDBFile`, `IDBFileVersion`, `IDBProjectFile`, `IDBVideo`, `Version`, `Versions`, `ProjectValue`, `LocalDbProps`, `LocalDbStoreProps`, `ISaveFileData`, `FileSaveRequest`, `VideoSaveRequest`, `FileLoadRequest{ByName,ByUrl}`, `getRecordVersions`, `getVideos`, `createFolder` | `src/LocalDb/LocalDb.ts`, `VideoDb.tsx` |
 | Client-safe DTO interfaces | `PUBLICITY_TYPES`, `ADMIN_ONLY_PUBLICITY_TYPES`, `ALL_FILTER_PUBLICITY_TYPES`, `isAdminOnlyPublicity`, `isIncludedInAllFilter`, `DEFAULT_EMBED_VISIBILITY`, `isPublicEmbedVisibility`, `isAuthenticatedEmbedVisibility`, upload-type constants | `src/interfaces/publicity.ts`, `embed-visibility.ts`, `upload-types.ts` |
 | React chrome | `UserMenu`, `SocialLinks`, `SocialLinkField`, `PLATFORM_REGISTRY`, `getPlatformByKey`, `ALL_PLATFORM_KEYS`, `GrokLoader` | `src/UserMenu/`, `src/SocialLinks/`, `src/GrokLoader/` |
+| Booking widget | `CalendarBooking` (default-exported component), `CalendarBookingProps`, `BookingFormData`, `TimeSlot`, `DayColumn` (types) | `src/CalendarBooking/CalendarBooking.tsx`, `CalendarBooking.types.ts`, `index.tsx` |
 | Resize hooks | `useResize`, `useResizeWindow` | `src/useResize/useResize.tsx`, `src/useResizeWindow/useResizeWindow.tsx` |
 
 There are **no NestJS controllers, no CLI commands, and no providers/contexts**. The package is library code only.
@@ -83,6 +85,7 @@ From `SC_VIEWS.md` §16 ("Common Package Shared Chrome — `@stoked-ui/common`")
 | `UserMenu` chrome | `packages/sui-common/src/UserMenu/UserMenu.tsx` | Avatar trigger + dropdown (Dashboard / Settings / Licenses / Billing / Sign Out). Each menu item is opt-in via the corresponding `on*` prop. |
 | `GrokLoader` spinner | `packages/sui-common/src/GrokLoader/GrokLoader.tsx` | Animated framer-motion loader used as a global loading indicator. |
 | `SocialLinks` / `SocialLinkField` | `packages/sui-common/src/SocialLinks/` | Read view (icon list) and editor view (per-platform input field with prefix adornment). Backed by `platformRegistry.ts`. |
+| `CalendarBooking` | `packages/sui-common/src/CalendarBooking/CalendarBooking.tsx` | Left mini-calendar (month nav + date grid) · right week-grid (5 business days × 30-min slots, 10:30 AM–5:30 PM, `America/Chicago`) · booking-form modal (name/email/phone/company/reason + invite-email chips + "change time"). States: loading, empty/past, populated, selected (primary block + drag-to-resize duration 30–120 min in 15-min steps), submitting, success, error. **Not yet mounted on any docs page route** as of 2026-06-22. |
 
 Indirectly (materially shapes other views by providing infrastructure rather than rendering chrome):
 
@@ -103,7 +106,8 @@ Indirectly (materially shapes other views by providing infrastructure rather tha
 | `@tempfix/idb` (^8.0.3) | `LocalDb/LocalDb.ts` (`openDB`) | IndexedDB wrapper. Browser only. |
 | `framer-motion` (^12.4.10) | `GrokLoader/GrokLoader.tsx` | `motion`, `useAnimationControls`, `useMotionValue`, `useTransform`, `animate`. |
 | `@mui/material/styles` (peer) | `Colors/colors.ts` | `hexToRgb`, `hslToRgb`, `rgbToHex`. |
-| `@mui/material`, `@mui/icons-material` (peer) | `UserMenu`, `SocialLinks` | Avatar, Menu, MenuItem, Divider, Typography, etc. |
+| `@mui/material`, `@mui/icons-material` (peer) | `UserMenu`, `SocialLinks`, `CalendarBooking` | Avatar, Menu, MenuItem, Divider, Typography, Dialog, Chip, TextField, Button, CircularProgress, `useMediaQuery`, `useTheme`, etc. |
+| `Intl.DateTimeFormat`, `window.sessionStorage` | `CalendarBooking` | Business-timezone slot mapping (`America/Chicago`) and the `sui-availability:{date}` 30-min availability cache. Browser-only — guarded for SSR. |
 | `@emotion/react`, `@emotion/styled` (peer) | `UserMenu/UserMenu.styles.ts`, `SocialLinks/SocialLinks.styles.ts` | Styled wrappers. |
 | `react` 18.3.1 (peer) | All hooks and components | Hooks API; SSR safety must be respected by callers. |
 | `global.fetch`, `global.URL`, `window`, `setTimeout` | `FetchBackoff`, `MimeType.getExtension`, `useResize*` | Browser globals. |
@@ -128,6 +132,7 @@ In-tree consumers verified by `import` statements (excluding `build/` artifacts)
 5. **`MimeRegistry` static maps**: `MimeRegistry.exts`, `.names`, `.subtypes`, `.types` are global registries. `SUIMime.getInstance()` lazily seeds standard types (png/mp4/mp3) once.
 6. **`Array.prototype.mergeWith`** is installed as a global side effect when any code imports `Types/mergeWith.ts`. As of 2026-06-06 there are **no `.mergeWith(...)` call sites in `src`** across the monorepo, but the prototype patch still ships on import, so removing or renaming it remains a breaking change for any external/runtime consumer that relies on it. Treat it as a published global contract, not dead code.
 7. **Client-safe interfaces**: files in `src/interfaces/` must remain free of NestJS, Node, or React dependencies because `sui-common-api` re-exports them.
+8. **`CalendarBooking` HTTP contract**: the component fetches `GET {apiBaseUrl}/api/calendar/availability?date=YYYY-MM-DD` → `{ slots: string[] }` (ISO instants) and posts `POST {apiBaseUrl}/api/calendar/book` (form fields + `startTime` + `durationMinutes` + invite emails). These routes are owned by the docs Next.js API surface (`docs/pages/api/calendar/**`) — a non-media business domain, so per `AX-REPO-MEDIA-API-BOUNDARY` they must NOT live in `sui-media-api`. The `apiBaseUrl` prop lets the host point the widget at its own origin; default `''` means same-origin. Changing the route paths or response shape is a coordinated change with the docs handler.
 
 ---
 
@@ -150,7 +155,10 @@ In-tree consumers verified by `import` statements (excluding `build/` artifacts)
 | `src/Ids/namedId/namedId.ts` | 38 | `namedId(props?)` returns `prefix-id-suffix-<hex>`. Used everywhere for stable React keys / DOM IDs. |
 | `src/Ids/useIncId/useIncId.ts` | 62 | Deterministic auto-incrementing ID hook for SSR-safe rendering. |
 | `src/UserMenu/UserMenu.tsx` | 122 | MUI Avatar + dropdown shared chrome. Each menu item is opt-in via prop. |
-| `src/SocialLinks/SocialLinks.tsx` (95), `SocialLinkField.tsx` (51), `platformRegistry.ts` (123) | ~269 | Controlled/uncontrolled list/editor for social platform URLs. The only test-covered surface in the package: 52 Jest cases across `__tests__/SocialLinks.test.tsx` (14), `SocialLinkField.test.tsx` (18), `platformRegistry.test.ts` (20) — `it.each` parameterization expands the case count well beyond the literal `it()` blocks. |
+| `src/SocialLinks/SocialLinks.tsx` (95), `SocialLinkField.tsx` (51), `platformRegistry.ts` (123) | ~269 | Controlled/uncontrolled list/editor for social platform URLs. Test-covered: 52 Jest cases across `__tests__/SocialLinks.test.tsx` (14), `SocialLinkField.test.tsx` (18), `platformRegistry.test.ts` (20) — `it.each` parameterization expands the case count well beyond the literal `it()` blocks. |
+| `src/CalendarBooking/CalendarBooking.tsx` | ~820 (32 KB) | Self-contained Cal.com-style booking widget. Default export. Owns: `TIME_SLOTS` (10:30 AM–5:30 PM, 30-min rows, `ROW_HEIGHT=36`), business-timezone slot→row mapping (`slotRowForIso` via `Intl.DateTimeFormat('America/Chicago')`), 5-business-day window (weekends skipped), sessionStorage availability cache (`sui-availability:{date}`, 30-min TTL), and the duration drag-resize snap math `Math.round((delta * 0.5) / 15) * 15` clamped to `[30, 120]`. Stable `data-testid`s (`mini-calendar`, `week-grid`, `time-slot`, `duration-drag-handle-bottom`, `booking-form`, `booking-success`, `booking-error`, `change-time`, `invite-input`, `duration-display`) are the test contract. |
+| `src/CalendarBooking/CalendarBooking.types.ts` | 27 | Exported types: `CalendarBookingProps` (`apiBaseUrl?`, `onSuccess?`, `onError?`), `BookingFormData`, `TimeSlot`, `DayColumn`. Semver-bound by `AX-SUI-COMMON-001`. |
+| `src/CalendarBooking/__tests__/CalendarBooking.test.tsx` | ~430 (15 KB) | Jest/jsdom suite mocking `fetch`: duration snap math (`30px→45`, `60px→60`, clamp to 30/120), 5 weekday columns / no weekends, today-selected default, availability-cache TTL (no re-fetch), slot fetch + render, slot selection sets `data-selected="true"` and reveals the form, and drag-handle-in-grid / not-in-form placement (`AX-SUI-CALENDARBOOKING-001`). |
 | `src/GrokLoader/GrokLoader.tsx` | 140 | Framer-motion animated loader. |
 | `src/useResize/useResize.tsx` | 31 | Element-or-window dimensions hook. |
 | `src/useResizeWindow/useResizeWindow.tsx` | 29 | Window-only dimensions hook. **Known bug:** calls `useState` after a conditional early return — violates rules of hooks under SSR. |
@@ -169,7 +177,7 @@ When this module changes, the following typically need validation:
 
 - **Build** — `pnpm --filter @stoked-ui/common build` (modern + node + stable + types). Other packages consume the built `build/` directory in production.
 - **Type check** — `pnpm --filter @stoked-ui/common typescript`.
-- **Tests** — `pnpm --filter @stoked-ui/common test` (Jest, jsdom). See `.stokd/meta/packages/sui-common/SC_TEST.md` for the full test plan; today the only covered surface is `SocialLinks` (52 cases / 3 suites, last run 2026-06-06: all green). The rest of the package — `ProviderState`, `LocalDb`, `MimeType`, `FetchBackoff`, `Types`, `Ids`, the hooks — has no unit coverage, so changes there rely on downstream typecheck + manual smoke.
+- **Tests** — `pnpm --filter @stoked-ui/common test` (Jest, jsdom). See `.stokd/meta/packages/sui-common/SC_TEST.md` for the full test plan; covered surfaces are `SocialLinks` (52 cases / 3 suites) and `CalendarBooking` (snap math, window/selection, availability cache, drag-handle placement). The rest of the package — `ProviderState`, `LocalDb`, `MimeType`, `FetchBackoff`, `Types`, `Ids`, the hooks — has no unit coverage, so changes there rely on downstream typecheck + manual smoke.
 - **Downstream typescript** — every consumer in §5 transitively imports types here. A signature change ripples to `sui-editor`, `sui-timeline`, `sui-file-explorer`, `sui-media`, `sui-common-api`, `sui-media-api`, and the `docs/` site.
 
 ### Risk-specific checklists
@@ -185,6 +193,8 @@ When this module changes, the following typically need validation:
 | Edit `FetchBackoff` defaults or retry behavior | Any consumer doing API calls; verify final-throw path still produces `"Fetch failed after maximum retries."`. |
 | Edit `UserMenu` props or menu items | Docs site `AppHeader` and consulting/admin shells consume this directly — check `docs/` rendering. |
 | Edit `useResize`/`useResizeWindow` | Confirm SSR safety — these run in the docs Next.js site which renders server-side. |
+| Edit `CalendarBooking` testids, snap math, or types | Run `pnpm --filter @stoked-ui/common test` — `data-testid` values and the `[30,120]`/15-min snap are the test contract (`AX-SUI-CALENDARBOOKING-001`). Type changes are semver-breaking (`AX-SUI-COMMON-001`). The duration handle must stay inside `week-grid`, never in `booking-form`. |
+| Edit `CalendarBooking` API paths/shape or `BUSINESS_TIMEZONE` | Coordinate with the `docs/pages/api/calendar/**` handlers (`/api/calendar/availability`, `/api/calendar/book`). Slot ISO instants are interpreted in `America/Chicago`; changing the zone shifts every rendered grid row. |
 | Edit `interfaces/*` | These are also imported by `sui-common-api` and `sui-media-api`. Keep the files NestJS-free and React-free. |
 | Add a runtime dependency | The package promises near-zero deps. Adding a heavy dependency increases install size for **every** Stoked UI consumer. Justify in PR. |
 | Bump peer dependency ranges (MUI, React, Emotion) | Coordinate with all consumer packages so peer ranges stay aligned. |

@@ -1,0 +1,81 @@
+.sui-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--sui-radius-pill);
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+
+.sui-status-badge__dot-wrap {
+  position: relative;
+  margin-right: 6px;
+  display: inline-flex;
+}
+
+.sui-status-badge__dot {
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--sui-radius-pill);
+}
+
+.sui-status-badge__dot--ping {
+  position: absolute;
+  inset: 0;
+  animation: sui-ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes sui-ping {
+  75%,
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.sui-status-badge[data-type='success'] {
+  background: color-mix(in srgb, var(--sui-accent-green) 10%, transparent);
+  color: var(--sui-accent-green);
+  border-color: color-mix(in srgb, var(--sui-accent-green) 20%, transparent);
+}
+.sui-status-badge[data-type='success'] .sui-status-badge__dot {
+  background: var(--sui-accent-green);
+}
+
+.sui-status-badge[data-type='warning'] {
+  background: color-mix(in srgb, var(--sui-accent-amber) 10%, transparent);
+  color: var(--sui-accent-amber);
+  border-color: color-mix(in srgb, var(--sui-accent-amber) 20%, transparent);
+}
+.sui-status-badge[data-type='warning'] .sui-status-badge__dot {
+  background: var(--sui-accent-amber);
+}
+
+.sui-status-badge[data-type='error'] {
+  background: color-mix(in srgb, var(--sui-accent-red) 10%, transparent);
+  color: var(--sui-accent-red);
+  border-color: color-mix(in srgb, var(--sui-accent-red) 20%, transparent);
+}
+.sui-status-badge[data-type='error'] .sui-status-badge__dot {
+  background: var(--sui-accent-red);
+}
+
+.sui-status-badge[data-type='neutral'] {
+  background: color-mix(in srgb, var(--sui-accent-gray) 10%, transparent);
+  color: var(--sui-accent-gray);
+  border-color: color-mix(in srgb, var(--sui-accent-gray) 20%, transparent);
+}
+.sui-status-badge[data-type='neutral'] .sui-status-badge__dot {
+  background: var(--sui-accent-gray);
+}
+
+.sui-status-badge[data-type='info'] {
+  background: color-mix(in srgb, var(--sui-accent-blue) 10%, transparent);
+  color: var(--sui-accent-blue);
+  border-color: color-mix(in srgb, var(--sui-accent-blue) 20%, transparent);
+}
+.sui-status-badge[data-type='info'] .sui-status-badge__dot {
+  background: var(--sui-accent-blue);
+}

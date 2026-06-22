@@ -1,0 +1,65 @@
+@startuml
+' =============================================================================
+' SC_SCHEMA.puml — Browser-side IndexedDB persistent model (@stoked-ui/common)
+' Meta version: 0.6.0
+'
+' OWNERSHIP: package-local, client-side database. This is SEPARATE from the
+' shared MongoDB (see ../../SC_SCHEMA.puml) — it lives in the browser via
+' IndexedDB and is NEVER a source of truth for any business entity
+' (AX-REPO-MONGODB-BUSINESS-DATA).
+'
+' Implementation: packages/sui-common/src/LocalDb/LocalDb.ts (wraps @tempfix/idb
+' openDB). The editor opens DB "editor" (packages/sui-editor/src/db/init.ts).
+' Object stores are created dynamically from the `stores: {name,type}[]` passed
+' to LocalDb.init({ dbName, version, stores }); each store is keyed by the file
+' name (out-of-line string key) and carries a unique "url" index.
+'
+' Reserved use (AX-REPO-MONGODB-BUSINESS-DATA): editor project / version /
+' recording / screenshot state only.
+' =============================================================================
+
+entity "<store> (IDBProjectFile)" as projectStore <<ObjectStore>> {
+  * name : string  <<keyPath / out-of-line key>>
+  --
+  url : string <<unique index "url">>
+  versions : Record<number, IDBFileVersion>
+  ' store name(s) are supplied at LocalDb.init time
+  ' (e.g. the editor opens dbName="editor")
+}
+
+entity "IDBFileVersion" as fileVersion <<embedded subdoc>> {
+  * id : string  (`${id}-${version}`)
+  --
+  name : string
+  version : number
+  created : number
+  lastModified : number
+  size : number
+  mimeType : MimeType
+  data : Blob
+  url : string
+  videos : IDBVideo[]
+}
+
+entity "IDBVideo" as idbVideo <<embedded subdoc>> {
+  * id : string  (namedId('video'))
+  --
+  name : string
+  created : number
+  size : number
+  duration : number
+  type : string = "video/mp4"
+  mediaType : string = "video"
+  blob : Blob
+}
+
+projectStore ||--o{ fileVersion : versions[version]
+fileVersion ||--o{ idbVideo : videos[]
+
+note bottom of projectStore
+  DB name and version are static on LocalDb (dbName, version=1); object-store
+  names are dynamic per LocalDb.init({ stores }). A record is a project file
+  whose key is its `name`; each numeric `version` maps to one IDBFileVersion
+  blob. loadByName(name, version=-1) returns the latest version by default.
+end note
+@enduml

@@ -255,11 +255,28 @@ Every `next/dynamic` loader (and any bare dynamic `import()` used to load a comp
 - `grep -rnE "import\(\`" docs/pages` returns no template-literal dynamic imports (comments aside).
 - `cd docs && pnpm build` exits 0 and a headless load of `/` shows no React #130 / client-side exception in the console.
 
+## AX-REPO-CDN-INVALIDATION-BEST-EFFORT: CloudFront Edge-Cache Invalidation After A CDN Write Is Best-Effort
+CloudFront edge-cache invalidation triggered after a CDN write (flow §6.3, `docs/src/modules/cdn/cdnInvalidation.ts`) MUST be a best-effort side effect: it is skipped silently when `CDN_DISTRIBUTION_ID` is unset, and any failure from `createInvalidation` is caught, logged, and swallowed so it never blocks or fails the user-facing CDN mutation response (upload-complete / delete / move). (Promotes `AX-PROD-SUI-013`.)
+
+### Acceptance Checks
+- `grep -nE "CDN_DISTRIBUTION_ID|createInvalidation" docs/src/modules/cdn/cdnInvalidation.ts` shows the early-return guard when the distribution id is empty and the SDK call wrapped in try/catch.
+- `cd docs && pnpm typescript` (or `pnpm --filter stokedui-com typescript`).
+- manual: a CDN upload-complete / delete / move call still returns success when CloudFront invalidation throws or `CDN_DISTRIBUTION_ID` is unset; the failure is logged, not propagated.
+
+## AX-REPO-STOKD-HOST-AGNOSTIC: `@stoked-ui/stokd` Is A Host-Agnostic, Presentational, CSS-Var-Themed Library
+`@stoked-ui/stokd` (flow §14) MUST remain host-agnostic and stateless: it owns the Current Activity UX view-model types (`src/types`) as a one-way contract (SUI → consumers, never importing any `@stokd-cloud/*` or host package), ships no page routes and no live data source, renders only the session/task/project view-models the host supplies (data in via props, actions out via callbacks, with no `fetch`/`axios`/`apiClient`/router or auth side effects), and is themed exclusively via `--sui-*` CSS custom properties + `data-theme` with concrete color literals confined to `src/theme/tokens.css`. (Promotes `AX-PROD-SUI-014`; mirrors module axioms `AX-MOD-SUISTOKD-VIEWMODEL-SOURCE-OF-TRUTH`, `AX-MOD-SUISTOKD-CSS-VAR-THEMED`, `AX-MOD-SUISTOKD-PRESENTATIONAL-NO-IO`.)
+
+### Acceptance Checks
+- `grep -rn "@stokd-cloud/" packages/sui-stokd/src` returns no hits (one-way type flow, no host dependency).
+- `grep -rnE "fetch\(|axios|apiClient|react-router" packages/sui-stokd/src` returns no hits (presentational, no I/O).
+- `grep -rnE "tailwind|#[0-9a-fA-F]{3,6}|rgb\(" $(find packages/sui-stokd/src -name '*.tsx')` returns no hits — theme colors live only in `src/theme/tokens.css` via `var(--sui-*)`.
+- `pnpm --filter @stoked-ui/stokd typescript`.
+
 ---
 
 ## Cross-References
 
-- Product axioms: `.stokd/meta/SC_PRODUCT_STOKED_UI_SUI.md` (`AX-PROD-SUI-001` … `AX-PROD-SUI-012`)
+- Product axioms: `.stokd/meta/SC_PRODUCT_STOKED_UI_SUI.md` (`AX-PROD-SUI-001` … `AX-PROD-SUI-014`)
 - Module axioms: `packages/*/.axioms.md`
 - Guardrails: `.stokd/meta/SC_CONTEXT.md`, `CLAUDE.md`, `AGENTS.md`
 - Flows / acceptance surface: `.stokd/meta/SC_FLOWS.md`

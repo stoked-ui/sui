@@ -136,6 +136,7 @@
     "media": "pnpm -F @stoked-ui/media",
     "media-api": "pnpm -F @stoked-ui/media-api",
     "timeline": "pnpm -F @stoked-ui/timeline",
+    "stokd": "pnpm -F @stoked-ui/stokd",
     "cli": "pnpm -F @stoked-ui/cli"
   },
   "dependencies": {

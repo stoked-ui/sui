@@ -1,10 +1,12 @@
 # Testing Strategy: `@stoked-ui/common-api`
 
-> **Generated:** 2026-05-21 | **Refreshed:** 2026-06-06 (full re-read of all 12 models, both decorators, the upload DTO, all three barrels, the two tsconfigs, the root Mocha globs, and the `sui-media-api` Jest precedent) | **Meta version:** 0.4.0
+> **Generated:** 2026-05-21 | **Refreshed:** 2026-06-06; **re-verified 2026-06-22** for v0.6.0 (re-read `base.model.ts`, `image.model.ts`, `defaultSchemaOptions.ts`, `stdschema.decorator.ts`, `package.json`, both tsconfigs against the v0.6.0 `SC_MODULE.md`) | **Meta version:** 0.6.0
 > **Package:** `packages/sui-common-api` (`@stoked-ui/common-api` v0.1.0)
 > **Priority:** Medium
 > **Source entry:** `packages/sui-common-api/src/index.ts`
 > **Axioms:** `packages/sui-common-api/.axioms.md` (9 active: `AX-MOD-SUICOMMONAPI-001…009`)
+>
+> **2026-06-22 re-verification result — NO DRIFT.** All six known bugs are still present at the exact lines cited in §4.2 (`base.model.ts:102` dislikeScore-uses-likes; `:103-104` `.length` on Number props → `NaN`; `:82-89` `addToSet('uniqueViews', …)` on a Number; `image.model.ts:68` `Array.from(userId)` char-split; `:76-77` `like()` writes `this.dislikes` + `markModified('likeSet')`; `:65,73` `(cb, userId)` signature). `swapId` (27 lines) and `StdSchema`/`mergeOptions`/`cloneDeep` (29 lines) are byte-for-byte as described. Still **0 committed tests, no `test` script, no test runner** in `package.json` — so `pnpm --filter @stoked-ui/common-api test` still errors (missing script), and the `AX-MOD-SUICOMMONAPI-008` acceptance check cannot pass until §2 lands. This plan is unchanged and current.
 
 `@stoked-ui/common-api` is the **server-side schema + DTO layer** for every Stoked UI NestJS API service. It ships 12 Mongoose models (each as a `class` + `Schema` + `*Feature: ModelDefinition` triple), two schema decorators (`@StdSchema`, `DefaultSchemaOptions`/`swapId`), and the multipart-upload wire DTOs. It has **no controllers, services, or providers** — it is pure schema/contract code consumed today by `@stoked-ui/media-api` via `MongooseModule.forFeature([...])`.
 

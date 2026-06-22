@@ -1,6 +1,6 @@
 # Module: @stoked-ui/editor
 
-> **Generated:** 2026-05-21 (upgraded 0.3.0 → 0.4.0) | **Timed refresh:** 2026-06-06 (re-verified against source; corrected docs-consumer paths in §3, added the `EditorWithFileView` consumer, and corrected the WASM artifact path to `packages/sui-video-renderer/pkg/` + build target to `--target web` in §5/§7) | **Meta version:** 0.4.0
+> **Generated:** 2026-05-21 (upgraded 0.3.0 → 0.4.0) | **Timed refresh:** 2026-06-06 (re-verified against source; corrected docs-consumer paths in §3, added the `EditorWithFileView` consumer, and corrected the WASM artifact path to `packages/sui-video-renderer/pkg/` + build target to `--target web` in §5/§7) | **Upgrade:** 2026-06-22 (0.4.0 → 0.6.0 — re-verified `src/index.ts` barrel, the `{ audio, video, image, compositor }` `Controllers` map, `StokedUiEditorApp`'s `.sue`/`.suvid`/`.sua` MIME registration, and the `WasmPreview/actionMapper.ts` exports `calculateFitTransform` + `actionToWasmLayer` against current source; all §1–§7 content confirmed accurate, no structural drift) | **Meta version:** 0.6.0
 > **Package location:** `packages/sui-editor`
 > **NPM name:** `@stoked-ui/editor` (v0.1.2)
 > **Source entry:** `packages/sui-editor/src/index.ts`

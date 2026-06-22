@@ -1,7 +1,7 @@
 # SC_MODULE — sui-github
 
-**Meta version:** 0.4.0
-**Last refreshed:** 2026-06-06 (timed refresh — re-verified against source: barrel, file tree, LOC, cache constants, dispatch chain, handler cache headers, and docs-app wiring all confirmed unchanged)
+**Meta version:** 0.6.0
+**Last refreshed:** 2026-06-22 (UPGRADE 0.4.0 → 0.6.0 — re-verified against source: barrel (`src/index.ts` + `src/apiHandlers/index.ts`), package version `0.1.0-alpha.11.3`, file tree, LOC (`GithubEvents.tsx` 1,377 / `GithubCalendar.tsx` 462 / `GithubCommit.tsx` 171 / `GithubBranch.tsx` 175 / `githubApi.ts` 226), cache constants (`CACHE_PERSIST_LIMITS = [200,150,100,50,25]`, key `github_events_<user.toLowerCase()>`, `DEFAULT_DIFF_LINE_LIMIT = 24`), detail-panel dispatch chain (`GithubEvents.tsx:1357`–`1370`, terminal `JsonFallbackView` at `:1370`), and the four docs-app routes under `docs/pages/api/github/` all confirmed unchanged. `react-json-view@^1.21.3` remains a declared-but-unimported dead dep.)
 **Module name:** `@stoked-ui/github`
 **Package location:** `packages/sui-github/`
 **Package version:** `0.1.0-alpha.11.3`

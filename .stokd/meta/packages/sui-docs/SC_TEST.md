@@ -1,6 +1,6 @@
 # Testing Strategy: `@stoked-ui/docs`
 
-> **Generated:** 2026-06-06 | **Meta version:** 0.4.0
+> **Generated:** 2026-06-06 | **Updated:** 2026-06-22 (re-grounded against source: confirmed `"test": "exit 0"`, zero in-package tests, the 2-arg vs 1-arg `getProductInfoFromUrl` drift, the seven pure-function targets, and the Mocha + `@stoked-ui/internal-test-utils` umbrella via root `.mocharc.js` — all still accurate, no content change) | **Meta version:** 0.4.0
 > **Package:** `packages/sui-docs` (`@stoked-ui/docs` v0.1.21)
 > **Priority:** Medium
 > **Source entry:** `packages/sui-docs/src/index.ts`

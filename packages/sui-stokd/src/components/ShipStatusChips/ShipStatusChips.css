@@ -1,0 +1,48 @@
+.sui-ship-chips {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sui-ship-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: var(--sui-radius-pill);
+  border: 1px solid var(--sui-border);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
+  background: transparent;
+  color: color-mix(in srgb, var(--sui-text-dim) 60%, transparent);
+}
+
+.sui-ship-chip__icon {
+  width: 10px;
+  height: 10px;
+}
+
+.sui-ship-chip__icon--dim {
+  width: 8px;
+  height: 8px;
+  opacity: 0.5;
+}
+
+.sui-ship-chip[data-state='achieved'][data-env='main'] {
+  background: color-mix(in srgb, var(--sui-accent-green) 10%, transparent);
+  color: var(--sui-accent-green);
+  border-color: color-mix(in srgb, var(--sui-accent-green) 30%, transparent);
+}
+
+.sui-ship-chip[data-state='achieved'][data-env='stage'] {
+  background: color-mix(in srgb, var(--sui-accent-amber) 10%, transparent);
+  color: var(--sui-accent-amber);
+  border-color: color-mix(in srgb, var(--sui-accent-amber) 30%, transparent);
+}
+
+.sui-ship-chip[data-state='achieved'][data-env='prod'] {
+  background: color-mix(in srgb, var(--sui-accent-purple) 10%, transparent);
+  color: var(--sui-accent-purple);
+  border-color: color-mix(in srgb, var(--sui-accent-purple) 30%, transparent);
+}

@@ -82,6 +82,18 @@ export const createCdnSite = async (domainInfo: CdnDomainInfo) => {
       return event.request;
     }
 
+    // SPA fallback: a directory-like (extensionless or trailing-slash) request
+    // is a client-side route of the CDN browser app, not a real S3 object.
+    // Rewrite it to the app shell so a hard refresh on a nested path (e.g.
+    // /brian.stokd.cloud/drums/) serves the SPA instead of an S3 403
+    // AccessDenied. Real media files keep their extension and fall through to
+    // the S3 routes mechanism below. routeSite (the SST-generated router that
+    // runs after this injection) resolves /index.html against the bucket
+    // origin, since it is a KV-indexed asset of this StaticSite build.
+    if (isDirectoryLikeRequest) {
+      event.request.uri = '/index.html';
+    }
+
   `;
 
   const site = new sst.aws.StaticSite(domainInfo.resourceName, {
@@ -238,6 +250,18 @@ export const createCdnSuiSite = async (domainInfo: CdnDomainInfo) => {
     if (isApiRequest) {
       setUrlOrigin(${JSON.stringify(consultingHost)});
       return event.request;
+    }
+
+    // SPA fallback: a directory-like (extensionless or trailing-slash) request
+    // is a client-side route of the CDN browser app, not a real S3 object.
+    // Rewrite it to the app shell so a hard refresh on a nested path (e.g.
+    // /brian.stokd.cloud/drums/) serves the SPA instead of an S3 403
+    // AccessDenied. Real media files keep their extension and fall through to
+    // the S3 routes mechanism below. routeSite (the SST-generated router that
+    // runs after this injection) resolves /index.html against the bucket
+    // origin, since it is a KV-indexed asset of this StaticSite build.
+    if (isDirectoryLikeRequest) {
+      event.request.uri = '/index.html';
     }
 
   `;

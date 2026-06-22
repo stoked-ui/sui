@@ -1,7 +1,7 @@
 # SC_TEST: sui-cdn (`@stoked-ui/cdn`)
 
-> **Generated:** 2026-06-06 | **Meta version:** 0.4.0
-> **Package:** `packages/sui-cdn` (`@stoked-ui/cdn` v0.1.0-alpha.5)
+> **Generated:** 2026-06-06 | **Re-verified:** 2026-06-22 | **Meta version:** 0.4.0
+> **Package:** `packages/sui-cdn` (`@stoked-ui/cdn` v0.1.0)
 > **Priority:** Medium
 > **Source entry (barrel):** `packages/sui-cdn/src/index.ts`
 > See `.stokd/meta/packages/sui-cdn/SC_MODULE.md` for module classification and
@@ -24,7 +24,7 @@ layers under one barrel:
 
 | Module | File | LOC | Key exports (line) |
 |--------|------|-----|--------------------|
-| Content utilities | `src/utils/contents.ts` | 267 | `normalizePrefix` (`:22`), `buildPublicUrl` (`:34`), `fromFlatObjects` (`:61`), `parseS3Xml` (internal `:118`), `normalizeJson` (internal `:97`), `fetchRemote` (internal `:149`), `getContents` (`:182`), `getFileKind` (`:210`), `formatBytes` (`:232`), `formatTimestamp` (`:244`), `buildCrumbs` (`:252`) |
+| Content utilities | `src/utils/contents.ts` | 266 | `normalizePrefix` (`:22`), `buildPublicUrl` (`:34`), `fromFlatObjects` (`:61`), `parseS3Xml` (internal `:118`), `normalizeJson` (internal `:97`), `fetchRemote` (internal `:149`), `getContents` (`:182`), `getFileKind` (`:210`), `formatBytes` (`:232`), `formatTimestamp` (`:244`), `buildCrumbs` (`:252`) |
 | REST + upload client | `src/CdnApi/CdnApi.ts` | 363 | `createCdnApi` (`:125`), `collectDroppedEntries` (`:285`), `beginDesktopDownload` (`:352`), types `CdnApi`/`UploadFileOptions` |
 | Browser component | `src/CdnBrowser/CdnBrowser.tsx` | 1,442 | `CdnBrowser` (default + named) |
 | Public types | `src/CdnBrowser/CdnBrowser.types.ts` | 81 | `CdnBrowserProps`, content type re-exports |

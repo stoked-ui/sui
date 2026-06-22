@@ -10,6 +10,7 @@ import {
 } from 'docs/src/modules/deliverables/cdnStorage';
 import { prepareDeliverableHtmlForStorage } from 'docs/src/modules/deliverables/htmlSnapshot';
 import { writeLocalDeliverableFile } from 'docs/src/modules/deliverables/localFiles';
+import { invalidateCdnPaths } from 'docs/src/modules/cdn/cdnInvalidation';
 
 export const config = {
   api: {
@@ -220,6 +221,10 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
       ContentType: contentType,
       CacheControl: cacheControl,
     }));
+
+    // Deliverable keys are deterministic, so re-uploading a file overwrites the
+    // existing object. Invalidate the edge cache so the new bytes are served.
+    await invalidateCdnPaths(key);
 
     return res.status(200).json({ key, url });
   } catch (err: unknown) {

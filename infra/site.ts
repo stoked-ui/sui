@@ -15,8 +15,14 @@ import { CONSULTING_APP_SEGMENTS } from '../docs/src/modules/utils/siteRouteMani
 const STOKD_CLOUD_ACCOUNT_ID = '167217327520';
 const DEFAULT_AUTH_AUTO_DOMAINS = 'stokd.cloud,sui.stokd.cloud,consulting.stokd.cloud,brianstoker.com';
 
-export const createSite = async (domainInfo: DomainInfo) => {
+export const createSite = async (
+  domainInfo: DomainInfo,
+  // cdnDistributionId is a Pulumi Output at runtime; typed loosely so the
+  // standalone tsc stub (infra/sst-globals.d.ts) stays happy.
+  options: { cdnDistributionId?: any } = {},
+) => {
   const invalidationPaths = process.env.INVALIDATION_PATHS;
+  const cdnDistributionId = options.cdnDistributionId;
   const blogImageBucket = process.env.BLOG_IMAGE_S3_BUCKET ?? 'cdn.stokd.cloud';
   const enableDomain = process.env.SITE_ENABLE_DOMAIN !== '0';
   const openNextVersion = '3.6.6';
@@ -65,6 +71,9 @@ export const createSite = async (domainInfo: DomainInfo) => {
       SES_FROM_EMAIL: process.env.SES_FROM_EMAIL ?? 'noreply@stokd.cloud',
       BLOG_IMAGE_S3_BUCKET: blogImageBucket,
       BLOG_IMAGE_CDN_URL: process.env.BLOG_IMAGE_CDN_URL ?? 'https://cdn.stokd.cloud',
+      // CloudFront distribution fronting the CDN bucket. The docs API uses this
+      // to invalidate a file's edge cache when an upload/move/delete replaces it.
+      CDN_DISTRIBUTION_ID: cdnDistributionId ?? process.env.CDN_DISTRIBUTION_ID ?? '',
       // Audit bot inference — Bedrock's OpenAI-compatible endpoint. The local
       // LM Studio default in llmClient.ts is unreachable from Lambda.
       AUDIT_BOT_BASE_URL:
@@ -110,6 +119,13 @@ export const createSite = async (domainInfo: DomainInfo) => {
           's3:ListMultipartUploadParts',
         ],
         resources: [`arn:aws:s3:::${blogImageBucket}/*`],
+      },
+      {
+        // Invalidate the CDN distribution when an upload overwrites a file.
+        // Scoped to all distributions in this (locked) account because the
+        // distribution id is a Pulumi Output and CreateInvalidation is low-risk.
+        actions: ['cloudfront:CreateInvalidation'],
+        resources: [`arn:aws:cloudfront::${STOKD_CLOUD_ACCOUNT_ID}:distribution/*`],
       },
     ],
     ...(enableDomain

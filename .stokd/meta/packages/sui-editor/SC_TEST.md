@@ -1,6 +1,6 @@
 # Testing Strategy: `@stoked-ui/editor`
 
-> **Generated:** 2026-05-21 | **Re-verified against current source:** 2026-06-06 | **Meta version:** 0.4.0
+> **Generated:** 2026-05-21 | **Re-verified against current source:** 2026-06-22 (timed refresh aligned with SC_MODULE 0.6.0 — re-confirmed: `actionMapper.ts` exports only `calculateFitTransform` (L58) + `actionToWasmLayer` (L116) with private `mapBlendMode` (L19); `Controllers` map = `{audio,video,image,compositor}` with `animation` commented out and `WebController` unimported; the `test/utils/editor-view/describeEditor` harness still absent so all three plugin tests + the dead `EditorFile.test.tsx` remain non-runnable; no structural drift) | **Meta version:** 0.6.0
 > **Package:** `packages/sui-editor` (`@stoked-ui/editor` v0.1.2)
 > **Priority:** Medium
 > **Source entry:** `packages/sui-editor/src/index.ts`

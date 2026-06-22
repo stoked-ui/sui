@@ -1,7 +1,7 @@
 {
-  "lastUpdate": 1780805665017,
+  "lastUpdate": 1782125431078,
   "lastValidate": 1780029792826,
-  "metaVersion": "0.4.0",
+  "metaVersion": "0.6.0",
   "packages": [
     "packages/sui-cdn",
     "packages/sui-common",

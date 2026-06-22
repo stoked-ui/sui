@@ -1,6 +1,6 @@
 # Module: sui-video-renderer (`@stoked-ui/video-renderer-wasm` + `video-render` CLI)
 
-> **Generated:** meta version 0.4.0 | **Last refreshed:** 2026-06-06 (TIMED REFRESH)
+> **Generated:** meta version 0.6.0 | **Last refreshed:** 2026-06-22 (UPGRADE 0.4.0 → 0.6.0 — re-verified workspace layout, compositor exports, CLI subcommands, docs guides, and test counts against the codebase; content confirmed accurate)
 > **Package location:** `packages/sui-video-renderer/`
 > **Language / build:** Rust (Cargo workspace, edition 2021, workspace version `0.1.0`) → WebAssembly (`wasm-pack`, target `web`) + native CLI binary.
 > **Companion docs:** `.stokd/meta/packages/sui-video-renderer/SC_TEST.md`, `packages/sui-video-renderer/.axioms.md`, in-repo guides under `packages/sui-video-renderer/docs/`.

@@ -23,7 +23,7 @@ use crate::config::{
 #[command(name = "stoked")]
 #[command(about = "CLI for Stoked Next.js APIs", version)]
 struct Cli {
-    /// Override API base URL (default: STOKED_BASE_URL env, then saved config, then https://sui.stokd.cloud)
+    /// Override API base URL (default: STOKED_BASE_URL env, then saved config, then https://consulting.stokd.cloud)
     #[arg(long, global = true)]
     base_url: Option<String>,
 

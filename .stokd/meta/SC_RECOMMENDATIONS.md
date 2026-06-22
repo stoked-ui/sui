@@ -1,34 +1,19 @@
 # Stoked UI — Recommendations
 
-> **Generated:** 2026-05-05 (fresh) | **Updated:** 2026-05-21 (0.3.0 → 0.4.0) · **Refreshed:** 2026-05-28, 2026-06-06, 2026-06-06 (2nd pass), **2026-06-06 (3rd pass — timed re-verification)**
-> **Meta version:** 0.4.0
-> **Repository:** `@stoked-ui/sui` v0.1.0-alpha.5
-> **Root:** `/opt/worktrees/stoked-ui/stoked-ui-main`
+> **Generated:** 2026-05-05 (fresh) | **Updated:** 2026-05-21 (0.3.0 → 0.4.0), **2026-06-22 (0.4.0 → 0.6.0)** · **Refreshed:** 2026-05-28, 2026-06-06 (×3)
+> **Meta version:** 0.6.0 (previous: 0.4.0)
+> **Repository:** `@stoked-ui/sui` v0.1.0-alpha.5 (root, private)
+> **Root:** `/opt/worktrees/stoked-ui/sui/main`
 
 This document captures actionable recommendations across code quality, architecture, testing, security, and performance, derived from a read of the monorepo (manifests, build config, CI workflows, source layout, and the existing `.stokd/meta/*` documents). Items are grouped by category and tagged **P0 / P1 / P2** by recommended urgency.
 
-**2026-06-06 (3rd pass) — timed re-verification, no codebase drift.** HEAD is unchanged at `29ec514149` since the 2nd pass; every actionable claim below was re-checked against the live tree and holds. Re-verified this pass:
+**2026-06-22 (0.6.0 upgrade) — re-verified against HEAD `fae8df1ea5`.** Codebase drift since the 0.4.0 passes, all verified live this pass:
 
-- **CI inventory still 9 workflows** (`ci.yml`, `ci-check.yml`, `codeql.yml`, `scorecards.yml`, `vale-action.yml`, `deploy-site.yml`, `publish-packages.yml`, `claude.yml`, `claude-code-review.yml`). **No `gitleaks`/`trufflehog` job** (§4.2 P0→P1 stands) and **no `.husky/` or `commitlint.config.*`** (§2.1 P0 stands) — the `shove ×4`/`derp` block is still in recent history.
-- **Dependency blocks unchanged:** `resolutions` = **25 keys** (yarn-style, pnpm-ignored, dead weight), `pnpm.overrides` = **22 keys**. The `@minh.nguyen/plugin-transform-destructuring` fork is present **only in `resolutions`** (confirmed absent from `pnpm.overrides`) — so it is almost certainly a no-op (§2.2 / §4.6 stands).
-- **Audit-bot test posture unchanged:** 5 suites present (`urlSafety`, `tools`, `auditMailer`, `leadFields`, `reportValidation`); `conversationRunner.ts`, `llmClient.ts`, and `docs/pages/api/audit/save-lead.ts` still have no dedicated tests (§3.5). `docs/pages/api/audit/turn.ts` (149 lines) keeps its input caps but a `grep -niE "rate|throttle|limiter"` returns **no match** — **per-IP rate limiting is still absent** (§4.7 P1 stands).
-- **License store still untested:** zero `*.test.*` files under `docs/src/modules/license/` (§3.3 / §4.4 — revenue-critical gap stands).
-- **Versioning anomaly persists:** `@stoked-ui/media-api` is still `1.0.0` while `@stoked-ui/media` is `0.1.0-alpha.5` and the rest are 0.1.x (§8.1).
-- **No `.github/dependabot.yml` or Renovate config** (§4.6).
-
-**2026-06-06 (2nd pass) refresh changes** — two commits landed after the morning refresh (`86ed35e3d0 feat(audit-bot): complete lead-gen agent`, `29ec514149 chore: land in-flight work`):
-
-- **§3.5 / §4.7** — The audit-bot lead-gen agent is now **substantially tested**. Five suites exist under `docs/src/modules/auditBot/`: `urlSafety.test.ts` (SSRF guard, now its own file), `tools.test.ts`, `auditMailer.test.ts`, `leadFields.test.ts`, `reportValidation.test.ts`. New code: `auditMailer.ts` (SES report email, BCCs Brian), `leadFields.ts`, `reportValidation.ts`. **Still uncovered:** `conversationRunner.ts`, `llmClient.ts`, and `docs/pages/api/audit/save-lead.ts` have no dedicated tests.
-- **§4.7** — `docs/pages/api/audit/turn.ts` now enforces input caps (`MAX_HISTORY_TURNS=40`, `MAX_MESSAGE_CHARS=4000`, `sanitizeHistory`) — partial cost-amplification defense. **Per-IP rate limiting is still absent.** A new outbound channel exists: SES report email via `@aws-sdk/client-ses` reading `SES_FROM_EMAIL` / `AUDIT_REPORT_BCC_EMAIL` — lead PII now leaves the system by email as well as Telegram.
-- **§2.2 / §4.6** — `resolutions` block is now **25 keys** (was 33). It still contains the pnpm-ignored `@minh.nguyen/plugin-transform-destructuring` fork and `pnpm.overrides` (22 keys) still does not. The "delete `resolutions` / adopt-or-drop the fork" recommendation stands.
-- **§3.3** — `docs/src/modules/products/` now ships `StokdCloudPitch.test.tsx` (107 lines) alongside the new `StokdCloudPitch.tsx`.
-
-**Carried-forward facts (morning 2026-06-06 refresh):**
-
-- **§2.1** — The `shove ×4` / `derp` commits still sit in recent history; **no `.husky/` and no `commitlint.config.*`** — the enforcement gap stands and the P0 holds.
-- **§3.1 / §3.3** — `packages/sui-media` ships a real Jest suite (`MediaCard.utils.test.ts`, `MediaViewer/*`, `abstractions/{Auth,Router,Queue,Payment,KeyboardShortcuts}.test.ts`, `integration-backward-compatibility.test.ts`); `MediaFile.fromUrl()` retry/backoff still appears uncovered.
-- **§8.1** — `@stoked-ui/media` is `0.1.0-alpha.5` (aligned with root); only `@stoked-ui/media-api` remains `1.0.0`.
-- **CI inventory** — **9 workflows**: `ci.yml`, `ci-check.yml`, `codeql.yml`, `scorecards.yml`, `vale-action.yml`, `deploy-site.yml`, `publish-packages.yml`, `claude.yml`, `claude-code-review.yml`.
+- **New publishable package `@stoked-ui/stokd`** (`packages/sui-stokd/`, v0.2.2) — Stokd "current activity" UX components, shared by the web dashboard and a VS Code extension. It is **well-tested out of the gate** (its own `jest.config.js` + 10+ co-located `__tests__/` suites across `components/*`, `grouping/`, `types`). **Gap:** it has **no `.stokd/meta/packages/sui-stokd/` entry** — the per-package meta dir lists only the original 11 packages (§6.1 updated, now P1).
+- **Two new repo axioms landed** that should anchor recommendations: `AX-REPO-PUBLISH-NO-HOL-BLOCKING` (the npm publish loop must attempt every package independently — born from the `@stoked-ui/cdn` trusted-publisher misconfig on 2026-06-11) and `AX-REPO-NO-TEMPLATE-LITERAL-DYNAMIC-IMPORT` (literal `import()` specifiers in `docs/pages/**` — a template-literal import took down `consulting.stokd.cloud` / `sui.stokd.cloud` prod home with React #130 on 2026-06-12; fixed in `69bbbf0fa8`). Also note `AX-REPO-CDN-API-CONTRACT` and `AX-REPO-WASMLAYER-CONTRACT` as cross-surface contracts to guard in review.
+- **`@stoked-ui/cdn` is now published** (v0.1.0, commit `ddc68d281d`) and the internal `@stoked-ui/internal-cdn-sui` Vite wrapper is publishable (`e2d47c634f`); `cdn-sui` dist output is no longer tracked (`cca65c27ce`). The `/api/cdn/*` contract now spans four surfaces (§1, `AX-REPO-CDN-API-CONTRACT`).
+- **Version sprawl is now wider, not narrower** (§8.1, escalated): `media-api` `1.0.0`, `stokd` `0.2.2`, `common` `0.2.2`, `docs` `0.1.21`, `github` `0.1.0-alpha.11.3`, `cdn` `0.1.0`, `common-api` `0.1.0`, `editor` `0.1.2`, `file-explorer` `0.1.2`, `timeline` `0.1.3`, `media` `0.1.0-alpha.5`. Six distinct version schemes across 12 publishable packages.
+- **Unchanged P0/P1 gaps re-confirmed:** `shove` commits still in recent history (`53d61f20d5`, `359e8b4075`); **no `.husky/`, no `commitlint.config.*`, no `.github/dependabot.yml`, no `gitleaks`/`trufflehog` CI job** (§2.1, §4.2, §4.6 all stand). `resolutions` = **25 keys** (yarn-style, pnpm-ignored, dead weight); `pnpm.overrides` = **22 keys**; the `@minh.nguyen/plugin-transform-destructuring` fork is still **only in `resolutions`** → almost certainly a no-op (§2.2). **License store still has zero `*.test.*`** under `docs/src/modules/license/` (§3.3). **`docs/pages/api/audit/turn.ts` still has no per-IP rate limiting** (§4.7). CI is still **9 workflows** (`ci.yml`, `ci-check.yml`, `codeql.yml`, `scorecards.yml`, `vale-action.yml`, `deploy-site.yml`, `publish-packages.yml`, `claude.yml`, `claude-code-review.yml`).
 
 ---
 
@@ -74,27 +59,33 @@ Risks:
 
 Action: publish the `pkg/` output as `@stoked-ui/video-renderer-wasm` to npm (or scope it under `@stoked-ui/editor` as a subpath), and switch the editor manifest to a semver range, not a `file:` link. Until then, document this as a "monorepo-only" capability and codify it (it is already captured as `AX-REPO-WASM-RENDERER-DEP`).
 
+### 1.5 [P1 — NEW] Guard the now-published `/api/cdn/*` four-surface contract
+
+With `@stoked-ui/cdn` published (v0.1.0) and `@stoked-ui/internal-cdn-sui` made publishable, the `/api/cdn/*` REST contract (`AX-REPO-CDN-API-CONTRACT`) now couples **four** surfaces: the `@stoked-ui/cdn` `createCdnApi` client (`packages/sui-cdn/src/CdnApi/CdnApi.ts`), the docs route owners (`docs/pages/api/cdn/**`), the legacy admin app (`packages-internal/cdn/src/lib/cdnApi.js`), and the Vite wrapper (`packages-internal/cdn-sui`, transitive via `import { CdnBrowser } from '@stoked-ui/cdn'`). Now that the client is on npm, a route-shape change that updates the docs handler but not the client ships a broken published package. Recommend:
+
+- A contract test (or at minimum a typed shared schema) exercising each `createCdnApi` method against the docs handler it calls, run in CI.
+- A PR-template checkbox / review rule per the axiom: any `/api/cdn/*` shape change lists the `createCdnApi` method and `packages-internal/cdn/src/lib/cdnApi.js` call site it updated, and re-verifies `cdn-sui` renders.
+
+Similarly, the runtime-only `WasmLayer` JSON contract (`AX-REPO-WASMLAYER-CONTRACT`) between `@stoked-ui/editor`'s `actionMapper.ts` and the Rust compositor (`packages/sui-video-renderer/wasm-preview/src/lib.rs`) drifts with **no compile error** — a layer-type or `blend_mode` rename on one side silently drops/mis-renders layers. Add a post-`build:wasm` smoke test that renders every layer type (solidColor/image/video/text) before any preview regression can ship.
+
 ---
 
 ## 2. Code Quality
 
 ### 2.1 [P0] Commit hygiene and branch protection on `main`
 
-The most recent commits adopt conventional prefixes informally, but the regression they were correcting is still right behind them in history:
+The most recent commits adopt conventional prefixes informally, but bare `shove` commits are still in recent history:
 
 ```
-6145267e70 restore: auto-extract first frame from videos for thumbnails
-a1a92da872 refactor: simplify MediaCard to use video poster attribute directly
-f0015cada9 fix: use CORS-friendly video URLs for media card examples
-e54d836bef fix: add missing archiver dependency for CDN zip export
+fae8df1ea5 chore(docs): drop stale OpenAI model versions on AI page
+69bbbf0fa8 fix(docs): replace template-literal dynamic imports that crashed prod home
 ...
-41c62c9bfe shove
-03ffcd2088 shove
-9ec7c38537 shove
-23e87134f2 derp
+51a3baad04 chore: sweep eslint/ts fixes, add mocha-node20 wrapper, gitignore stokd runtime meta
+359e8b4075 shove
+53d61f20d5 shove
 ```
 
-The `shove ×4` / `derp` block is hostile to bisection, blame, and reviewers, and there is still **no `.husky/` directory and no `commitlint.config.*`** in the repo (verified this refresh) — the recent good subjects are convention, not enforcement. Direct pushes to `main` continue. Recommend:
+The `shove` block is hostile to bisection, blame, and reviewers, and there is still **no `.husky/` directory and no `commitlint.config.*`** in the repo (verified this pass) — the recent good subjects are convention, not enforcement. Direct pushes to `main` continue. Note that two of the recent `fix(...)` commits (`69bbbf0fa8` template-literal dynamic import → React #130 prod crash; `2b1b60726e` one failed package blocking the whole publish loop) were **production incidents that a pre-merge gate would have caught** — the absence of branch protection is not theoretical. Recommend:
 
 - Add `.husky/commit-msg` + `commitlint` and a CI lint job; adopt conventional-commits.
 - Branch protection: require PRs into `main` (no direct pushes), require a squash-merge with a meaningful title.
@@ -129,6 +120,15 @@ Track this as a `stokd project` with phased acceptance criteria; without movemen
 ### 2.5 [P2] Trim `package.json` script surface
 
 The root `package.json` exposes 90+ scripts, many of them thin workspace aliases (`common`, `editor`, `timeline`, `docs`, …) or release/dry-run flows. Consolidate release flows (`release:version`, `release:publish:dry-run`, `local-npm:*`) into one `scripts/release.mjs` with subcommands; keep the workspace shortcuts but document them in `SC_OVERVIEW.md`.
+
+### 2.6 [P1 — NEW] Add a CI gate for literal dynamic-import specifiers
+
+`AX-REPO-NO-TEMPLATE-LITERAL-DYNAMIC-IMPORT` was written *after* a template-literal `import()` in `docs/pages/**` shipped a webpack context module whose `.default` resolved `undefined` in the production build, crashing `consulting.stokd.cloud` and `sui.stokd.cloud` with minified React error #130 (fixed in `69bbbf0fa8`). The axiom's own acceptance check is a one-line grep — wire it into CI so the class can never regress silently:
+
+- Add a CI step: `grep -rnE "import\(\`" docs/pages && exit 1 || true` (the acceptance check from the axiom), failing the build on any template-literal dynamic import under `docs/pages/**`.
+- Optionally add a matching ESLint rule in `packages-internal/eslint-plugin-stoked-ui/` so the editor flags it at author time, not just in CI.
+
+This is cheap insurance against a failure mode that already cost two prod outages.
 
 ---
 
@@ -286,7 +286,7 @@ The 0.4.0 layout moves module docs into per-package folders:
   SC_TEST.md
 ```
 
-All 11 packages have both files. The old top-level `SC_MODULE_SUI_*.md` files are deleted. Follow-ups:
+**[P1 — NEW GAP] `sui-stokd` is missing from the per-package meta layout.** `.stokd/meta/packages/` currently holds **11** dirs (`sui-cdn`, `sui-common`, `sui-common-api`, `sui-docs`, `sui-editor`, `sui-file-explorer`, `sui-github`, `sui-media`, `sui-media-api`, `sui-timeline`, `sui-video-renderer`) but the workspace now ships **12** publishable packages — the new `@stoked-ui/stokd` (`packages/sui-stokd/`) has no `SC_MODULE.md` / `SC_TEST.md`. Add `.stokd/meta/packages/sui-stokd/{SC_MODULE.md,SC_TEST.md}` and a `SC_MODULES.md` row so the new package is governed like the rest. Follow-ups:
 
 - Commit the deletions so the migration lands cleanly; do not restore.
 - Grep `SC_OVERVIEW.md`, `SC_MODULES.md`, `SC_VIEWS.md`, `SC_FLOWS.md` for residual `SC_MODULE_SUI_` links and rewrite to `packages/<pkg>/SC_MODULE.md`.
@@ -329,9 +329,15 @@ A `pnpm setup` / `bin/bootstrap` that: verifies pnpm 10.5.1+, Node, Rust toolcha
 
 ## 8. Release & Operations
 
-### 8.1 [P1 — UPDATED] Versioning split is converging but still mixed
+### 8.1 [P1 — ESCALATED] Versioning is now sprawled across six schemes
 
-Current versions: `@stoked-ui/sui` `0.1.0-alpha.5` (root, private), `@stoked-ui/media` **`0.1.0-alpha.5`** (dropped from 1.0.0 — now aligned with the root), `@stoked-ui/editor` `0.1.2`, `@stoked-ui/timeline` `0.1.3`, while `@stoked-ui/media-api` is still **`1.0.0`**. The media package realigning to 0.x is the right move; `media-api` at 1.0.0 alone now looks anomalous. Decide whether `media-api` is genuinely 1.x-stable; if not, drop it to 0.x before downstream consumers pin to 1. Document the stability promise per package in each README and `SC_MODULES.md`.
+Current versions across the 12 publishable packages: `@stoked-ui/sui` `0.1.0-alpha.5` (root, private), `@stoked-ui/media` `0.1.0-alpha.5`, `@stoked-ui/github` `0.1.0-alpha.11.3`, `@stoked-ui/cdn` `0.1.0`, `@stoked-ui/common-api` `0.1.0`, `@stoked-ui/editor` `0.1.2`, `@stoked-ui/file-explorer` `0.1.2`, `@stoked-ui/timeline` `0.1.3`, `@stoked-ui/docs` `0.1.21`, `@stoked-ui/common` `0.2.2`, `@stoked-ui/stokd` `0.2.2`, and `@stoked-ui/media-api` still **`1.0.0`**.
+
+This is now **six distinct version lines**, not a converging split. `media-api` at `1.0.0` alone still looks anomalous (decide whether it is genuinely 1.x-stable; if not, drop to 0.x before consumers pin to 1), and `common`/`stokd` jumping to `0.2.2` while siblings sit at `0.1.x` suggests version drift is happening per-commit rather than per-release. Recommend:
+
+- Adopt a single tool to drive versions (Changesets is the natural fit given `lerna version` is the only Lerna usage — see §1.2). Let it compute bumps from conventional-commit footers so versions stop drifting by hand.
+- Document the stability promise per package in each README and `SC_MODULES.md` (which versions are pre-1.0 / unstable vs. committed).
+- `AX-REPO-PUBLISH-NO-HOL-BLOCKING` already hardened the publish *loop* against one package's failure; pair it with a unified version source so the set publishes coherently.
 
 ### 8.2 [P2] SST stage isolation
 
@@ -343,14 +349,17 @@ Current versions: `@stoked-ui/sui` `0.1.0-alpha.5` (root, private), `@stoked-ui/
 
 Ordered by ROI:
 
-1. Add `commitlint` + `.husky/commit-msg` + branch protection on `main` (P0, §2.1) — `shove ×4` / `derp` still in recent history; still no husky/commitlint.
-2. Add `gitleaks` to CI alongside the present CodeQL/Scorecards (P0→P1, §4.2) — still absent.
-3. Add a `test:jest` Turbo coverage gate surfacing the existing `sui-media-api` and `sui-media` suites, then add Jest configs to `sui-timeline`/`sui-editor`/`sui-common-api`/`sui-github`/`sui-docs` (P0/P1, §3.1, §3.3).
-4. Add per-IP rate limiting to `api/audit/turn.ts` (input caps now exist, but no throttle on the LLM+Mongo+SES+Telegram fan-out), then write the residual audit-bot tests (`conversationRunner`, `save-lead`, `llmClient`) — SSRF / mailer / lead-fields / report-validation are already covered (P1, §4.7, §3.5).
-5. Delete the dead `resolutions` block and resolve the pnpm-ignored `@minh.nguyen` Babel fork (adopt-and-pin in `pnpm.overrides`, or remove) (P1, §2.2, §4.6).
-6. Resolve the `@stoked-ui/video-renderer-wasm` publication strategy or label editor monorepo-only; fix the WASM size-gate filename to `wasm_preview_bg.wasm` (P1, §1.4, §5.1).
-7. Add a bootstrap AWS-profile guard in `infra/index.ts` and the `deploy-site.yml` workflow (P0, §4.1).
-8. Add license-store tests (`activate`/`validate`/`deactivate` + webhook path) (P1, §3.3, §4.4).
+1. Add `commitlint` + `.husky/commit-msg` + branch protection on `main` (P0, §2.1) — `shove` commits still in recent history; still no husky/commitlint; two recent prod incidents would have been caught by a pre-merge gate.
+2. Add the literal-dynamic-import CI grep gate (`AX-REPO-NO-TEMPLATE-LITERAL-DYNAMIC-IMPORT`) — one line, prevents a repeat of the React #130 prod crash (P1, §2.6).
+3. Add `gitleaks` to CI alongside the present CodeQL/Scorecards (P0→P1, §4.2) — still absent.
+4. Add `.stokd/meta/packages/sui-stokd/{SC_MODULE.md,SC_TEST.md}` + a `SC_MODULES.md` row — the new 12th package is ungoverned (P1, §6.1).
+5. Add a `test:jest` Turbo coverage gate surfacing the existing `sui-media-api`, `sui-media`, and `sui-stokd` suites, then add Jest configs to `sui-timeline`/`sui-editor`/`sui-common-api`/`sui-github`/`sui-docs` (P0/P1, §3.1, §3.3).
+6. Add per-IP rate limiting to `api/audit/turn.ts` (input caps now exist, but no throttle on the LLM+Mongo+SES+Telegram fan-out), then write the residual audit-bot tests (`conversationRunner`, `save-lead`, `llmClient`) — SSRF / mailer / lead-fields / report-validation are already covered (P1, §4.7, §3.5).
+7. Delete the dead `resolutions` block and resolve the pnpm-ignored `@minh.nguyen` Babel fork (adopt-and-pin in `pnpm.overrides`, or remove) (P1, §2.2, §4.6).
+8. Adopt Changesets for a single version source — six version schemes across 12 packages is drifting per-commit (P1, §8.1, §1.2).
+9. Resolve the `@stoked-ui/video-renderer-wasm` publication strategy or label editor monorepo-only; fix the WASM size-gate filename to `wasm_preview_bg.wasm` (P1, §1.4, §5.1).
+10. Add a bootstrap AWS-profile guard in `infra/index.ts` and the `deploy-site.yml` workflow (P0, §4.1).
+11. Add license-store tests (`activate`/`validate`/`deactivate` + webhook path) (P1, §3.3, §4.4).
 
 ---
 
@@ -360,7 +369,8 @@ Ordered by ROI:
 - Repo-global axioms (referenced inline as `AX-REPO-*`): `.stokd/meta/SC_AXIOMS.md`
 - Product brief: `.stokd/meta/SC_PRODUCT_STOKED_UI_SUI.md`
 - Module index: `.stokd/meta/SC_MODULES.md`
-- Per-package module + test docs: `.stokd/meta/packages/<pkg>/SC_MODULE.md` and `.../SC_TEST.md`
+- Per-package module + test docs: `.stokd/meta/packages/<pkg>/SC_MODULE.md` and `.../SC_TEST.md` (⚠ `sui-stokd` entry still missing — see §6.1)
+- Key axioms anchoring these recs: `AX-REPO-PUBLISH-NO-HOL-BLOCKING`, `AX-REPO-NO-TEMPLATE-LITERAL-DYNAMIC-IMPORT`, `AX-REPO-CDN-API-CONTRACT`, `AX-REPO-WASMLAYER-CONTRACT`, `AX-REPO-MEDIA-API-BOUNDARY`, `AX-REPO-MUI-REACT-PINS` (all in `SC_AXIOMS.md`)
 - Test plan (aggregate): `.stokd/meta/SC_TEST.md`
 - Views and screens: `.stokd/meta/SC_VIEWS.md`
 - User flows: `.stokd/meta/SC_FLOWS.md`

@@ -1,0 +1,76 @@
+{
+  "name": "@stoked-ui/stokd",
+  "version": "0.2.2",
+  "description": "Stokd Current Activity UX — host-agnostic, CSS-variable-themed React components and view-model types, shared by the Stokd web dashboard and the VS Code extension.",
+  "author": "Brian Stoker",
+  "main": "src/index.ts",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/stoked-ui/sui/issues"
+  },
+  "homepage": "https://stokd.sui.stokd.cloud",
+  "sideEffects": [
+    "*.css"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "directory": "build"
+  },
+  "keywords": [
+    "react",
+    "react-component",
+    "sui",
+    "stoked ui",
+    "stokd",
+    "current activity",
+    "dashboard"
+  ],
+  "scripts": {
+    "typescript": "tsc -p tsconfig.json",
+    "build": "pnpm build:modern && pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files && pnpm build:copy-css",
+    "build:copy-css": "node ./scripts/copy-css.mjs",
+    "build:modern": "node ../../scripts/build.mjs modern",
+    "build:node": "node ../../scripts/build.mjs node",
+    "build:stable": "node ../../scripts/build.mjs stable",
+    "build:copy-files": "node ../../scripts/copyFiles.mjs",
+    "build:types": "node ../../scripts/buildTypes.mjs",
+    "prebuild": "rimraf build tsconfig.build.tsbuildinfo",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "watch": "pnpm babel --config-file ../../babel.config.js --extensions '.js,.ts,.tsx' ./src --out-dir ./build/modern --watch --ignore '**/*.test.js','**/*.test.ts','**/*.test.tsx','**/*.spec.ts','**/*.spec.tsx','**/*.d.ts'",
+    "watch:types": "tsc -b tsconfig.build.json --watch",
+    "dev:prepare": "pnpm build:modern && pnpm build:types",
+    "dev": "pnpm watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stoked-ui/sui.git",
+    "directory": "packages/sui-stokd"
+  },
+  "dependencies": {
+    "lucide-react": "^0.460.0"
+  },
+  "peerDependencies": {
+    "react": "18.3.1",
+    "react-dom": "^17.0.0 || ^18.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.9",
+    "@babel/plugin-transform-runtime": "^7.23.9",
+    "@babel/plugin-transform-typescript": "^7.26.8",
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-react": "^7.23.3",
+    "@babel/preset-typescript": "^7.26.0",
+    "@babel/runtime": "^7.24.7",
+    "@testing-library/jest-dom": "^6.1.5",
+    "@testing-library/react": "^16.3.2",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "ts-jest": "^29.1.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

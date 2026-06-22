@@ -1,6 +1,6 @@
 # SC_TEST: sui-github (`@stoked-ui/github`)
 
-> **Generated:** 2026-06-06 | **Meta version:** 0.4.0
+> **Generated:** 2026-06-06 | **Refreshed:** 2026-06-22 (UPGRADE 0.4.0 → 0.6.0 — re-verified against source alongside the SC_MODULE 0.6.0 refresh: `githubApi.ts` pure-helper surface + `DEFAULT_DIFF_LINE_LIMIT = 24` (`:11`), `getGithubEvents.ts` `parseLinkHeader` still file-local (`:12`) / `maxPages = 30` (`:46`) / facets from all events (`:151`–`:153`), `createGithubContributionsHandler` 405/400/404/500/502 mapping + `s-maxage=3600, stale-while-revalidate=86400` (`:48`), and the four co-located fetcher/handler line anchors all confirmed unchanged. `react-json-view` remains a declared-but-dead dep; still **zero src/ coverage**.) | **Meta version:** 0.6.0
 > **Package:** `packages/sui-github` (`@stoked-ui/github` v0.1.0-alpha.11.3)
 > **Priority:** Medium
 > **Source entry (barrel):** `packages/sui-github/src/index.ts`
@@ -9,7 +9,7 @@
 > (`AX-MOD-GITHUB-001` … `AX-MOD-GITHUB-008`).
 >
 > All file paths, line numbers, exports, and test-stack conventions below were
-> verified against the working tree on the generated date.
+> verified against the working tree on the refresh date.
 
 `@stoked-ui/github` is a set of **React components for rendering GitHub data**
 (contribution calendar, event feed, commit and branch-compare views) plus a matching

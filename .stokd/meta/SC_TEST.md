@@ -3,7 +3,7 @@
 **Package:** `@stoked-ui/sui` (Monorepo Root — workspace-wide)
 **Priority:** Critical
 **Stack:** pnpm 10.5.1 / TypeScript 5.4 / React 18.3 / NestJS 10 / Turbo 2.7 / Mocha + Chai + Jest + Playwright + Karma + cargo
-**Date:** 2026-06-06 (re-verified live against the working tree; **material changes since prior pass:** (1) the `docs/` business layer is actively tested — **16** newer Mocha/Chai business-logic suites in `docs/src/modules/**` (audit-bot lead-gen added `leadFields.test.ts`, `reportValidation.test.ts`, and the first docs **component** test `products/StokdCloudPitch.test.tsx`, chai via `renderToStaticMarkup`, not Jest); (2) **count correction** — `docs/` actually carries **27** test suites total, because **11 legacy MUI docs-tooling `.test.js` suites** under `docs/src/modules/{sandbox,utils,components}/**` were previously uncounted — and they too import `{ expect } from 'chai'`, reinforcing the docs=Mocha/Chai rule; (3) `sui-media-api` carries **8** `*.spec.ts` in `src/` (not 9) + 1 e2e. CI test-execution gap unchanged.)
+**Date:** 2026-06-22 (re-verified live against the working tree; **material changes since the 2026-06-06 pass:** (1) **NEW package `@stoked-ui/stokd`** (`packages/sui-stokd`, v0.2.2 — Stokd "Current Activity" UX components) ships its own **Jest + ts-jest + jsdom** config with **10 runtime suites** (2 pure-logic `.test.ts` + 8 component `.test.tsx` via `@testing-library/jest-dom`) and `test`/`test:watch`/`test:coverage` scripts — it is the **fourth Jest package** and follows the `sui-media` pattern (but currently declares **no `coverageThreshold`**); (2) `docs/` grew to **29** Mocha/Chai suites (+`auditBot/llmClient.test.ts`, +`auditBot/playbooks/server.test.ts`); (3) `sui-common` grew to **4** suites (+`CalendarBooking/__tests__/CalendarBooking.test.tsx`, covering the recently-churned business-timezone slot mapping); (4) `sui-media-api` carries **8** `*.spec.ts` in `src/` + 1 e2e. **CI test-execution gap unchanged** — `ci.yml`'s `test-dev` job still runs no Jest/Mocha/Playwright/Karma/cargo tests.)
 
 ---
 
@@ -16,7 +16,7 @@ The monorepo runs a **multi-framework** stack inherited from MUI origins, with n
 | Runner | Scope | Config Location |
 |--------|-------|-----------------|
 | **Mocha 10.3 + Chai 4.4** | Root-level unit/integration/regressions, `docs/src/modules/**` business logic, `sui-editor` & `sui-file-explorer` & `sui-github` | Root `.mocharc.js`, `package.json` scripts, `test/utils/mochaHooks.js` |
-| **Jest 29.7 + ts-jest 29.1** | Per-package unit/service tests | `packages/sui-media/jest.config.js`, `packages/sui-common/jest.config.js`, `packages/sui-media-api/package.json` (inline `jest` field) |
+| **Jest 29.7 + ts-jest 29.1** | Per-package unit/service tests | `packages/sui-media/jest.config.js`, `packages/sui-common/jest.config.js`, `packages/sui-stokd/jest.config.js`, `packages/sui-media-api/package.json` (inline `jest` field) |
 | **Playwright 1.42** | Public docs site E2E | `test/e2e-website/playwright.config.ts` |
 | **Karma 6.4** | Cross-browser headless tests (Chrome/Firefox) | `test/karma.conf.js`, `test/karma.conf.profile.js` |
 | **nyc 15.1 + Istanbul** | Coverage for Mocha-based tests | Root `package.json` `nyc` config (`include: packages/sui*/src/**`) |
@@ -24,7 +24,7 @@ The monorepo runs a **multi-framework** stack inherited from MUI origins, with n
 
 The root `.mocharc.js` auto-loads `@stoked-ui/internal-test-utils/setupBabel` + `setupJSDOM` and globs `extension: ['js','mjs','ts','tsx']` recursively, which is why `docs/**/*.test.ts` runs under Mocha with zero per-file config.
 
-### 1.2 Test File Inventory (counted live 2026-06-06, not estimated)
+### 1.2 Test File Inventory (counted live 2026-06-22, not estimated)
 
 Counts across `packages/` and `docs/` (excluding `node_modules`, `dist`, `build`, `.next`). A naive `find` for `*.spec.*` also matches `test/typescript/**` compile-only suites; the runtime-spec column below intentionally excludes those.
 
@@ -33,27 +33,30 @@ Counts across `packages/` and `docs/` (excluding `node_modules`, `dist`, `build`
 | `sui-media-api` | 0 | 8 (`src/`) + 1 e2e (`test/uploads-e2e.spec.ts`) | Jest + `@nestjs/testing` | auth, s3, health, uploads (controller+service), media, thumbnail-generation, metadata-extraction; `testRegex: .*\.spec\.ts$`, `testEnvironment: node` |
 | `sui-media` | 11 | 0 | Jest + ts-jest + jsdom | `MediaCard`, `MediaViewer`, `WebUserDirectChat`, abstractions (Auth/Router/Queue/KeyboardShortcuts/Payment) |
 | `sui-file-explorer` | 19 | 1 (type) | Mocha/Chai + `describeConformance` | Components, plugins, dropzone |
-| `sui-editor` | 12 (8 MUI-fork integration in `test/integration/*.test.js` + 4 product) | 1 (type) | Mocha/Chai | `EditorFile`, `useEditor`, `useEditorMetadata`, `useEditorKeyboard`, plus inherited MUI menu/dialog/select harness |
-| `sui-common` | 3 (SocialLinks suite) | 0 | Jest | `platformRegistry`, `SocialLinks`, `SocialLinkField` |
-| `sui-github` | 8 (`test/integration/*.test.js`) | 0 | Mocha/Chai | Forked MUI menu/dialog/select harness — minimal product coverage |
+| `sui-editor` | 12 (8 MUI-fork integration in `test/integration/*.test.js` + 4 product) | 28 (type) | Mocha/Chai | `EditorFile`, `useEditor`, `useEditorMetadata`, `useEditorKeyboard`, plus inherited MUI menu/dialog/select harness; 28 `*.spec.*` are compile-only type specs (`themeAugmentation.spec.ts` + `test/typescript/**`), not runtime suites |
+| `sui-common` | 4 | 0 | Jest | `platformRegistry`, `SocialLinks`, `SocialLinkField`, **NEW** `CalendarBooking` (business-timezone slot mapping) |
+| `sui-stokd` | **10** | 0 | **Jest + ts-jest + jsdom** | **NEW package.** 2 pure-logic (`src/__tests__/types.test.ts`, `src/grouping/__tests__/groupSessions.test.ts`) + 8 component `.test.tsx` (`ActiveTaskCard`, `InteractiveSessionCard`, `LiveTimer`, `PipelineShellCard`, `PrerequisiteBadge`, `ProviderBadge`, `ShipStatusChips`, `StatusBadge`); `@testing-library/jest-dom` setup; **no coverageThreshold declared yet** |
+| `sui-github` | 8 (`test/integration/*.test.js`) | 27 (type, `test/typescript/**`) | Mocha/Chai | Forked MUI menu/dialog/select harness — minimal product coverage; the 27 `*.spec.tsx` are compile-only MUI module-augmentation type specs, not runtime suites |
 | `sui-timeline` | 0 | 1 (themeAugmentation type spec) | Mocha (compile-only) | No runtime tests |
 | `sui-common-api` | 0 | 0 | — | **Gap** — DTOs/models/Mongoose schemas untested |
 | `sui-docs` | 0 | 0 | — | **Gap** — doc-tooling untested |
 | `sui-cdn` | 0 | 0 | — | **Gap** — only `src/` + `sst-env.d.ts` |
 | `sui-video-renderer` | Rust unit + integration | — | `cargo test` | Native side; WASM bridge not exercised in JS |
-| **`docs/` (app)** | **27** | 0 | **Mocha/Chai** | 16 newer business-logic suites (15 `.test.ts` + 1 `.test.tsx` `products/StokdCloudPitch`) **plus 11 legacy MUI docs-tooling `.test.js`** in `src/modules/{sandbox,utils,components}/**` — see §1.3 |
+| **`docs/` (app)** | **29** | 0 | **Mocha/Chai** | 18 newer business-logic suites (17 `.test.ts` + 1 `.test.tsx` `products/StokdCloudPitch`) **plus 11 legacy MUI docs-tooling `.test.js`** in `src/modules/{sandbox,utils,components}/**` — see §1.3 |
 
-**Workspace runtime totals (2026-06-06):** `packages/` carries **62** runtime JS/TS suites (53 `*.test.*` + 8 `sui-media-api` `*.spec.ts` in `src/` + 1 e2e `*.spec.ts`), plus **3** compile-only type specs (`themeAugmentation.spec.ts` in `sui-editor`/`sui-file-explorer`/`sui-timeline`, excluded from the runtime count), plus **27** in `docs/`, for **≈ 89** runtime suites workspace-wide. The bulk of `sui-editor` and `sui-github` test files remain forked MUI integration harnesses, not product-level coverage.
+**Workspace runtime totals (2026-06-22):** `packages/` carries **73** runtime JS/TS suites (64 `*.test.*` — incl. the 10 new `sui-stokd` suites and the new `sui-common/CalendarBooking` — + 8 `sui-media-api` `*.spec.ts` in `src/` + 1 e2e `*.spec.ts`), plus the compile-only type specs in `sui-editor`/`sui-github`/`sui-file-explorer`/`sui-timeline` (`themeAugmentation.spec.ts` + `test/typescript/**` — excluded from the runtime count), plus **29** in `docs/`, for **≈ 102** runtime suites workspace-wide. The bulk of `sui-editor` and `sui-github` test files remain forked MUI integration harnesses, not product-level coverage; `sui-stokd` is the first new package to ship with component coverage from day one.
 
 ### 1.3 `docs/` Business-Logic Suite (the material change)
 
-The repo guardrail (`.stokd/meta/SC_AXIOMS.md` → `AX-REPO-MEDIA-API-BOUNDARY`) puts all non-media business logic under `docs/pages/api/**` and `docs/src/modules/**`. That layer is tested with Mocha + Chai (run via root `.mocharc.js`, glob `docs/**/*.test.*`). The 16 newer **business-logic** suites are catalogued below; in addition there are **11 legacy MUI docs-tooling** `.test.js` suites (`sandbox/{CodeSandbox,Dependencies,StackBlitz}`, `components/HighlightedCode`, and `utils/{componentDocs,extractTemplates,findActivePage,getProductInfoFromUrl,helpers,replaceMarkdownLinks,siteRouteAudit}`) that **also** use `import { expect } from 'chai'` — they are low-risk infra coverage but confirm the docs-wide convention:
+The repo guardrail (`.stokd/meta/SC_AXIOMS.md` → `AX-REPO-MEDIA-API-BOUNDARY`) puts all non-media business logic under `docs/pages/api/**` and `docs/src/modules/**`. That layer is tested with Mocha + Chai (run via root `.mocharc.js`, glob `docs/**/*.test.*`). The 18 newer **business-logic** suites are catalogued below; in addition there are **11 legacy MUI docs-tooling** `.test.js` suites (`sandbox/{CodeSandbox,Dependencies,StackBlitz}`, `components/HighlightedCode`, and `utils/{componentDocs,extractTemplates,findActivePage,getProductInfoFromUrl,helpers,replaceMarkdownLinks,siteRouteAudit}`) that **also** use `import { expect } from 'chai'` — they are low-risk infra coverage but confirm the docs-wide convention:
 
 | Suite | `describe`/`it` | Subject under test |
 |-------|----------------:|--------------------|
 | `docs/src/modules/auditBot/tools.test.ts` | 3 / 12 | `executeTool('fetch_company_site')` SSRF guard: rejects loopback/link-local (`169.254.169.254`), private ranges, non-public hosts before any network call |
 | `docs/src/modules/auditBot/urlSafety.test.ts` | 4 / 12 | URL allow/deny classification powering the SSRF guard |
 | `docs/src/modules/auditBot/auditMailer.test.ts` | 1 / 6 | audit-result email composition/dispatch |
+| `docs/src/modules/auditBot/llmClient.test.ts` | — | **NEW 2026-06-22** — LLM client request/response shaping for the server-side audit-bot turn loop (`AX-REPO-AUDIT-BOT-BEST-EFFORT`) |
+| `docs/src/modules/auditBot/playbooks/server.test.ts` | — | **NEW 2026-06-22** — server-side playbook selection / required-field wiring feeding `validateReportShape` |
 | `docs/src/modules/auditBot/leadFields.test.ts` | 1 / 4 | **NEW 2026-06-06** — `extractLeadFields()`: keep only known fields (trimmed, length-capped), drop invalid emails, ignore non-string/garbage input |
 | `docs/src/modules/auditBot/reportValidation.test.ts` | 1 / 6 | **NEW 2026-06-06** — `validateReportShape()`: ranked-list length ≥3, required scalar fields, per-playbook required keys (e.g. `top_findings` for security), reject non-objects |
 | `docs/src/modules/products/StokdCloudPitch.test.tsx` | 1 / 11 | **NEW 2026-06-06** — first docs **component** test; renders `<StokdCloudPitch>` via `renderToStaticMarkup` and asserts value-prop / pricing / governance content (chai, not Jest) |
@@ -68,7 +71,7 @@ The repo guardrail (`.stokd/meta/SC_AXIOMS.md` → `AX-REPO-MEDIA-API-BOUNDARY`)
 | `docs/src/modules/joy/generateThemeAugmentation.test.ts` | 1 / 3 | Joy theme-augmentation codegen |
 | `docs/src/modules/joy/literalToObject.test.ts` | 1 / 1 | literal→object AST transform |
 
-**All 27 docs suites import `{ expect } from 'chai'`; zero use Jest** — even the new component test (`StokdCloudPitch.test.tsx`) stays on chai by rendering with `react-dom/server`'s `renderToStaticMarkup` rather than pulling in React Testing Library/Jest. This corrects any prior plan that recommended Jest + `node-mocks-http` for the docs layer. The established, working pattern for docs **pure-logic** modules is Mocha/Chai — extend it, do not introduce a second runner for the same files. Note the `test:coverage`/`test:unit` globs are `docs/**/*.test.{js,ts,tsx}`, so both the `.tsx` component test and every `.test.js` infra suite are already picked up.
+**All 29 docs suites import `{ expect } from 'chai'`; zero use Jest** — even the new component test (`StokdCloudPitch.test.tsx`) stays on chai by rendering with `react-dom/server`'s `renderToStaticMarkup` rather than pulling in React Testing Library/Jest. This corrects any prior plan that recommended Jest + `node-mocks-http` for the docs layer. The established, working pattern for docs **pure-logic** modules is Mocha/Chai — extend it, do not introduce a second runner for the same files. Note the `test:coverage`/`test:unit` globs are `docs/**/*.test.{js,ts,tsx}`, so both the `.tsx` component test and every `.test.js` infra suite are already picked up.
 
 **Still a gap in `docs/`:** `docs/src/modules/license/*` (revenue) and `docs/src/modules/auth/*` (security) remain untested. These are the highest-value targets (see §7).
 
@@ -81,8 +84,9 @@ The repo guardrail (`.stokd/meta/SC_AXIOMS.md` → `AX-REPO-MEDIA-API-BOUNDARY`)
 | sui-media test utils | `packages/sui-media/src/__tests__/utils/test-utils.tsx` | Custom render w/ QueryClient, mock factories (`createMockFile`, `createMockVideoFile`, `createMockImageFile`) |
 | sui-media setup | `packages/sui-media/src/__tests__/setup.ts` | Mocks: `matchMedia`, `IntersectionObserver`, `ResizeObserver`, `HTMLMediaElement`, `fetch` |
 | Production-grade abstraction mocks | `packages/sui-media/src/abstractions/` | `createMockAuth`, `createMockPayment`, `createInMemoryQueue`, `noOpRouter`, `createInMemoryKeyboardShortcuts` (shipped — reuse in tests) |
+| sui-stokd setup | `packages/sui-stokd/src/__tests__/setup.ts` | `import '@testing-library/jest-dom'` — the canonical lightweight RTL setup for new component packages |
 
-### 1.5 CI Pipeline (current, verified 2026-06-06)
+### 1.5 CI Pipeline (current, verified 2026-06-22)
 
 GitHub Actions in `.github/workflows/`: `ci.yml`, `ci-check.yml`, `claude-code-review.yml`, `claude.yml`, `codeql.yml`, `deploy-site.yml`, `publish-packages.yml`, `scorecards.yml`, `vale-action.yml`. **No `test-coverage.yml` or equivalent test job — Phase 0 below remains open.**
 
@@ -207,6 +211,18 @@ Modules with **zero coverage** in `sui-media-api/src/`: `blog/`, `clients/`, `da
 | Folder expansion | `src/internals/plugins/useFileExplorerExpansion/` |
 | File CRUD | `src/internals/plugins/useFileExplorerFiles/` |
 
+#### Stokd Current-Activity UX (`sui-stokd`) — covered day-one, keep green
+
+| Critical Path | File | Status |
+|---------------|------|--------|
+| Session grouping / ordering | `src/grouping/groupSessions.ts` | **Covered** (`grouping/__tests__/groupSessions.test.ts`) — keep as the package grows |
+| View-model type guards / shape | `src/types.ts` | **Covered** (`__tests__/types.test.ts`) |
+| Status / provider / prerequisite badges | `src/components/{StatusBadge,ProviderBadge,PrerequisiteBadge,ShipStatusChips}` | **Covered** (component `.test.tsx`) |
+| Live timer tick / formatting | `src/components/LiveTimer` | **Covered** — assert timer math without real wall-clock (fake timers) |
+| Active/interactive/pipeline cards render contract | `src/components/{ActiveTaskCard,InteractiveSessionCard,PipelineShellCard}` | **Covered** |
+
+> `sui-stokd` is host-agnostic (web dashboard + VS Code extension). New components MUST land with a co-located `__tests__/*.test.tsx`, and the package SHOULD gain a `coverageThreshold` (§6.1) so the day-one coverage does not erode as it grows.
+
 ### 2.2 Edge Cases (P1 — Should Have)
 
 | Category | Cases |
@@ -244,7 +260,7 @@ Modules with **zero coverage** in `sui-media-api/src/`: `blog/`, `clients/`, `da
 Two runners coexist by design. **Do not migrate existing suites and do not introduce a third runner.** Pick by location:
 
 - **`docs/**` → Mocha + Chai.** The root `.mocharc.js` already discovers `docs/**/*.test.ts`, sets up Babel + jsdom, and 13 suites pass under it today. New docs pure-logic tests follow this pattern.
-- **`packages/sui-media`, `sui-common`, `sui-media-api` → Jest.** These have Jest configs and coverage thresholds already.
+- **`packages/sui-media`, `sui-common`, `sui-stokd`, `sui-media-api` → Jest.** These have Jest configs already (`sui-media` + `sui-media-api` also declare coverage thresholds; `sui-stokd` does not yet — see §6.1). `sui-stokd` is the reference template for a *new* component package: `ts-jest` + jsdom + `@testing-library/jest-dom`, co-located `__tests__/`.
 - **New `packages/*` runtime tests → Jest** unless the package already uses the Mocha `describeConformance` harness (`sui-editor`, `sui-file-explorer`, `sui-github`), in which case stay on Mocha for consistency with the fork harness.
 
 | Layer | Framework | Rationale |
@@ -486,7 +502,8 @@ moduleNameMapper: { '\\.(css|less|scss|sass)$': 'identity-obj-proxy' }
 | `sui-media-api` | **80%** | **80%** | **80%** | Declared in inline jest config — **not CI-enforced** | Security/revenue critical |
 | `sui-media` | **80%** | **80%** | **80%** | Declared in `jest.config.js` — **not CI-enforced** | Core data layer |
 | Docs business logic (`docs/src/modules/**`) | **75%** | **70%** | **75%** | Partially met (auditBot/deliverables/cdn/invoices/clients); license+auth at 0% | Revenue + security |
-| `sui-common` | **75%** | **70%** | **75%** | Target | Foundation utilities |
+| `sui-common` | **75%** | **70%** | **75%** | Target (4 suites today) | Foundation utilities — incl. `CalendarBooking` timezone slot mapping |
+| `sui-stokd` | **70%** | **65%** | **70%** | 10 suites, **no threshold declared** — add `coverageThreshold` to `jest.config.js` | New host-agnostic component package; lock in day-one coverage before it grows |
 | `sui-common-api` | **85%** | **80%** | **85%** | Target | Pure DTOs/models |
 | `sui-file-explorer` | **70%** | **65%** | **70%** | Target | Plugin system, DnD edge cases |
 | `sui-timeline` | **65%** | **60%** | **65%** | Target | Heavy DOM interaction |
@@ -529,6 +546,7 @@ Proposed `.github/workflows/test-coverage.yml` (new):
 push/PR  → test-backend       (sui-media-api: pnpm --filter @stoked-ui/media-api test:ci)   → Codecov [backend]
          → test-frontend      (sui-media:    pnpm --filter @stoked-ui/media test:ci)        → Codecov [frontend]
          → test-common        (sui-common:   pnpm --filter @stoked-ui/common test)          → Codecov [common]
+         → test-stokd         (sui-stokd:    pnpm --filter @stoked-ui/stokd test)           → Codecov [stokd]
          → test-docs          (Mocha: pnpm test:unit, docs/src/modules/** + packages Mocha) → nyc lcov → Codecov [docs]
          → test-mocha-pkgs    (sui-file-explorer / sui-editor / sui-github conformance)     → Codecov [components]
          → coverage-report    (combined; flip codecov.yml comment:true, patch: target)
@@ -719,7 +737,7 @@ DnD reorder, selection, keyboard navigation, expansion in `packages/sui-file-exp
 
 | Task | Deliverable |
 |------|-------------|
-| Add `.github/workflows/test-coverage.yml` running Jest (`sui-media-api`, `sui-media`, `sui-common`) **and** Mocha (`pnpm test:unit` for docs + component packages) | New workflow file |
+| Add `.github/workflows/test-coverage.yml` running Jest (`sui-media-api`, `sui-media`, `sui-common`, `sui-stokd`) **and** Mocha (`pnpm test:unit` for docs + component packages) | New workflow file |
 | Enable Codecov upload + flip `codecov.yml` (`comment: true`, set `patch` target) | `codecov.yml` edit + upload step |
 | Add `pnpm test:jest` root script driving Turbo + a `test:jest`/`test:jest:ci` task in `turbo.json` | `turbo.json` + root `package.json` |
 | Fail PR on coverage delta drop / threshold breach | Codecov comment + threshold check |
@@ -779,6 +797,8 @@ pnpm --filter @stoked-ui/media-api test              # Jest (testRegex .*\.spec\
 pnpm --filter @stoked-ui/media-api test:cov          # Jest --coverage
 pnpm --filter @stoked-ui/media-api test:e2e          # Jest @ test/jest-e2e.json
 pnpm --filter @stoked-ui/common test                 # Jest
+pnpm --filter @stoked-ui/stokd test                  # Jest (10 suites)
+pnpm --filter @stoked-ui/stokd test:coverage         # Jest --coverage
 
 pnpm video-renderer:test                             # cargo test --workspace
 ```

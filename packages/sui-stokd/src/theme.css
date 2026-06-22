@@ -1,0 +1,7 @@
+/**
+ * Default theme entry for @stoked-ui/stokd.
+ *
+ * Import once per host:  import '@stoked-ui/stokd/theme.css';
+ * Then override the --sui-* variables to match the host theme.
+ */
+@import './theme/tokens.css';

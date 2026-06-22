@@ -1,6 +1,6 @@
 # Module: @stoked-ui/media
 
-> **Generated:** 2026-05-05 (refreshed 2026-05-21 for upgrade; timed refresh 2026-06-06 — corrected TanStack Query cache keys to match source, refreshed `MediaCard.tsx` line count; second 2026-06-06 pass — added the new `WebUserDirectChat` test suite to the inventory, fixed the `useActiveUploads` cache-key typo (`['activeUploads']` → `['uploads', 'active']`), re-verified LOC and the no-`exports`-map state) | **Meta version:** 0.4.0 (prev 0.3.0)
+> **Generated:** 2026-05-05 (refreshed 2026-05-21 for upgrade; timed refresh 2026-06-06 — corrected TanStack Query cache keys to match source, refreshed `MediaCard.tsx` line count; second 2026-06-06 pass — added the new `WebUserDirectChat` test suite to the inventory, fixed the `useActiveUploads` cache-key typo (`['activeUploads']` → `['uploads', 'active']`), re-verified LOC and the no-`exports`-map state; 0.6.0 upgrade 2026-06-22 — re-verified the 11 Jest suites, export surface, LOC for the six largest files, and `version` 0.1.0-alpha.5 against source) | **Meta version:** 0.6.0 (prev 0.4.0)
 > **Package location:** `packages/sui-media`
 > **NPM name:** `@stoked-ui/media` (v0.1.0-alpha.5)
 > **Source entry:** `packages/sui-media/src/index.ts`

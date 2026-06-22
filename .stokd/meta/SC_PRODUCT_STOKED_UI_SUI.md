@@ -1,8 +1,8 @@
 # Stoked UI — Product Classification
 
-> **Generated:** 2026-05-05 | **Updated:** 2026-06-06 (TIMED REFRESH — re-verified end-to-end: 11 package manifests + npm names, root version `v0.1.0-alpha.5`, pnpm `10.5.1` + MUI/React `pnpm.overrides`, video-renderer Cargo crate names (`video-compositor`/`wasm-preview`/`video-renderer-cli`→`video-render`) and `pkg/` artifact, `next.config.mjs` WASM alias + `asyncWebAssembly`, audit-bot module/channel/playbook layout, `docs/pages/api/**` topology. Confirmed `auditBot/channels/{linkedin,voice}` remain empty stubs and `promoteAuditToDeliverable` is still dormant. Content matched the codebase — no factual corrections required this pass.) | **Meta version:** 0.4.0
+> **Generated:** 2026-05-05 | **Updated:** 2026-06-06 (TIMED REFRESH — re-verified end-to-end) | **Updated:** 2026-06-22 (UPGRADE 0.4.0 → 0.6.0 — re-verified root version `v0.1.0-alpha.5`, pnpm `10.5.1` + MUI/React `pnpm.overrides`, video-renderer crates + `pkg/` artifact, `next.config.mjs` WASM alias, `docs/pages/api/**` topology, audit-bot layout (`channels/{linkedin,voice}` still empty stubs, `promoteAuditToDeliverable` still dormant). Added the 12th constituent package **`@stoked-ui/stokd`** v0.2.2 (agent-activity UX, flows §14); added flows §1.6 consulting service-line discovery, §6.3 CloudFront cache invalidation, §9.4 self-hosted `CalendarBooking` (component exists, not yet wired); fixed the stale root path.) | **Meta version:** 0.6.0
 > **Repository:** `@stoked-ui/sui` v0.1.0-alpha.5
-> **Root:** `/opt/worktrees/stoked-ui/stoked-ui-main`
+> **Root:** `/opt/worktrees/stoked-ui/sui/main`
 
 ---
 
@@ -12,7 +12,7 @@
 
 ### Constituent Packages
 
-The eleven constituent packages named for this product (workspace dirs under `packages/`):
+The twelve constituent packages named for this product (workspace dirs under `packages/`):
 
 | Package dir | npm name | Role in the product |
 |-------------|----------|---------------------|
@@ -27,6 +27,7 @@ The eleven constituent packages named for this product (workspace dirs under `pa
 | `packages/sui-media-api` | `@stoked-ui/media-api` | NestJS API for media-component endpoints (uploads, metadata, thumbnails). Runs as Express locally and as Lambda in production. |
 | `packages/sui-timeline` | `@stoked-ui/timeline` | Animation/scrubber timeline engine + UI (`Engine`, `Controller`, `TimelineProvider`, `TimelinePlayer`, tracks, actions). |
 | `packages/sui-video-renderer` | `@stoked-ui/video-renderer-wasm` (file dep) + `video-render` CLI | Rust Cargo workspace (3 crates) producing the WASM preview compositor consumed by `@stoked-ui/editor` and a native `video-render` CLI binary for offline `.sue` rendering. **Not** a Babel/Turbo-published npm package. |
+| `packages/sui-stokd` | `@stoked-ui/stokd` (v0.2.2) | Host-agnostic, CSS-variable-themed React components + view-model types for the Stokd "Current Activity" UX (`ActiveTaskCard`, `InteractiveSessionCard`, `PipelineShellCard`, status/provider/prerequisite badges, `LiveTimer`, session-grouping + formatting helpers). Stateless — renders agent session/task/project view-models the host supplies (Stokd web dashboard, VS Code extension). Drives flow §14. Built via the standard Babel pipeline; **no `SC_MODULE.md` yet**. |
 
 Adjacent in-repo surfaces that belong to the same product but are not in the listed package set:
 
@@ -39,7 +40,7 @@ Adjacent in-repo surfaces that belong to the same product but are not in the lis
 
 Stoked UI is an integrated, media-first product for building, demonstrating, selling, and operating browser-based video / timeline / file / GitHub-activity experiences — and, increasingly, for generating and servicing the consulting business behind it. It bundles:
 
-1. A React component suite (`@stoked-ui/editor`, `@stoked-ui/timeline`, `@stoked-ui/file-explorer`, `@stoked-ui/media`, `@stoked-ui/github`, `@stoked-ui/cdn`) for embedding rich media editing and visualization into host apps.
+1. A React component suite (`@stoked-ui/editor`, `@stoked-ui/timeline`, `@stoked-ui/file-explorer`, `@stoked-ui/media`, `@stoked-ui/github`, `@stoked-ui/cdn`, and the host-agnostic agent-activity UX `@stoked-ui/stokd`) for embedding rich media editing, visualization, and agent-work dashboards into host apps.
 2. A documentation + marketing + commerce + consulting + admin site (`docs/`, `stokedui-com`) that showcases the components, sells licenses via Stripe, runs the consulting business, and captures leads via an LLM-driven audit bot.
 3. A media backend (`@stoked-ui/media-api`, NestJS) for uploads, metadata extraction, and thumbnail generation.
 4. A native Rust video renderer (`packages/sui-video-renderer`) that compiles to WASM for in-browser preview/render and ships a CLI binary (`video-render`) for offline rendering of `.sue` projects.
@@ -60,6 +61,7 @@ Stoked UI is an integrated, media-first product for building, demonstrating, sel
 | **Consulting clients & partners** | Auth-gated `/consulting/{home, customer, clients, deliverables, invoices, partners}` portal. |
 | **Stoked UI internal admins / operators** | `/consulting/admin`, `/admin/products`, blog editor (`/blog/editor`), CDN admin (`packages-internal/cdn`, `cdn-sui`, embedded `CdnBrowser`), Swagger UIs; Brian receives Telegram lead notifications. |
 | **Operators of the native renderer** | `video-render` CLI (`render`, `info` subcommands) for batch / headless rendering of `.sue` projects. |
+| **Operators watching autonomous agent work** | `@stoked-ui/stokd` activity components embedded in the Stokd web dashboard / VS Code extension — live session, task, and project state (work-type, status, plan/acceptance progress, command timeline, cost). |
 | **Repo contributors / maintainers** | pnpm/Turbo/Lerna toolchain, package build pipelines, SST deploy (`pnpm deploy:prod`), Playwright / Karma / Mocha test harness. |
 
 ---
@@ -123,6 +125,8 @@ Wired into SST API Gateway v2 by `infra/api.ts`:
 - `packages/sui-media/src/index.ts` — `MediaFile`, `WebFile`, `FileSystemApi`, `Stage`, `MediaGallery`, `MediaViewer`, players, hooks
 - `packages/sui-github/src/index.ts` — `GithubCalendar`, `GithubEvents`, `GithubBranch`, `GithubCommit`, `PullRequestView`
 - `packages/sui-cdn/src/index.ts` — `CdnBrowser`, `createCdnApi`, `collectDroppedEntries`, `beginDesktopDownload`, content utils, `mockObjects`
+- `packages/sui-stokd/src/index.ts` — `ActiveTaskCard`, `InteractiveSessionCard`, `PipelineShellCard`, `StatusBadge`, `ShipStatusChips`, `ProviderBadge`, `PrerequisiteBadge`, `LiveTimer`, view-model types (`./types`), and helpers (`groupSessionsByRequest`, `pickGroupDisplayStatus`, `displayStatusLabel`, `formatDuration`, `formatCurrency`, `normalizeProviderId`); ships `@stoked-ui/stokd/theme.css` default `--sui-*` theme
+- `packages/sui-common/src/CalendarBooking/CalendarBooking.tsx` — `CalendarBooking` self-hosted slot-picker (timezone-pinned to `America/Chicago`); component exists + unit-tested, **not yet mounted on any docs route** (flow §9.4)
 - `packages/sui-docs/*` — Subpath exports per primitive (`./Demo`, `./CodeSandbox`, etc.)
 
 ### CLI
@@ -160,6 +164,7 @@ All user flows in `.stokd/meta/SC_FLOWS.md` belong to this product. Grouped by d
 - **1.3 Read Product Documentation**
 - **1.4 Read Blog Index → Post**
 - **1.5 Subscribe to Newsletter / Confirm Subscription**
+- **1.6 Discover Consulting Service Lines** — `consulting.stokd.cloud` origin: `WeightedMain` lottery → service-line `main` pages, converging on the audit bot (§9.3) or contact.
 
 ### Account & authentication
 - **2.1 Email + Password Sign-Up & Sign-In**
@@ -192,6 +197,7 @@ All user flows in `.stokd/meta/SC_FLOWS.md` belong to this product. Grouped by d
 ### CDN admin
 - **6.1 Browse / Upload via `CdnBrowser`**
 - **6.2 Resume / Abort Multipart Upload**
+- **6.3 Edge-Cache Invalidation After a CDN Mutation** — best-effort `invalidateCdnPaths` (`docs/src/modules/cdn/cdnInvalidation.ts`) after upload-complete / delete / move; skipped silently when `CDN_DISTRIBUTION_ID` is unset, never blocks the mutation response.
 
 ### Consulting / business operations (admin)
 - **7.1 Manage Products (Admin)**
@@ -209,6 +215,7 @@ All user flows in `.stokd/meta/SC_FLOWS.md` belong to this product. Grouped by d
 - **9.1 Submit Product Feedback**
 - **9.2 Chat / Direct Messaging**
 - **9.3 Run a Consulting Audit Bot Conversation (Lead Generation)** — LLM-driven AI-readiness audit on `/consulting/ai`; SSRF-guarded company-site scrape, structured `AuditReport`, lead capture.
+- **9.4 Book a Call via the Self-Hosted Calendar (`CalendarBooking`)** — slot picker pinned to `America/Chicago`; component-level flow, **not yet wired** (no `/api/calendar/*` handlers, not mounted on a route).
 
 ### GitHub widgets / activity
 - **10.1 Render Repo Activity (Calendar / Branch / Commits / Events)**
@@ -231,16 +238,19 @@ All user flows in `.stokd/meta/SC_FLOWS.md` belong to this product. Grouped by d
 - **13.4 Centralized Logging Endpoint**
 - **13.5 Audit Lead Notification & Report Email** — Telegram notify + SES report email on audit completion (best-effort, idempotent send guard).
 
+### Agent activity visualization (`@stoked-ui/stokd`)
+- **14.1 Render Live Agent / Work Activity in a Host Dashboard** — host feeds session/task/project view-models to `@stoked-ui/stokd` components; package ships no routes of its own, the live data source/polling/persistence live in the host.
+
 ---
 
 ## Modules
 
-All eleven per-package module docs in `.stokd/meta/packages/*` support this product, plus the docs-app audit-bot module. Per-module contribution:
+All eleven generated per-package module docs in `.stokd/meta/packages/*` support this product, plus the docs-app audit-bot module. The twelfth package, `packages/sui-stokd` (`@stoked-ui/stokd`), is a constituent of this product but **does not yet have a generated `SC_MODULE.md`** (its surface is documented in flow §14 and SC_VIEWS §26). Per-module contribution:
 
 | Module doc | Contribution to the product |
 |------------|------------------------------|
 | `.stokd/meta/packages/sui-cdn/SC_MODULE.md` | Embeddable, browser-only `CdnBrowser` + `CdnApi` — the product's CDN admin capability (flows §6.1, §6.2). Resumable presigned-URL multipart uploads, permissions, export; reused by `packages-internal/cdn-sui` and the docs admin. Consumes `docs/pages/api/cdn/**` (boundary-governed). |
-| `.stokd/meta/packages/sui-common/SC_MODULE.md` | Foundational client utilities used everywhere — `LocalDb` (IndexedDB) backs editor save/version/recording flows; `Mime`, `FetchBackoff`, `useResize` are consumed across packages; `UserMenu`, `GrokLoader`, `SocialLinks` are shared chrome rendered in the docs app. |
+| `.stokd/meta/packages/sui-common/SC_MODULE.md` | Foundational client utilities used everywhere — `LocalDb` (IndexedDB) backs editor save/version/recording flows; `Mime`, `FetchBackoff`, `useResize` are consumed across packages; `UserMenu`, `GrokLoader`, `SocialLinks` are shared chrome rendered in the docs app. Also hosts the self-hosted `CalendarBooking` slot picker (flow §9.4, timezone-pinned to `America/Chicago`) — built + unit-tested, awaiting a host route + `/api/calendar/*` backend. |
 | `.stokd/meta/packages/sui-common-api/SC_MODULE.md` | Server foundation — NestJS decorators, validation DTOs, and Mongoose model patterns (`swapId` `_id`→`id` wire format) reused by `sui-media-api` and (indirectly) by `docs/pages/api/*` business endpoints. |
 | `.stokd/meta/packages/sui-docs/SC_MODULE.md` | Documentation primitives (`Demo`, `DemoEditor`, `DemoSandbox`, `CodeSandbox`, `StackBlitz`, `HighlightedCode`, `MarkdownElement`, `BrandingCssVarsProvider`) that drive the per-product MDX docs trees and live demos in the Next.js site. |
 | `.stokd/meta/packages/sui-editor/SC_MODULE.md` | The flagship component — `Editor`, `EditorEngine`, `EditorProvider`, `WasmPreview`, `EditorFile`, `EditorView`, `EditorControls`, `DetailView`, `EditorFileTabs`, `EditorScreener`. Drives editor flows §4.1–4.3 and the home/products `EditorShowcase`. Primary consumer of the WASM renderer. |
@@ -251,7 +261,11 @@ All eleven per-package module docs in `.stokd/meta/packages/*` support this prod
 | `.stokd/meta/packages/sui-timeline/SC_MODULE.md` | Animation/scrubber timeline primitives (`Engine`, `Controller`, `Timeline`, `TimelinePlayer`, `TimelineLabels`, `TimelineTrackArea`, `TimelineTrack`, `TimelineAction`, `TimelineCursor`, `TimelineTime`, `TimelineScrollResizer`). Drives flow §4.4 standalone and powers the timeline rail inside `Editor`. |
 | `.stokd/meta/packages/sui-video-renderer/SC_MODULE.md` | Rust Cargo workspace (3 crates: `video-compositor` rlib, `wasm-preview` cdylib, `video-renderer-cli` bin). Produces the WASM compositor (`pkg/`, surfaced as `@stoked-ui/video-renderer-wasm`) that powers editor preview/render (§4.1, §4.3) and the `video-render` CLI for offline `.sue` rendering (§12.1–12.2). |
 
-Docs-app module (not a publishable package, lives under `docs/src/modules/`):
+Publishable package without a generated module doc:
+- **`packages/sui-stokd` (`@stoked-ui/stokd`)** — host-agnostic agent-activity UX. `ActiveTaskCard` (stage stepper, plan bullets, line items, collapsible acceptance criteria, last-16 command timeline, cost footer), `InteractiveSessionCard` (planning chat feed), `PipelineShellCard` (project skeleton), badges (`StatusBadge`, `ShipStatusChips`, `ProviderBadge`, `PrerequisiteBadge`), `LiveTimer`, and helpers (`groupSessionsByRequest`, `pickGroupDisplayStatus`, `formatDuration`/`formatCurrency`, `normalizeProviderId`). CSS-variable themed (`--sui-*`, `data-theme`), stateless. Drives flow §14; the live data lives in the host (Stokd web dashboard / VS Code extension), not this repo.
+
+Docs-app modules (not publishable packages, live under `docs/src/modules/`):
+- **`docs/src/modules/cdn/**`** — server-side CDN mutation helpers + `cdnInvalidation.ts` (`invalidateCdnPaths` → CloudFront `CreateInvalidationCommand` against `CDN_DISTRIBUTION_ID`, best-effort). Drives flow §6.3 alongside §6.1 mutations.
 - **`docs/src/modules/auditBot/**`** — the consulting lead-gen audit bot. `conversationRunner.ts` (server-side tool loop), `llmClient.ts` (LM Studio / Qwen), `playbooks/` (`ai-readiness`, `cloud-cost`, `security` — only `ai-readiness` mounted), `tools.ts` + `urlSafety.ts` (SSRF-guarded `fetch_company_site`), `reportValidation.ts`, `leadFields.ts`, `auditStore.ts` (Mongo), `notifyTelegram.ts`, `auditMailer.ts` (SES). Web channel UI at `channels/web/components/{AuditBot,AuditBotTrigger,AuditReportView}.tsx`; `channels/{linkedin,voice}` are reserved (empty) stubs. Drives flows §9.3 and §13.5.
 
 ---
@@ -300,6 +314,9 @@ Docs-app module (not a publishable package, lives under `docs/src/modules/`):
 - **Build pipeline per package:** Babel-driven `build:modern` → `build:node` → `build:stable` → `build:types` → `build:copy-files` (`scripts/build.mjs`, `scripts/buildTypes.mjs`, `scripts/copyFiles.mjs`). Turbo orchestrates with `dev:prepare` priming downstream watches. `sui-video-renderer` is exempt — it builds through Cargo/`wasm-pack`.
 - **Dual-bundle backend:** `sui-media-api` runs identically as Express (NestJS standalone) or as AWS Lambda via `@codegenie/serverless-express` adapter (`lambda.ts`).
 - **Audit bot best-effort posture:** the audit bot (§9.3 / §13.5) is **unauthenticated**, runs tool execution server-side in `conversationRunner.ts`, validates untrusted model report args via `reportValidation.ts` before they reach the UI/mailer, and treats Mongo persistence, SES email, and Telegram notification as best-effort — none may fail a chat turn. Visitor-supplied URL fetches MUST pass `urlSafety.ts` (SSRF guard, see `AX-AUDIT-BOT-URL-SAFETY`).
+- **CDN edge-cache invalidation (§6.3):** CDN write mutations call `invalidateCdnPaths` (`docs/src/modules/cdn/cdnInvalidation.ts`) against `CDN_DISTRIBUTION_ID` (CloudFront control plane, `us-east-1`, wired via `infra/cdn-site.ts`). When the env var is unset (local dev) invalidation is skipped silently; any failure is logged and swallowed so it never blocks the user-facing mutation response.
+- **`CalendarBooking` not yet wired (§9.4):** the `CalendarBooking` component (`packages/sui-common`) exists and is unit-tested but is **not mounted on any docs route** and has **no `/api/calendar/availability` or `/api/calendar/book` backend** under `docs/pages/api/**`. Slot instants are pinned to the business timezone `America/Chicago` via `Intl.DateTimeFormat`. Treat as a component-level flow ready for a host to embed, not a live end-to-end journey.
+- **`@stoked-ui/stokd` is host-driven (§14):** the agent-activity components are stateless and ship no routes; all live data (session/task/project view-models), polling, and persistence are the host's responsibility. The package only renders whatever work-type / status / provider model the consumer maps in, themed via `--sui-*` CSS variables.
 - **Editor known issues** (carry through to flows §4.x):
   - `file.media` is a `createSettings`-Proxy — properties set via `Object.assign` don't always propagate through React state updates; detail views fall back to DOM `<video>` element for duration/width/height.
   - `extractVideoMetadata` previously blocked on empty `ScreenshotStore`; fixed by `count > 0` guard.
@@ -335,6 +352,8 @@ Repo-global invariants this product depends on. These are candidates for promoti
 - `AX-PROD-SUI-010`: User-facing flows enumerated in `.stokd/meta/SC_FLOWS.md` (§1–§13) constitute the product's contract; any change that alters or removes one of these flows MUST be driven through a governed `stokd task` or `stokd project` with explicit acceptance criteria, never as an incidental edit.
 - `AX-PROD-SUI-011`: Git workflows for this product MUST NOT use `git stash`, MUST NOT switch the working-tree branch via `git checkout <branch>`, and MUST NOT use `git reset --hard` or `git restore .` on a dirty tree — branch divergence is handled exclusively via `git worktree add`.
 - `AX-PROD-SUI-012`: The consulting audit bot (`docs/src/modules/auditBot/**`, flows §9.3 / §13.5) MUST loop tool execution server-side, validate untrusted model report args via `reportValidation.ts` before they reach the UI or mailer, fetch visitor-supplied URLs only through the `urlSafety.ts` SSRF guard, and treat Mongo persistence, SES report email, and Telegram notification as best-effort side effects that MUST NOT fail a chat turn.
+- `AX-PROD-SUI-013`: CloudFront edge-cache invalidation after a CDN write (flow §6.3, `docs/src/modules/cdn/cdnInvalidation.ts`) MUST be a best-effort side effect — skipped silently when `CDN_DISTRIBUTION_ID` is unset, and any failure logged and swallowed so it never blocks or fails the user-facing CDN mutation response (upload-complete / delete / move).
+- `AX-PROD-SUI-014`: `@stoked-ui/stokd` (flow §14) MUST remain host-agnostic and stateless — it ships no page routes, holds no live data source, and renders only the session/task/project view-models the host supplies, themed exclusively via `--sui-*` CSS variables + `data-theme`; live data, polling, and persistence MUST live in the host, not in this repo.
 
 ---
 

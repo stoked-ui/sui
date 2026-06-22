@@ -6,7 +6,7 @@ use std::fs;
 use std::path::PathBuf;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-pub const DEFAULT_BASE_URL: &str = "https://sui.stokd.cloud";
+pub const DEFAULT_BASE_URL: &str = "https://consulting.stokd.cloud";
 pub const DEFAULT_PROFILE: &str = "default";
 pub const LOCAL_DEV_BASE_URL: &str = "http://localhost:5199";
 
@@ -404,6 +404,11 @@ mod tests {
         assert!(canonical.api_key.is_none());
         assert_eq!(migrated.api_key.as_deref(), Some("sk_prod"));
         assert_eq!(migrated.email.as_deref(), Some("prod@example.com"));
+    }
+
+    #[test]
+    fn default_base_url_is_consulting() {
+        assert_eq!(DEFAULT_BASE_URL, "https://consulting.stokd.cloud");
     }
 
     #[test]

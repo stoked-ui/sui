@@ -3,13 +3,15 @@
 **Package:** `@stoked-ui/media-api`
 **Priority:** Medium
 **Stack:** NestJS 10.3 / TypeScript 5.4 / Jest 29 / ts-jest 29 / Mongoose 8 / AWS SDK v3 / Sharp / fluent-ffmpeg / Stripe / Passport-JWT
-**Generated:** 2026-05-21 | **Refreshed:** 2026-06-06 (re-verified against source; LOC counts unchanged, auto-role + `getInfo` facts corrected, leftover-dir state updated)
+**Generated:** 2026-05-21 | **Refreshed:** 2026-06-22 (re-verified against source and a live `pnpm jest` run — **8 suites / 103 tests green**; inventory, config drift, and gap list re-confirmed unchanged)
 
 This document describes the testing strategy for the `packages/sui-media-api` NestJS application — a media-component API providing CRUD, multipart uploads to S3, metadata extraction, and thumbnail/sprite generation. Per the package guardrails (`AGENTS.md`, `CLAUDE.md`, `.stokd/meta/SC_CONTEXT.md`, and `AX-REPO-MEDIA-API-BOUNDARY`), this API is reserved for media-component endpoints; non-media business routes belong in `docs/pages/api/*`.
 
 ---
 
 ## 1. Current Test Inventory
+
+> **Live baseline (verified 2026-06-22):** `pnpm --filter @stoked-ui/media-api test` → **Test Suites: 8 passed, Tests: 103 passed**, ~14 s. (One benign warning: "A worker process has failed to exit gracefully" — a teardown leak, most likely the S3/JWT timers or an un-closed Nest test app; run with `--detectOpenHandles` when hardening, but it does not fail the suite.) Note this count is the **unit** config only; `test/uploads-e2e.spec.ts` is not discovered by either config's default invocation — see §2.
 
 ### Unit Tests (8 files in `src/`)
 

@@ -1,6 +1,6 @@
 # Module: @stoked-ui/timeline
 
-> **Generated:** 2026-05-05 (fresh, content) | **Updated:** 2026-06-06 (timed refresh — verified against source; docs consumer paths corrected) | **Meta version:** 0.4.0
+> **Generated:** 2026-05-05 (fresh, content) | **Updated:** 2026-06-22 (UPGRADE 0.4.0 → 0.6.0 — re-verified version/guards/exports against source; `scaleWidth *` grep, `'No controllers set!'` guard, controller/command dirs, and the single `themeAugmentation.spec.ts` spec all confirmed unchanged) | **Meta version:** 0.6.0
 > **Package location:** `packages/sui-timeline`
 > **NPM name:** `@stoked-ui/timeline` (v0.1.3)
 > **Source entry:** `packages/sui-timeline/src/index.ts`

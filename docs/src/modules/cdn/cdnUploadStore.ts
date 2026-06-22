@@ -11,6 +11,7 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { getDb } from '../db/mongodb';
 import { CDN_BUCKET, CDN_REGION, buildCdnObjectUrl } from './cdnMutations';
+import { invalidateCdnPaths } from './cdnInvalidation';
 import { normalizeCdnPath } from './cdnAccess';
 
 const DEFAULT_CHUNK_SIZE = 10 * 1024 * 1024;
@@ -308,6 +309,10 @@ export async function completeCdnUpload(userId: string, sessionId: string) {
       },
     },
   );
+
+  // A multipart upload may have replaced an existing object at the same key;
+  // invalidate the edge cache so the new bytes are served immediately.
+  await invalidateCdnPaths(session.s3Key);
 
   return {
     path: session.s3Key,

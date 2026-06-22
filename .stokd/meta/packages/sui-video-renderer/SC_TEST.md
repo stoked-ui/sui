@@ -1,6 +1,6 @@
 # SC_TEST: sui-video-renderer (`@stoked-ui/video-renderer-wasm` + `video-render` CLI)
 
-> **Generated:** 2026-06-06 | **Meta version:** 0.4.0
+> **Generated:** 2026-06-06 | **Re-verified:** 2026-06-22 | **Meta version:** 0.5.0
 > **Package:** `packages/sui-video-renderer` (Rust Cargo workspace, workspace version `0.1.0`, edition 2021)
 > **Priority:** Medium
 > **Build products:** WASM bundle in `pkg/` (consumed by `@stoked-ui/editor`) + native `video-render` CLI binary.
@@ -8,9 +8,20 @@
 > `packages/sui-video-renderer/.axioms.md` (`AX-MOD-VIDEO-RENDERER-001…007`) for the invariants this strategy protects.
 >
 > All test counts, file paths, function names, and toolchain facts below were **verified
-> against the working tree on the generated date** by running the suite (see §2). This is
+> against the working tree** by running the suite (see §2). This is
 > a Rust workspace — it is **exempt** from the JS/Mocha umbrella runner and the
 > `AX-REPO-PNPM-MONOREPO` / `AX-REPO-PACKAGE-BARREL` axioms (see `SC_MODULE.md` §intro).
+>
+> **2026-06-22 re-verification (ground truth):** every inline `#[test]` and integration-test
+> count in §2 still matches the source byte-for-byte (no test added/removed since 2026-06-06;
+> `cli/src/render.rs` is still **0 inline tests**). Toolchain re-confirmed on this machine:
+> `cargo 1.93.0`, `wasm-pack 0.14.0`, `ffmpeg 8.0.1`. A clean
+> `cargo test --workspace --exclude wasm-preview` run reproduced **333 passed; 0 failed**
+> (153 + 40 + 8 + 45 + 31 + 25 + 21 + 10). **One environment gotcha was caught and is now
+> recorded in §11:** a *stale cached `e2e` test binary* in `target/debug/deps` can panic
+> every fixture-loading test with `No such file or directory (os error 2)` even though the
+> fixtures and the compile-time `CARGO_MANIFEST_DIR` are correct; forcing a recompile of
+> `cli/tests/e2e.rs` clears it. This is a build-cache artifact, **not** a source regression.
 
 `sui-video-renderer` is **not** a publishable npm package. It is a three-crate Cargo
 workspace (`Cargo.toml` members: `compositor`, `wasm-preview`, `cli`):
@@ -478,3 +489,13 @@ cargo llvm-cov -p video-compositor --html                # coverage report
 - **Rebuild `pkg/` after any Rust change the editor must see** (`pnpm build:wasm`); a stale
   `pkg/` makes a green `cargo test` lie about what the browser runs
   (`AX-MOD-VIDEO-RENDERER-005`).
+- **A stale `e2e` test binary can fake a `.sue`-fixture regression.** Observed 2026-06-22:
+  a cached `target/debug/deps/e2e-*` from an earlier build made *all* fixture-loading
+  `e2e.rs` tests panic with `No such file or directory (os error 2)` at the
+  `Project::from_file(...).unwrap()` sites — even though `fixture_path()` resolves to the
+  correct existing path (`env!("CARGO_MANIFEST_DIR")` is compile-time and was right) and
+  the same tests pass under `cargo test -p video-renderer-cli --test e2e`. **It is a
+  build-cache artifact, not a source bug.** Cure: force a recompile of the test
+  (`touch cli/tests/e2e.rs`, or `cargo clean -p video-renderer-cli`) and re-run; a clean
+  build is 21/21 (333 workspace-wide). Don't "fix" the source in response to this symptom —
+  confirm against a fresh compile first.

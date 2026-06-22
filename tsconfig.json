@@ -33,6 +33,8 @@
       "@stoked-ui/editor/*": ["./packages/sui-editor/*"],
       "@stoked-ui/github": ["./packages/sui-github"],
       "@stoked-ui/github/*": ["./packages/sui-github/*"],
+      "@stoked-ui/stokd": ["./packages/sui-stokd/src"],
+      "@stoked-ui/stokd/*": ["./packages/sui-stokd/src/*"],
       "@stoked-ui/internal-test-utils": ["./packages-internal/test-utils"],
       "@stoked-ui/internal-test-utils/*": ["./packages-internal/test-utils/*"],
       "@stoked-ui/video-renderer-wasm": ["./packages/sui-editor/src/WasmPreview/wasm-module.d.ts"]

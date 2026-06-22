@@ -1,6 +1,6 @@
 # Module: @stoked-ui/file-explorer
 
-> **Generated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) · **Refreshed:** 2026-06-06 (timed refresh — re-verified against source; corrected DnD reducer action names) | **Meta version:** 0.4.0
+> **Generated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) · **Refreshed:** 2026-06-06 (timed refresh — re-verified against source; corrected DnD reducer action names) · **Upgraded:** 2026-06-22 (0.4.0 → 0.6.0 — re-verified barrel, plugin tuple, DnD reducer action/instruction names, `FileExplorerWithFlags` fallback, and `indentPerLevel = 32` against source; refreshed test inventory now that the suites compile) | **Meta version:** 0.6.0
 > **Package location:** `packages/sui-file-explorer`
 > **NPM name:** `@stoked-ui/file-explorer` (v0.1.2)
 > **Source entry:** `packages/sui-file-explorer/src/index.ts`
@@ -235,7 +235,7 @@ When this module changes, the following is what usually breaks or needs validati
 ### Validation playbook
 
 - Run `pnpm typescript` in `packages/sui-file-explorer` (full TS check via `tsconfig.json`).
-- Run `cross-env NODE_ENV=test mocha 'packages/sui-file-explorer/src/**/*.test.{ts,tsx}'` (see `SC_TEST.md` — note 4 broken test files that must be fixed first).
+- Run `cross-env NODE_ENV=test mocha 'packages/sui-file-explorer/src/**/*.test.{ts,tsx}'`. Current suite inventory (21 files): component tests (`File.test.tsx`, `FileElement.test.tsx`, `FileExplorer.test.tsx`, `FileExplorerAlternatingRows.test.tsx`, `FileExplorerBasic.test.tsx`, `FileDropzone.test.{js,tsx}`, `useFile.test.tsx`), plugin tests (`useFileExplorer{Expansion,Files,Focus,Grid,Icons,KeyboardNavigation,Selection}.test.tsx`, `useFileExplorer.test.tsx`), DnD (`fileExportUtils.test.ts`), feature flags (`FeatureFlagConfig.test.ts`, `FeatureFlagContext.test.tsx`), and theme augmentation (`themeAugmentation.spec.ts`). See `SC_TEST.md` §1.2 for any remaining harness import-path caveats.
 - `pnpm build` to verify the modern + node + stable + types builds all succeed.
 - Start `pnpm docs:dev` (port 5199) and click through:
   - `/file-explorer/docs/` demos (selection, expansion, dropzone),

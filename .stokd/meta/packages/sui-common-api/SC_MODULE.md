@@ -1,12 +1,12 @@
 # Module: @stoked-ui/common-api
 
-> **Generated:** 2026-05-05 (refreshed 2026-06-06 for v0.4.0; prev refresh 2026-05-21) | **Meta version:** 0.4.0
+> **Generated:** 2026-05-05 (refreshed 2026-06-06 for v0.4.0; prev refresh 2026-05-21; upgraded to v0.6.0 on 2026-06-22) | **Meta version:** 0.6.0
 > **Package location:** `packages/sui-common-api`
 > **NPM name:** `@stoked-ui/common-api` (v0.1.0)
 > **Source entry:** `packages/sui-common-api/src/index.ts`
 > **Build artifacts:** `packages/sui-common-api/build/` (modern + node + stable + types)
-> **Axioms:** `packages/sui-common-api/.axioms.md` (9 active: AX-MOD-SUICOMMONAPI-001…009; -009 added this refresh for the `.methods` copy idiom)
-> **Last code change:** 2026-05-22 (commit `41c62c9bfe`; `blogPost.model.ts` was the last source file touched). Timed refresh re-verified 2026-06-06: a full re-read of all 12 models, both decorators, the upload DTO, all three barrels, and the `sui-media-api` `forFeature([...])` registration confirms **no drift** from this document — the package source is unchanged since the prior refresh.
+> **Axioms:** `packages/sui-common-api/.axioms.md` (9 active: AX-MOD-SUICOMMONAPI-001…009; -009 covers the `.methods` copy idiom)
+> **Last code change:** 2026-06-11 (commit `51a3baad04`, an eslint/ts-fix sweep — no behavioral drift; the last *behavioral* source change was 2026-05-22 commit `41c62c9bfe` touching `blogPost.model.ts`). v0.6.0 upgrade re-verified 2026-06-22: a full re-read of all 12 models, both decorators, the upload DTO, all three barrels (`models`, `dtos`, `decorators`), the root `index.ts`, and the `sui-media-api` `database.module.ts` `forFeature([VideoFeature, ImageFeature, FileFeature, UploadSessionFeature])` registration confirms **no drift** from this document. Still **no committed tests and no `test` script** in `package.json`.
 
 ---
 

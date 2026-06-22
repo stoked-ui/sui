@@ -9,7 +9,7 @@
 **Existing test suites:** 11 (`205` cases — `197` passing, `8` skipped/todo)
 **Test runner:** Jest 29 + `ts-jest` + `jsdom`
 **Coverage threshold:** 80% (branches, functions, lines, statements)
-**Last verified against source:** 2026-06-06
+**Last verified against source:** 2026-06-22 (re-verified suite count, case totals, `setup.ts` mocks, `jest.config.js` thresholds, and the `__tests__/{utils/test-utils.tsx,mocks/api-client.mock.ts}` helpers against current source — all unchanged since 2026-06-06)
 
 > ⚠️ **Run under Node 20, not Node 26.** Node 26 breaks the umbrella mocha runner; this package is Jest, but the repo convention is to keep Node 20 (`nvm use v20.20.0`) on `PATH` for all test work. `@stoked-ui/media` and `@stoked-ui/common` are the **only** publishable packages allowed to run a standalone Jest stack — do not add Jest to other packages (it breaks the umbrella mocha glob).
 

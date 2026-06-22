@@ -1,0 +1,178 @@
+.sui-isc {
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid var(--sui-border);
+  background: var(--sui-card);
+  transition: border-color 0.15s ease;
+}
+.sui-isc[data-active='true'] {
+  border-color: color-mix(in srgb, var(--sui-accent-blue) 30%, transparent);
+}
+
+.sui-isc__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid color-mix(in srgb, var(--sui-border) 50%, transparent);
+}
+.sui-isc__header-main {
+  min-width: 0;
+  flex: 1;
+}
+.sui-isc__title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sui-isc__pulse {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-flex;
+}
+.sui-isc__dot {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: var(--sui-radius-pill);
+  background: var(--sui-text-dim);
+}
+.sui-isc__dot--active {
+  background: var(--sui-accent-green);
+}
+.sui-isc__dot--ping {
+  position: absolute;
+  inset: 0;
+  background: var(--sui-accent-green);
+  animation: sui-ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+.sui-isc__type-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--sui-radius-sm);
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: color-mix(in srgb, var(--sui-accent-amber) 20%, transparent);
+  color: var(--sui-accent-amber);
+}
+.sui-isc__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--sui-text);
+}
+.sui-isc__meta {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.sui-isc__meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--sui-text-dim);
+}
+.sui-isc__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sui-isc__stop {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  width: 24px;
+  border: none;
+  border-radius: var(--sui-radius-sm);
+  cursor: pointer;
+  background: color-mix(in srgb, var(--sui-accent-red) 15%, transparent);
+  color: var(--sui-accent-red);
+  transition: background-color 0.15s ease;
+}
+.sui-isc__stop:hover {
+  background: color-mix(in srgb, var(--sui-accent-red) 30%, transparent);
+}
+
+.sui-isc__conversation {
+  max-height: 32rem;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.sui-isc__empty {
+  border-radius: 12px;
+  border: 1px solid var(--sui-border);
+  background: color-mix(in srgb, var(--sui-bg) 70%, transparent);
+  padding: 12px;
+  font-size: 14px;
+  color: var(--sui-text-dim);
+}
+.sui-isc__row {
+  display: flex;
+  justify-content: flex-start;
+}
+.sui-isc__row--end {
+  justify-content: flex-end;
+}
+.sui-isc__bubble {
+  max-width: 94%;
+  border-radius: 16px;
+  border: 1px solid var(--sui-border);
+  background: color-mix(in srgb, var(--sui-bg) 70%, transparent);
+  padding: 8px 12px;
+  color: var(--sui-text);
+}
+.sui-isc__bubble[data-kind='user'] {
+  max-width: 92%;
+  border-top-right-radius: var(--sui-radius-md);
+  border-color: color-mix(in srgb, var(--sui-accent-blue) 25%, transparent);
+  background: color-mix(in srgb, var(--sui-accent-blue) 10%, transparent);
+}
+.sui-isc__bubble[data-kind='thinking'] {
+  border-top-left-radius: var(--sui-radius-md);
+  border-color: color-mix(in srgb, var(--sui-accent-amber) 25%, transparent);
+  background: color-mix(in srgb, var(--sui-accent-amber) 10%, transparent);
+}
+.sui-isc__bubble[data-kind='assistant'] {
+  border-top-left-radius: var(--sui-radius-md);
+  border-color: color-mix(in srgb, var(--sui-accent-green) 20%, transparent);
+  background: color-mix(in srgb, var(--sui-accent-green) 10%, transparent);
+}
+.sui-isc__bubble[data-kind='tool'] {
+  border-top-left-radius: var(--sui-radius-md);
+}
+.sui-isc__bubble-head {
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--sui-text-dim);
+}
+.sui-isc__bubble-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.sui-isc__bubble-detail {
+  margin-top: 4px;
+  word-break: break-word;
+  font-size: 11px;
+  color: var(--sui-text-dim);
+}

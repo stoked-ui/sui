@@ -16,6 +16,7 @@ jest.mock('@mui/material/styles', () => {
         success: { light: '#e8f5e9', dark: '#1b5e20', contrastText: '#000' },
         error: { light: '#ffebee', dark: '#b71c1c', contrastText: '#000' },
       },
+      breakpoints: { down: () => '(max-width:599.95px)', up: () => '(min-width:600px)' },
     }),
   };
 });
@@ -29,6 +30,12 @@ beforeAll(() => {
 afterAll(() => {
   errorSpy.mockRestore();
   warnSpy.mockRestore();
+});
+
+// Availability is cached in sessionStorage (30-min TTL). Clear it between tests
+// so each render starts from a cold cache and re-fetches.
+beforeEach(() => {
+  window.sessionStorage.clear();
 });
 
 // Returns an ISO string for date YYYY-MM-DD at 10:30 AM local time
@@ -91,6 +98,89 @@ describe('CalendarBooking rendering', () => {
   it('does not render booking-form on initial load', () => {
     render(<CalendarBooking />);
     expect(screen.queryByTestId('booking-form')).toBeNull();
+  });
+});
+
+// ── Window & default selection ────────────────────────────────────────────────
+
+const businessToday = () =>
+  new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago', year: 'numeric', month: '2-digit', day: '2-digit' })
+    .format(new Date());
+
+const businessTodayDayNum = () =>
+  new Intl.DateTimeFormat('en-US', { timeZone: 'America/Chicago', day: 'numeric' }).format(new Date());
+
+describe('CalendarBooking window & default selection', () => {
+  beforeEach(() => mockFetchWithSlots());
+
+  afterEach(() => jest.restoreAllMocks());
+
+  it('selects today in the mini calendar on load', () => {
+    render(<CalendarBooking />);
+    const selected = screen.getAllByTestId('mini-cal-cell').filter(
+      (c) => c.getAttribute('data-selected') === 'true',
+    );
+    expect(selected).toHaveLength(1);
+    expect(selected[0].textContent).toBe(businessTodayDayNum());
+  });
+
+  it('first day column is the next available weekday (no weekend, not before today)', () => {
+    render(<CalendarBooking />);
+    const cols = document.querySelectorAll('[data-day-column]');
+    expect(cols.length).toBe(5);
+    const firstDate = cols[0].getAttribute('data-day-column')!;
+    const [y, m, d] = firstDate.split('-').map(Number);
+    const dow = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+    expect(dow === 0 || dow === 6).toBe(false);
+    expect(firstDate >= businessToday()).toBe(true);
+  });
+
+  it('renders no weekend columns', () => {
+    render(<CalendarBooking />);
+    const cols = Array.from(document.querySelectorAll('[data-day-column]'));
+    for (const col of cols) {
+      const [y, m, d] = col.getAttribute('data-day-column')!.split('-').map(Number);
+      const dow = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+      expect(dow === 0 || dow === 6).toBe(false);
+    }
+  });
+
+  it('mini calendar headers start on Sunday and end on Saturday', () => {
+    render(<CalendarBooking />);
+    const mini = screen.getByTestId('mini-calendar');
+    // Weekday headers are the single-character caption spans (month label is longer,
+    // day numbers render inside divs)
+    const labels = Array.from(mini.querySelectorAll('span'))
+      .map((s) => s.textContent || '')
+      .filter((t) => t.length === 1)
+      .slice(0, 7);
+    expect(labels).toEqual(['S', 'M', 'T', 'W', 'T', 'F', 'S']);
+  });
+});
+
+// ── Availability cache (sessionStorage, 30-min TTL) ───────────────────────────
+
+function availabilityCallCount(): number {
+  return (global.fetch as jest.Mock).mock.calls.filter(
+    (c: string[]) => c[0].includes('/api/calendar/availability'),
+  ).length;
+}
+
+describe('CalendarBooking availability cache', () => {
+  beforeEach(() => mockFetchWithSlots());
+
+  afterEach(() => jest.restoreAllMocks());
+
+  it('does not re-fetch availability for the same dates within the TTL', async () => {
+    const { unmount } = render(<CalendarBooking apiBaseUrl="" />);
+    await waitFor(() => expect(availabilityCallCount()).toBeGreaterThan(0), { timeout: 3000 });
+    const firstCount = availabilityCallCount();
+    unmount();
+    // Re-mount with a warm sessionStorage cache (not cleared mid-test)
+    render(<CalendarBooking apiBaseUrl="" />);
+    await act(async () => { await Promise.resolve(); });
+    await waitFor(() => expect(screen.getByTestId('mini-calendar')).toBeTruthy());
+    expect(availabilityCallCount()).toBe(firstCount);
   });
 });
 
@@ -192,20 +282,38 @@ describe('CalendarBooking form validation', () => {
     expect(screen.getByRole('button', { name: /book appointment/i })).toBeDisabled();
   });
 
-  it('submit enabled when name + email + phone filled', async () => {
+  it('submit disabled with name + email + phone but no reason', async () => {
     await clickFirstSlot();
     fireEvent.change(screen.getByRole('textbox', { name: /name/i }), { target: { value: 'Jane' } });
     fireEvent.change(screen.getByRole('textbox', { name: /email/i }), { target: { value: 'j@x.com' } });
     fireEvent.change(screen.getByRole('textbox', { name: /phone/i }), { target: { value: '555' } });
+    expect(screen.getByRole('button', { name: /book appointment/i })).toBeDisabled();
+  });
+
+  it('submit enabled when name + email + phone + reason filled', async () => {
+    await clickFirstSlot();
+    fireEvent.change(screen.getByRole('textbox', { name: /name/i }), { target: { value: 'Jane' } });
+    fireEvent.change(screen.getByRole('textbox', { name: /email/i }), { target: { value: 'j@x.com' } });
+    fireEvent.change(screen.getByRole('textbox', { name: /phone/i }), { target: { value: '555' } });
+    fireEvent.change(screen.getByRole('textbox', { name: /reason/i }), { target: { value: 'Discuss project' } });
     expect(screen.getByRole('button', { name: /book appointment/i })).not.toBeDisabled();
   });
 
-  it('company and reason optional — submit enabled without them', async () => {
+  it('company optional — submit enabled without it when reason is set', async () => {
     await clickFirstSlot();
     fireEvent.change(screen.getByRole('textbox', { name: /name/i }), { target: { value: 'Jane' } });
     fireEvent.change(screen.getByRole('textbox', { name: /email/i }), { target: { value: 'j@x.com' } });
     fireEvent.change(screen.getByRole('textbox', { name: /phone/i }), { target: { value: '555' } });
+    fireEvent.change(screen.getByRole('textbox', { name: /reason/i }), { target: { value: 'Discuss project' } });
     expect(screen.getByRole('button', { name: /book appointment/i })).not.toBeDisabled();
+  });
+
+  it('adds an invitee chip when an email is entered and Enter pressed', async () => {
+    await clickFirstSlot();
+    const invite = screen.getByTestId('invite-input');
+    fireEvent.change(invite, { target: { value: 'guest@example.com' } });
+    fireEvent.keyDown(invite, { key: 'Enter' });
+    expect(screen.getByText('guest@example.com')).toBeTruthy();
   });
 
   it('shows booking-success after successful submit', async () => {
@@ -219,6 +327,7 @@ describe('CalendarBooking form validation', () => {
     fireEvent.change(screen.getByRole('textbox', { name: /name/i }), { target: { value: 'Jane' } });
     fireEvent.change(screen.getByRole('textbox', { name: /email/i }), { target: { value: 'j@x.com' } });
     fireEvent.change(screen.getByRole('textbox', { name: /phone/i }), { target: { value: '555' } });
+    fireEvent.change(screen.getByRole('textbox', { name: /reason/i }), { target: { value: 'Discuss project' } });
     await act(async () => { fireEvent.click(screen.getByRole('button', { name: /book appointment/i })); });
     await waitFor(() => expect(screen.getByTestId('booking-success')).toBeTruthy(), { timeout: 3000 });
   });
@@ -234,6 +343,7 @@ describe('CalendarBooking form validation', () => {
     fireEvent.change(screen.getByRole('textbox', { name: /name/i }), { target: { value: 'Jane' } });
     fireEvent.change(screen.getByRole('textbox', { name: /email/i }), { target: { value: 'j@x.com' } });
     fireEvent.change(screen.getByRole('textbox', { name: /phone/i }), { target: { value: '555' } });
+    fireEvent.change(screen.getByRole('textbox', { name: /reason/i }), { target: { value: 'Discuss project' } });
     await act(async () => { fireEvent.click(screen.getByRole('button', { name: /book appointment/i })); });
     await waitFor(() => expect(screen.getByTestId('booking-error')).toBeTruthy(), { timeout: 3000 });
   });

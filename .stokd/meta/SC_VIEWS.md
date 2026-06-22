@@ -1,8 +1,8 @@
 # Stoked UI — View Classification
 
-> **Generated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) | **Refreshed:** 2026-06-06 (timed refresh — verified package/route topology, added §25 template/theme demo & experiment surfaces) | **Meta version:** 0.4.0
+> **Generated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) | **Refreshed:** 2026-06-06 (timed refresh — verified package/route topology, added §25 template/theme demo & experiment surfaces) | **Updated:** 2026-06-22 (upgrade 0.4.0 → 0.6.0 — re-verified route/package topology against current tree; added §26 `@stoked-ui/stokd` activity-UX components and §16's `CalendarBooking`; refreshed root path) | **Meta version:** 0.6.0
 > **Repository:** `@stoked-ui/sui`
-> **Root:** `/opt/worktrees/stoked-ui/stoked-ui-main`
+> **Root:** `/opt/worktrees/stoked-ui/sui/main`
 
 A "view" here = a top-level rendered surface a user can directly perceive — a Next.js page, a panel/dialog rendered by a workspace package, a marketing showcase block, a CLI terminal output, or an embedded Vite app screen.
 
@@ -45,6 +45,7 @@ The view inventory is grouped by surface:
 23. Company / Contact
 24. Consulting Audit Bot — AI/cloud/security audit chat widget (`docs/src/modules/auditBot`)
 25. Template / theme demo & experiment surfaces (`premium-themes`, `experiments`, `performance`)
+26. Stokd Activity-UX components (`@stoked-ui/stokd`)
 
 ---
 
@@ -644,6 +645,9 @@ These are not standalone pages but reusable view-blocks reused on the home page,
   | `UserMenu` | `packages/sui-common/src/UserMenu/UserMenu.tsx` | avatar trigger · dropdown (Dashboard/Settings/Licenses/Billing/Sign-Out) | open, closed, hovered, role-conditioned items |
   | `GrokLoader` | `packages/sui-common/src/GrokLoader/` | spinner | loading, loaded |
   | `SocialLinks` / `SocialLinkField` | `packages/sui-common/src/SocialLinks/` | link list / link editor | viewing, editing |
+  | `CalendarBooking` | `packages/sui-common/src/CalendarBooking/CalendarBooking.tsx` | left mini-calendar (month nav + date grid) · right week-grid (5 business days × 30-min slots, 10:30 AM–5:30 PM) · booking-form modal (name/email/phone/company/reason + invite-email chips + "change time") | loading (per-day slot fetch), empty/past (`—` disabled slots), populated (available slots), selected (primary block w/ duration), editing (drag bottom handle 30–120 min in 15-min steps), submitting, success (confirmation banner), error |
+
+- **`CalendarBooking` data flow:** slots fetched from `GET /api/calendar/availability?date=YYYY-MM-DD` → `{ slots: string[] }` (ISO instants), cached in sessionStorage (key `sui-availability:{date}`, 30-min TTL); booking via `POST /api/calendar/book` (form + startTime + durationMinutes + inviteEmails). All slot instants are pinned to the business timezone (`America/Chicago`) via `Intl.DateTimeFormat`, so a server slot ISO maps to the correct grid row regardless of the visitor's local zone. Not yet mounted on any docs page route.
 
 ---
 
@@ -848,6 +852,51 @@ Legacy MUI-forked demo apps and benchmark/experiment pages that ship alongside t
 - **Location:** `docs/pages/performance/{slider-emotion,slider-jss,system,table-component,table-emotion,table-hook,table-mui,table-raw,table-styled-components}.js`
 - **Regions:** single benchmark widget per page (slider / table rendered via different styling engines) for render-cost comparison
 - **States:** static (rendered benchmark), interactive (slider drag / table re-render)
+
+---
+
+## 26. Stokd Activity-UX Components — `@stoked-ui/stokd`
+
+`packages/sui-stokd/src/` (npm `@stoked-ui/stokd`, v0.2.2). Host-agnostic, CSS-variable-themed React components and view-model types that render the **current agent/work activity** surface. Consumed by the Stokd web dashboard and the VS Code extension — this package ships no page routes of its own; it exposes the cards/badges those hosts compose into a live activity view. All components are theme-driven (`--sui-card`, `--sui-border`, `--sui-accent-*`, `data-theme="light|dark"`) and accept `className`/`theme` props. Status, work-type, and provider are resolved by the consumer and passed in as view-model props (`SessionModel`, `TaskModel`, `DisplayStatusModel`, `WorkTypeModel`, `ShipStatusModel`, …); grouping/formatting helpers (`groupSessionsByRequest`, `pickGroupDisplayStatus`, `displayStatusLabel`, `formatDuration`, `formatCurrency`, `normalizeProviderId`) are exported alongside.
+
+### 26.1 ActiveTaskCard (Task / Project Execution Card)
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `packages/sui-stokd/src/components/ActiveTaskCard/ActiveTaskCard.tsx`
+- **Regions:**
+  | Zone | Content |
+  |------|---------|
+  | Header | pulse/ping dot · number badge (`#`) · work-type badge (Task/Project/Planning) · title · `PrerequisiteBadge`; right side: runtime `LiveTimer` · `StatusBadge` · Continue / Stop buttons; sub-rows: issue #, git branch (+worktree indicator), work-item id, `ShipStatusChips` |
+  | Task stage strip | 3-node stepper (Planning · Implementation · Validation) with per-node status icon (task work-type only) |
+  | Plan / Initiative bullets | bulleted plan parsed from `source_prompt` (≤8) · initiative items (checked/struck-through when done) |
+  | Line items | per-item done/pending rows (task work-type only) |
+  | Acceptance criteria | collapsible toggle (`Acceptance Criteria (N)`) → passed/failed/pending rows |
+  | Command timeline | scrollable last-16 merged message/tool entries (chip + title + detail + timestamp + live indicator), auto-scroll to bottom |
+  | Final summary | last agent response / resolution excerpt (≤420 chars) |
+  | Footer | session count (+active) · `ProviderBadge` · start time · initiative progress (`N/M tasks`) · total cost |
+- **States:** `data-active=true/false` (any session engaged), `data-worktype=project/task/planning`, `data-theme=light/dark`; stage nodes pending/in_progress/completed/failed; acceptance items passed/failed/unresolved; timeline entries completed vs in-progress; Continue visible only when stalled & non-terminal; Stop visible when sessions non-stopped; timeline empty ("No tool calls yet")
+
+### 26.2 InteractiveSessionCard (Planning Chat Feed)
+
+- **Location:** `packages/sui-stokd/src/components/InteractiveSessionCard/InteractiveSessionCard.tsx`
+- **Regions:** header (pulse dot · "Planning" badge · title · `ProviderBadge` · session count · start time · cost · `StatusBadge` · Stop) · scrolling conversation feed of role bubbles (user right-aligned; assistant/tool/thinking left-aligned, each with role icon + label + body + detail)
+- **States:** `data-active=true/false`; bubble `data-kind=user/thinking/assistant/tool`; entry completed vs in-progress; auto-scroll pinned-to-bottom (respects user scroll); empty ("Waiting for conversation events.")
+
+### 26.3 PipelineShellCard (Project Pipeline Skeleton)
+
+- **Location:** `packages/sui-stokd/src/components/PipelineShellCard/PipelineShellCard.tsx`
+- **Regions:** 5-stage stepper (Analysis · Planning · Implementation · Validation · Integration) · body (project # · "Project" badge · `StatusBadge` · title · branch hint · start time · spinning/static loader note)
+- **States:** placeholder shown while full pipeline view loads; per-step `data-status=pending/in_progress/completed/failed/skipped`, `data-current`; overall `data-status=working/analyzing/idle/stopped` (note copy varies)
+
+### 26.4 Badges & Indicators (StatusBadge · ShipStatusChips · ProviderBadge · PrerequisiteBadge · LiveTimer)
+
+- **Location:** `packages/sui-stokd/src/components/{StatusBadge,ShipStatusChips,ProviderBadge,PrerequisiteBadge,LiveTimer}/`
+- **Regions / States:**
+  - `StatusBadge` — label pill + optional solid/ping dot; `data-type=success/warning/error/neutral/info`, pulse on engaged
+  - `ShipStatusChips` — 3 env chips (main/stage/prod), each `data-state=achieved/pending`
+  - `ProviderBadge` — provider SVG logo or letter avatar + optional label; `data-provider=claude/codex/gemini/amp/grok/stokd/local/unknown`, `data-size=xs/sm/md`, theme-aware logo
+  - `PrerequisiteBadge` — render-null when none; blocked ("Blocked — waiting on N prerequisite(s)") vs met ("Prerequisites met"); `data-blocked`
+  - `LiveTimer` — formatted elapsed text, ticks every 1s, `paused` prop, optional base-ms offset, "-" when no start time
 
 ---
 

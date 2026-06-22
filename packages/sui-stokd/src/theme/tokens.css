@@ -1,0 +1,84 @@
+/**
+ * @stoked-ui/stokd default theme tokens.
+ *
+ * These are the DEFAULT (dark) values for the design tokens every component
+ * references via var(--sui-*). A host overrides them by redefining the same
+ * variables on a scope that contains the components:
+ *   - the Stokd web app maps them to its github-*/accent-* Tailwind tokens;
+ *   - the VS Code extension webview maps them to --vscode-* theme tokens.
+ *
+ * Component CSS never hard-codes a color — it only references these variables
+ * (and color-mix() of them for tints). This file is the single place concrete
+ * color literals are allowed.
+ */
+:root,
+.sui-stokd {
+  /* Surfaces */
+  --sui-bg: #0d1117;
+  --sui-canvas: #010409;
+  --sui-card: #161b22;
+  --sui-border: #30363d;
+  --sui-hover: #21262d;
+  --sui-secondary: #21262d;
+
+  /* Text */
+  --sui-text: #e6edf3;
+  --sui-text-muted: #8b949e;
+  --sui-text-dim: #6e7681;
+
+  /* Accents */
+  --sui-accent-blue: #58a6ff;
+  --sui-accent-green: #3fb950;
+  --sui-accent-amber: #d29922;
+  --sui-accent-red: #f85149;
+  --sui-accent-purple: #bc8cff;
+  --sui-accent-gray: #8b949e;
+
+  /* Provider brand colors */
+  --sui-provider-claude: #d97757;
+  --sui-provider-codex: var(--sui-accent-green);
+  --sui-provider-gemini: var(--sui-accent-blue);
+  --sui-provider-amp: #ff5543;
+  --sui-provider-amp-fg: #ff7e72;
+  --sui-provider-grok: #1a1a1a;
+  --sui-provider-grok-fg: #ffffff;
+  --sui-provider-stokd: #de7356;
+  --sui-provider-local: #a371f7;
+
+  /* Radii + typography */
+  --sui-radius-sm: 4px;
+  --sui-radius-md: 6px;
+  --sui-radius-lg: 8px;
+  --sui-radius-pill: 9999px;
+  --sui-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+}
+
+/* Shared icon sizing utilities used across components. */
+.sui-icon-xs {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+.sui-icon-sm {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+.sui-icon-fill {
+  fill: currentColor;
+}
+
+@keyframes sui-ping {
+  75%,
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+@keyframes sui-pulse {
+  50% {
+    opacity: 0.5;
+  }
+}

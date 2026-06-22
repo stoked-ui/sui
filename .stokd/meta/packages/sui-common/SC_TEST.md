@@ -1,312 +1,255 @@
-# Testing Strategy: @stoked-ui/common
+# SC_TEST.md — `@stoked-ui/common` Testing Strategy
 
-> **Generated:** 2026-06-06 | **Meta version:** 0.4.0
-> **Package:** `packages/sui-common` (`@stoked-ui/common` v0.1.2)
-> **Priority:** Medium
-> **Source entry:** `packages/sui-common/src/index.tsx`
-
-`@stoked-ui/common` is the foundation layer for every other Stoked UI package, so a regression here cascades into `sui-editor`, `sui-timeline`, `sui-file-explorer`, `sui-media`, `sui-github`, and the docs site. Test investment should reflect that blast radius even though the package itself is small.
-
----
-
-## 1. Current State (verified 2026-06-06)
-
-| Item | Status |
-|---|---|
-| Test runner | Jest 29 (`packages/sui-common/jest.config.js`) — `ts-jest` preset, jsdom env |
-| Setup file | `src/__tests__/setup.ts` — imports `@testing-library/jest-dom` only |
-| RTL | `@testing-library/react` 16.3.2 |
-| Existing test files | 3 — all under `src/SocialLinks/__tests__/` |
-| **Baseline run** | `pnpm --filter @stoked-ui/common test` → **3 suites / 52 tests, all passing** (~4s, Node v26.0.0) |
-| Coverage script | `pnpm --filter @stoked-ui/common test:coverage` (defined, not enforced) |
-| CI gating | None — package has no test step in the root workflow |
-
-Existing tests (all green):
-
-- `src/SocialLinks/__tests__/platformRegistry.test.ts` — registry shape, `getPlatformByKey`, `ALL_PLATFORM_KEYS`
-- `src/SocialLinks/__tests__/SocialLinks.test.tsx` — RTL render of all 13 fields, filtering, invalid keys, disabled/readOnly
-- `src/SocialLinks/__tests__/SocialLinkField.test.tsx` — per-platform render (`it.each` over `PLATFORM_REGISTRY`), prefix adornments
-
-**Everything else in the package is currently untested.** That includes `LocalDb` (557 LOC, IndexedDB-backed), `FetchBackoff`, `mergeWith` (an `Array.prototype` extension), `createSettings` / `createProviderState`, `namedId` / `useIncId`, `compositeColors`, `MimeRegistry` / `getExtension`, and the `useResize` / `useResizeWindow` hooks.
-
-### Node version note
-
-This package's **standalone Jest** suite runs cleanly on **Node v26** (verified above). That is *not* true of the umbrella Mocha suite, which still requires `nvm use v20.20.0` (see `MEMORY.md` → "Node version for tests"). Keep `sui-common` on Jest — do **not** fold it into the umbrella Mocha glob (per `MEMORY.md` → "Dual test stacks": a Jest file in a publishable package breaks the mocha glob; `sui-common` and `sui-media` are the sanctioned Jest islands).
-
-### Known tooling warning
-
-`jest.config.js` passes `isolatedModules: true` to the `ts-jest` transform, which logs a deprecation warning (`removed in v30`). Non-blocking. When touching the config, move `isolatedModules: true` into `tsconfig.json` `compilerOptions` to silence it.
+> **Generated:** 2026-06-06 | **Updated:** 2026-06-22 (re-grounded against source; existing Jest setup + 4 SocialLinks/CalendarBooking suites verified) | **Meta version:** 0.4.0
+> **Package:** `packages/sui-common` (`@stoked-ui/common`, v0.2.2) · **Priority:** medium
+> **Runner:** Jest 29 + ts-jest + jsdom (already configured) · **Component tests:** `@testing-library/react` 16
+> **Scope:** Browser-safe shared utilities, hooks, and presentational components. Foundational
+> dependency for `@stoked-ui/editor`, `file-explorer`, `timeline`, `media`, `cdn`, and `github`.
 
 ---
 
-## 2. What Should Be Tested
+## 1. Why testing this package matters
 
-### Tier 1 — Critical, ship-blocking (write first)
+`@stoked-ui/common` is a leaf dependency consumed by nearly every other publishable package
+(see `AX-REPO-MEDIA-TYPE-COORDINATION`, `AX-REPO-BROWSER-NO-SERVER-DEPS`). A regression here
+fans out to the whole monorepo and is invisible at compile time for the runtime-only utilities
+(`mergeWith` prototype patch, `MimeRegistry` static state, `LocalDb` IndexedDB shapes). The
+barrel `src/index.tsx` (`AX-REPO-PACKAGE-BARREL`) is the published contract — every symbol it
+re-exports is a public API that deserves at least one behavioral test.
 
-These modules are imported by multiple consumer packages and a regression silently corrupts their state. Several are pinned as observable contracts by `packages/sui-common/.axioms.md`.
-
-| Module | File | Why it matters | Axiom |
-|---|---|---|---|
-| `FetchBackoff` | `src/FetchBackoff/FetchBackoff.ts` | Network retry primitive. Wrong backoff math = thundering herd or premature give-up. The loop only `return`s when `retryCondition` is false, so a custom predicate that returns `true` on a 2xx will keep retrying a good response — lock that down. | — |
-| `createProviderState` | `src/ProviderState/ProviderState.ts` | Drives flag/setting state across packages. `addTriggers`/`removeTriggers` accept string, `string[]`, and object forms with different effects. | AX-MOD-SUICOMMON-006 |
-| `createSettings` | `src/ProviderState/Settings.ts` | Proxy dotted-path get/set with autovivified intermediates. Known footgun (`MEMORY.md`): values set via `Object.assign` don't propagate through React state. Lock in *current* behavior so future "fixes" don't silently break editor consumers. | AX-MOD-SUICOMMON-006 |
-| `LocalDb` | `src/LocalDb/LocalDb.ts` | IndexedDB persistence for editor/media. `MEMORY.md` records two prior incidents here (missing version entry on `saveVideo`; empty `ScreenshotStore` blocked generation). Both need regression coverage. | AX-MOD-SUICOMMON-004 |
-| `namedId` / `useIncId` | `src/Ids/namedId/namedId.ts`, `src/Ids/useIncId/useIncId.ts` | Used for React keys and IDB record IDs. `useIncId` must be deterministic across renders for hydration. | — |
-| `mergeWith` | `src/Types/mergeWith.ts` | Extends `Array.prototype` globally — side-effecting import. Wrong key-merge logic silently drops data. | AX-MOD-SUICOMMON-005 |
-
-### Tier 2 — Important utilities
-
-| Module | File | Why |
-|---|---|---|
-| `compositeColors` / `parseColorWithAlpha` | `src/Colors/colors.ts` | Throws on unsupported formats, alpha-compositing math, depends on `@mui/material/styles` `hexToRgb`/`hslToRgb`. |
-| `MimeRegistry` / `getExtension` | `src/MimeType/IMimeType.ts` | Module-level **static** maps mutated by `create()` — test isolation matters. `getExtension` parses with `new URL(...)`, so it requires a full URL (footgun below). |
-| `ExtensionMimeTypeMap` | `src/MimeType/MimeType.ts` | ~1200 lines of static data — sanity/spot-check only, not exhaustive. |
-| `SUIMime` (`StokedUiMime.ts`) | `src/MimeType/StokedUiMime.ts` | Subclass of `MimeRegistry` that registers SUI-specific MIME types via `create`. |
-
-> **`getExtension` footgun (verified):** the function does `new URL(url)` then returns `pathname.substring(lastIndexOf('.'))` — i.e. it returns the dot-prefixed extension (`.png`), and **throws `TypeError` on a bare filename** like `"video.mp4"` because that is not a valid absolute URL. Tests must pass full URLs (`https://x/y.png`), and should assert the throw on a bare filename so the contract is explicit.
-
-### Tier 3 — React components / hooks
-
-| Module | File | Coverage goal |
-|---|---|---|
-| `useResize` | `src/useResize/useResize.tsx` | Hook contract; subscribes to `window` `resize`, reads `elementRef.current.offsetWidth/Height` (or `window.inner*` when no ref); cleanup on unmount. |
-| `useResizeWindow` | `src/useResizeWindow/useResizeWindow.tsx` | Window resize event wiring + listener cleanup. |
-| `UserMenu` | `src/UserMenu/UserMenu.tsx` | Render + interaction smoke tests (open on click, fire callbacks). |
-| `GrokLoader` | `src/GrokLoader/GrokLoader.tsx` | Render smoke only (framer-motion). |
-| `SocialLinks` family | `src/SocialLinks/__tests__/` | Already covered (52 tests). Maintain, fill gaps only. |
-
-### Out of scope
-
-- The static `ExtensionMimeTypeMap` data table (~1100 entries) — spot-check, do not enumerate.
-- Pure type-only re-exports under `src/interfaces/` (covered structurally by AX-MOD-SUICOMMON-003; verified by `sui-common-api` / `sui-media-api` `tsc`, not by unit tests). The two tiny predicate helpers in `embed-visibility.ts` (`isPublicEmbedVisibility`, `isAuthenticatedEmbedVisibility`) are the only runnable code there and are worth a 4-line test.
-- Build outputs in `build/` and the generated `*.js` / `*.js.map` siblings of `*.ts` sources (already in `testPathIgnorePatterns`).
+A second, structural reason: this package MUST stay browser-safe. `LocalDb` is the IndexedDB
+state store explicitly reserved for editor project/version/recording state by
+`AX-REPO-MONGODB-BUSINESS-DATA`. Tests must guard that no server-only import (`@nestjs`,
+`mongoose`, `@aws-sdk`, `next/server`) leaks into the browser barrel.
 
 ---
 
-## 3. Tooling
+## 2. Current state
 
-The current toolchain is correct for this package. **Do not introduce additional runners** (no Mocha, no Vitest).
+Existing tooling is in place and working — **do not re-scaffold it**:
 
-- **Runner:** Jest 29 with `ts-jest` (`jest.config.js`).
-- **DOM:** `jsdom` (`testEnvironment: 'jsdom'`).
-- **Assertions:** `@testing-library/jest-dom` (loaded via `src/__tests__/setup.ts`).
-- **React:** `@testing-library/react` for components and `renderHook` for hooks.
-- **Mocks:** Jest built-ins (`jest.fn`, `jest.useFakeTimers`, `jest.spyOn`).
-- **CSS modules:** already mapped to `identity-obj-proxy`.
+- `jest.config.js` — `ts-jest` preset, `jsdom` env, `roots: ['<rootDir>/src']`, CSS mapped to
+  `identity-obj-proxy`, `setupFilesAfterEach: src/__tests__/setup.ts` (loads
+  `@testing-library/jest-dom`), `isolatedModules: true`, `testPathIgnorePatterns` excludes
+  `build/` and `setup.ts`.
+- Scripts: `pnpm --filter @stoked-ui/common test` / `test:watch` / `test:coverage`.
 
-### Add (one-time)
+Existing tests (4 files, all in `__tests__/` subfolders):
 
-- **`fake-indexeddb`** — required to test `LocalDb` in jsdom, which has no IndexedDB (confirmed absent from `node_modules` and `devDependencies`). Add as a devDependency and register in `src/__tests__/setup.ts` (`import 'fake-indexeddb/auto';`). Reset between tests with a fresh `IDBFactory` or by deleting the test DB in `afterEach`.
-- **Wire `pnpm --filter @stoked-ui/common test` into root CI.** It is currently unreferenced, yet AX-MOD-SUICOMMON-006 and -007 both cite `pnpm --filter @stoked-ui/common test` as an acceptance check. The check exists on paper but nothing runs it in CI — close that gap.
+| File | Covers |
+| --- | --- |
+| `src/SocialLinks/__tests__/platformRegistry.test.ts` | `PLATFORM_REGISTRY`, `getPlatformByKey`, `ALL_PLATFORM_KEYS` |
+| `src/SocialLinks/__tests__/SocialLinks.test.tsx` | `SocialLinks` component |
+| `src/SocialLinks/__tests__/SocialLinkField.test.tsx` | `SocialLinkField` component |
+| `src/CalendarBooking/__tests__/CalendarBooking.test.tsx` | `CalendarBooking` (mocks `useTheme`, sessionStorage cache) |
 
----
-
-## 4. File Organization & Naming
-
-Follow the precedent already set by `SocialLinks`: tests co-located in a `__tests__/` directory inside the module.
-
-```
-src/<Module>/
-  <Module>.ts(x)
-  __tests__/
-    <Module>.test.ts(x)
-```
-
-- Keep `src/__tests__/setup.ts` as the only top-level test-support file (jest-dom + future `fake-indexeddb/auto` registration). It is explicitly excluded from `testMatch` via `testPathIgnorePatterns`.
-- One top-level `describe` per module, nested `describe` per public function/method.
-- Test names in the form `it('returns X when Y')` — match existing style in `platformRegistry.test.ts`.
-- Use `*.test.ts` for plain TS, `*.test.tsx` only when JSX is needed.
+**Coverage gap:** the entire utility/hook surface re-exported from `src/index.tsx` is
+untested — `Ids`, `MimeType`, `FetchBackoff`, `Colors`, `Types`/`mergeWith`, `ProviderState`,
+`LocalDb`, `useResize`, `useResizeWindow`, `GrokLoader`, `UserMenu`, `interfaces`. This is where
+the first wave of work belongs.
 
 ---
 
-## 5. Mock / Stub Strategy
+## 3. What to test (by module, in priority order)
 
-| Dependency | Strategy |
-|---|---|
-| `fetch` (FetchBackoff) | `global.fetch = jest.fn()` per test; reset in `afterEach`. Use `jest.useFakeTimers()` + `await jest.advanceTimersByTimeAsync(delay)` to skip the backoff `setTimeout` without real waits. |
-| `IndexedDB` (`LocalDb`, `VideoDb`) | `fake-indexeddb` global polyfill. Do **not** mock `@tempfix/idb` — exercise the real `openDB` wrapper against the fake DB. Delete the DB in `afterEach` to keep tests isolated. |
-| `ResizeObserver` (`useResize`) | jsdom has none. Polyfill in setup: `class RO { observe(){} unobserve(){} disconnect(){} }; global.ResizeObserver = RO as any;`. NOTE: `useResize` currently listens to `window` `resize` (not `ResizeObserver`), so for its own tests dispatch `window.dispatchEvent(new Event('resize'))` and assert returned dims; keep the RO polyfill only for consumers that need it. |
-| `window` resize events | jsdom supports `window.dispatchEvent(new Event('resize'))` directly. Set `window.innerWidth/innerHeight` before dispatch to assert the no-ref branch. |
-| `offsetWidth` / `offsetHeight` | jsdom returns `0`. When testing the element-ref branch, stub via `Object.defineProperty(el, 'offsetWidth', { value: 123 })`. |
-| `MUI ThemeProvider` (components) | Wrap in `<ThemeProvider theme={createTheme()}>` per existing `SocialLinks.test.tsx` `renderWithTheme` helper. Extract a shared helper if a third component needs it. |
-| `MUI icon imports` (`@mui/icons-material/*`) | None needed — they render as inline SVG in jsdom. |
-| `framer-motion` (`GrokLoader`) | None needed for a render smoke test; it renders in jsdom. Mock only if animation timing causes flakiness. |
-| `MimeRegistry` static state | Reset between tests. The four maps are `private static`; prefer per-test **unique extensions** (e.g. `.test-${Date.now()}`) so registrations don't collide, rather than reflecting into private fields. |
-| `console.error` / `console.log` | `FetchBackoff` logs on failure; `setProperty` in `Types.ts` logs on every call. `jest.spyOn(console, 'error'/'log').mockImplementation(() => {})` to keep output clean. |
-| `Math.random` (`namedId`) | Spy/seed when asserting exact output; otherwise assert format with a regex. |
-| `process.env.FLAG_DEBUGGING` | Read by `enableFlags`/`disableFlags`. Leave unset, or `delete process.env.FLAG_DEBUGGING` in setup so console output stays quiet. |
+### Tier 1 — Pure logic, high fan-out, fast wins (do these first)
 
-**Side-effect import warning:** `src/Types/mergeWith.ts` mutates `Array.prototype` at import time. Tests for it must `import '../mergeWith'` (or rely on the index re-export) and assert the prototype is patched. **Do not `delete Array.prototype.mergeWith`** afterward — other modules/tests depend on it being installed (AX-MOD-SUICOMMON-005).
+Deterministic, dependency-light, and back the rest of the monorepo.
+
+#### `src/Ids/namedId/namedId.ts` — `namedId`, `randomBytes`
+- `namedId()` → matches `^id-[0-9a-f]{7}$` (default id `id`, length 7).
+- `namedId('foo')` (string form) → `^foo-[0-9a-f]{7}$`.
+- `namedId({ id, length, prefix, suffix })` → assembled as `prefix-id-suffix-<hex>`; verify
+  prefix-only and suffix-only branches independently.
+- Custom `length` controls the hex segment length (e.g. `length: 16`).
+- Two successive calls produce different suffixes (uniqueness, not collision-proof).
+- `randomBytes(n)` → string of length `n`, hex chars only. **Edge:** `randomBytes(0)` → `''`;
+  large `n` (e.g. 64).
+
+#### `src/Ids/useIncId/useIncId.tsx` — `useIncId`
+- Deterministic increment: same starting config yields the same sequence (stated purpose:
+  hydration-safe ids). Test the returned generator and its `.by(n)` form.
+- String-arg vs object-arg forms; `prefix` joins as `prefix-id`.
+
+#### `src/MimeType/IMimeType.ts` — `getExtension`, `MimeRegistry`
+- `getExtension('https://x.com/a/b/file.png')` → `.png`; query string / hash ignored.
+- No extension (`/path/file`) → `''`. Dotfile / trailing-dot edge cases.
+- `MimeRegistry.create(...)` registers the entry under all four indices (`exts`, `names`,
+  `subtypes`, `types`) and the returned `IMimeType` getters (`type`, `subType`, `accept`,
+  `typeObj`) return the composed values. **Note:** `MimeRegistry` holds **static mutable state** —
+  see §5.
+- `src/MimeType/MimeType.ts` — spot-check the `ExtensionMimeTypeMap` lookup for known extensions
+  (`mp4`, `png`, `pdf`, `bin` → `application/octet-stream`) and an unknown-extension fallback.
+
+#### `src/Types/mergeWith.ts` — `mergeWith` (Array prototype augmentation)
+- Merges two arrays by key; second array overwrites on key collision.
+- Filters falsy entries from both `this` and `otherArray` (`.filter(Boolean)`).
+- Non-array `otherArray` → returns the filtered instance unchanged.
+- **Edge:** empty arrays, duplicate keys within one array (last wins), preserves `Map` insertion
+  order.
+- **Prototype-patch guard:** importing the module installs `Array.prototype.mergeWith`. Assert
+  `[].mergeWith` is a function after import; document the global side effect.
+
+#### `src/Colors/colors.ts` — `compositeColors`
+- Opaque overlay (`alpha === 1` or no alpha) → returns overlay color as hex, base ignored.
+- Semi-transparent overlay (`rgba(...,0.5)`) → per-channel composite; assert exact hex for a known
+  pair (e.g. base `#000000` + `rgba(255,255,255,0.5)` → `#808080`).
+- Accepts `#hex`, `hsl(...)`, and `rgb(...)` inputs (each branch of `parseColorWithAlpha`).
+- **Error paths:** unsupported format (e.g. `'red'`) throws `'Unsupported color format'`; malformed
+  rgb throws `'Invalid RGB color format'`.
+
+#### `src/ProviderState/Settings.ts` + `ProviderState.ts` — `createSettings`, `createProviderState`
+- `createSettings()` returns an empty settings object; with initial data it is populated.
+- Nested get/set semantics (`NestedRecord`) — read/write a nested path.
+- `createProviderState({...})` wires `FlagConfig` defaults correctly.
+
+### Tier 2 — Async + timer logic
+
+#### `src/FetchBackoff/FetchBackoff.ts` — `FetchBackoff`
+- Returns the response immediately when `retryCondition` is false (happy path, no retry).
+- Retries up to `retries` times on `!response.ok`, applying exponential `backoffFactor` delay —
+  **use `jest.useFakeTimers()` + `jest.advanceTimersByTimeAsync`** to assert the delay schedule
+  (`initialDelay`, `initialDelay*factor`, …) without real waits.
+- Throws `'Fetch failed after maximum retries.'` after exhausting retries.
+- Custom `retryCondition` is honored (e.g. retry only on 503).
+- Mock `global.fetch` (`jest.fn()`) to script the response/throw sequence; assert call count.
+- Verify `console.error` is invoked on terminal failure (spy, as `CalendarBooking.test.tsx` does).
+
+### Tier 3 — Hooks (jsdom + RTL `renderHook`)
+
+#### `src/useResize/useResize.tsx` and `src/useResizeWindow`
+- With a `ref` whose `current` has `offsetWidth/offsetHeight`, returns those dimensions.
+- With `null` ref, falls back to `window.innerWidth/innerHeight`.
+- Updates on `window` `resize` event (dispatch `new Event('resize')` within `act`).
+- Removes the listener on unmount (assert via `removeEventListener` spy).
+
+### Tier 4 — IndexedDB store (integration-style)
+
+#### `src/LocalDb/LocalDb.ts` — `LocalDb`
+Highest-value but most involved. Wraps `@tempfix/idb` (`openDB`). Test with **`fake-indexeddb`**
+against the real `idb` API rather than mocking `openDB` — matches the repo preference for
+integration over mocks (`AX-CANDIDATE-REPO-NO-MOCKED-DB-IN-TESTS`) and validates the actual
+object-store shapes.
+- Init creates the configured stores (`LocalDbProps.stores` / `initializeStores`); `disabled: true`
+  is a no-op.
+- `FileSaveRequest` round-trips: save file+blob, load back by name and by url
+  (`FileLoadRequestByName` / `FileLoadRequestByUrl`); assert version bumping and `IDBFileVersion`
+  shape (`data` Blob, `mimeType`, `videos`).
+- Video save (`VideoSaveRequest`) attaches `IDBVideo` records to the right project/version.
+- Version list ordering and "latest version" resolution.
+- **Browser-safety guard (separate, structural test):** assert `LocalDb` and the barrel import
+  cleanly in jsdom with no `@nestjs`/`mongoose`/`@aws-sdk`/`next/server` in the resolved module
+  graph.
+
+### Tier 5 — Presentational components (partly covered)
+
+`GrokLoader`, `UserMenu`, `Dialog`, `SocialLinks` (done), `CalendarBooking` (done). For untested
+components, render with RTL, assert key roles/text, exercise callbacks via `fireEvent`. Mock
+`@mui/material/styles` `useTheme` the way `CalendarBooking.test.tsx` does when a full
+`ThemeProvider` is overkill.
 
 ---
 
-## 6. Coverage Targets (Medium priority)
+## 4. Framework, tooling, conventions
 
-Enforce via `jest.config.js` `coverageThreshold` once the Tier 1 tests land:
+- **Runner:** Jest 29 + ts-jest (already the preset). No change needed.
+- **New dev dep to add:** `fake-indexeddb` for the `LocalDb` tier. Prefer a per-file
+  `import 'fake-indexeddb/auto'` over wiring it into the shared `setup.ts`, to avoid leaking a
+  global IndexedDB into hook/component suites.
+- **Component tests:** `@testing-library/react` 16 + `@testing-library/jest-dom` (already in setup).
+- **Timers:** `jest.useFakeTimers()` for `FetchBackoff` / any debounce path; pair with
+  `jest.useRealTimers()` in `afterEach`.
 
-```js
-coverageThreshold: {
-  global:                  { lines: 60, statements: 60, branches: 50, functions: 60 },
-  './src/FetchBackoff/':   { lines: 90, branches: 85 },
-  './src/ProviderState/':  { lines: 85, branches: 75 },
-  './src/Ids/':            { lines: 90, branches: 80 },
-  './src/Types/':          { lines: 85, branches: 80 },
-  './src/LocalDb/':        { lines: 70, branches: 60 },
-  './src/Colors/':         { lines: 90, branches: 85 },
-}
-```
-
-Rationale: utilities are deterministic and cheap to cover thoroughly; `LocalDb` interacts with IndexedDB so 70% is realistic. Components are excluded from per-directory thresholds — render-smoke coverage is enough at Medium priority.
-
-Exclude from coverage: `src/**/index.ts(x)` re-exports, `src/interfaces/` (type-only), `src/__tests__/`, all `*.js` build siblings, `src/idb.types.d.ts`, `src/Dialog/Dialog.types.ts`, `*.types.ts`.
+### File organization & naming
+- Co-locate tests in a `__tests__/` subfolder next to the module (matches existing convention:
+  `SocialLinks/__tests__/*.test.ts(x)`). Do **not** scatter loose `*.test.ts` in module roots.
+- Naming: `<Subject>.test.ts` for logic, `<Component>.test.tsx` for React. One subject per file.
+- `jest.config.js` `testMatch` already picks up both `__tests__/**` and `*.test.*` — no config edit
+  required.
 
 ---
 
-## 7. Concrete Test Cases — Implement First
+## 5. Mock / stub & static-state strategy
 
-The order below is the recommended implementation order (TDD: write the test, see it fail/observe behavior, lock it in). Each item lists the file to create and the cases that must pass.
+- **`global.fetch`** — replace with `jest.fn()` per test (`FetchBackoff`); never hit the network.
+- **IndexedDB** — use `fake-indexeddb` (real API surface), not a hand-rolled `openDB` mock.
+- **`@mui/material/styles` `useTheme`** — mock with a minimal theme literal (see
+  `CalendarBooking.test.tsx`) when a `ThemeProvider` wrapper is unnecessary.
+- **`console.error`/`warn`** — spy + `mockImplementation(() => {})` in `beforeAll`, restore in
+  `afterAll` (existing pattern) for code paths that intentionally log.
+- **`window`/`sessionStorage`** — jsdom provides these; `clear()` in `beforeEach` for cache-backed
+  code (existing `CalendarBooking` pattern).
+- **Static mutable registries (`MimeRegistry`, `SUIMime`, `Array.prototype.mergeWith`)** — these
+  persist across tests in the same Jest worker. Guard against cross-test bleed:
+  - For `MimeRegistry.create`, use unique application/name per test or snapshot-and-restore the
+    static maps in `afterEach`.
+  - Treat the `Array.prototype` patch as a documented global side effect; test it in its own file.
+  - `isolatedModules: true` does **not** reset module-level singletons between tests in a file — use
+    `jest.resetModules()` + dynamic `import()` if a clean registry is needed.
 
-### Sprint 1 — Pure utilities (no DOM, fastest to write)
+---
 
-**`src/FetchBackoff/__tests__/FetchBackoff.test.ts`**
-- returns response on first success (no retry; `fetch` called once, **no** `setTimeout` fired — success returns before the delay)
-- retries up to `retries` (default 3 → 4 total `fetch` attempts) when `response.ok === false`
-- doubles delay with default `backoffFactor: 2`. The loop runs `setTimeout(delay)` after **every** attempt, including the last failed one, so an all-fail run with `retries: 3` fires **4** delays before throwing: `500, 1000, 2000, 4000` (assert via `jest.useFakeTimers()` + a `setTimeout` spy — do not just check the first three)
-- respects custom `initialDelay` and `backoffFactor` (e.g. `initialDelay: 100, backoffFactor: 3` → `100, 300, 900, …`)
-- throws `"Fetch failed after maximum retries."` after exhausting retries (and only *after* the trailing delay of the final attempt resolves)
-- custom `retryCondition` returning `false` short-circuits the loop and returns the first response (line 30: `if (!retryCondition(response, null)) return response`)
-- inverse footgun: a `retryCondition` that returns `true` on a 2xx keeps retrying a good response until it throws — pin this so the predicate contract is explicit
-- swallows fetch rejections per `retryCondition`, `console.error('FetchBackoff', …)` once on the final attempt
-- does **not** rethrow when `retryCondition` returns `false` for an error — it logs `console.error('FetchBackoff', error)` and continues to the delay/next iteration (never an early throw on a single error)
+## 6. Coverage targets (medium priority)
 
-**`src/Ids/namedId/__tests__/namedId.test.ts`**
-- default call returns string matching `/^id-[0-9a-f]{1,7}$/`
-- string arg becomes the id segment: `namedId('foo')` → `/^foo-/`
-- object arg respects `prefix`, `id`, `suffix`, `length` (order: `prefix-id-suffix-<hex>`)
-- `randomBytes(n)` returns an `n`-character lowercase hex string
-- two consecutive calls produce different IDs (collision smoke test, 1000 iterations)
+| Area | Statements | Rationale |
+| --- | --- | --- |
+| Tier 1 pure utils (`Ids`, `MimeType.getExtension`, `mergeWith`, `Colors`, `ProviderState`) | **90%+** | Deterministic, high fan-out, cheap to cover fully |
+| `FetchBackoff` | **85%+** | Branchy retry logic; cover all `retryCondition` paths |
+| Hooks (`useResize*`) | **80%+** | jsdom-testable; cover ref/no-ref/resize/unmount |
+| `LocalDb` | **70%+** | Higher integration cost; cover save/load/version round-trips |
+| Components (`GrokLoader`, `UserMenu`, `Dialog`) | **60%+** | Presentational; smoke + key interactions |
+| **Package overall** | **~75% statements / 70% branches** | Appropriate for medium priority + high reuse |
 
-**`src/Ids/useIncId/__tests__/useIncId.test.ts`** (uses `renderHook`)
-- counter starts at `0`, increments by 1 per call
-- pads to configured `length` with leading zeros (`length: 3` → `...-000`, `...-001`)
-- `prefix` is concatenated correctly (`${prefix}-${id}-${padded}`)
-- `.by(n)` jumps the counter by `n`
-- counter persists across re-renders (`rerender()`), resets on unmount/remount
+Enable `coverageThreshold` in `jest.config.js` only **after** the Tier 1–2 suites land, so CI does
+not red on the current untested surface. Start with
+`collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts', '!src/**/index.{ts,tsx}', '!**/__tests__/**']`.
 
-**`src/Types/__tests__/mergeWith.test.ts`**
-- merges two arrays by key, second array overwrites first on key collision
-- filters out falsy entries from both arrays
-- returns instance (filtered) unchanged when `otherArray` is not an array
-- empty arrays return an empty array
-- side-effect: `Array.prototype.mergeWith` is `typeof 'function'` after import
+---
 
-**`src/Colors/__tests__/colors.test.ts`**
-- alpha === 1 returns the overlay color verbatim
-- alpha === 0 returns the base color verbatim
-- alpha === 0.5 produces a midpoint blend
-- accepts `#hex`, `rgb()`, `rgba()`, `hsl()` as base
-- throws `"Unsupported color format"` on unknown input (e.g. `"red"`)
-- throws `"Invalid RGB color format"` on malformed RGB
+## 7. First five test files to implement (in order)
 
-### Sprint 2 — State containers
+Each is a self-contained red→green cycle per `~/.stokd/SC_AXIOMS.md` §5 — write the test, see it
+fail, implement/verify, see it pass.
 
-**`src/ProviderState/__tests__/Settings.test.ts`**
-- top-level get/set works like a normal object
-- dotted-path get traverses nested objects (`settings['user.name']`)
-- dotted-path set creates intermediate objects (autovivification)
-- get returns `undefined` for a missing intermediate key (no throw)
-- regression: document the `Object.assign` propagation gap from `MEMORY.md` with an `it.skip` + comment so a future "fix" surfaces deliberately, not silently (AX-MOD-SUICOMMON-006)
+1. **`src/Ids/namedId/__tests__/namedId.test.ts`** — format, prefix/suffix/length branches,
+   `randomBytes` edges. *(Pure, zero deps — fastest win.)*
+2. **`src/Types/__tests__/mergeWith.test.ts`** — merge-by-key, falsy filtering, non-array guard,
+   prototype-install assertion.
+3. **`src/MimeType/__tests__/IMimeType.test.ts`** — `getExtension` happy/edge paths +
+   `MimeRegistry.create` four-index registration (with static-state cleanup).
+4. **`src/FetchBackoff/__tests__/FetchBackoff.test.ts`** — happy path, retry schedule with fake
+   timers, exhaustion throw, custom `retryCondition`.
+5. **`src/Colors/__tests__/colors.test.ts`** — opaque passthrough, alpha composite math (exact
+   hex), each input-format branch, both error throws.
 
-**`src/ProviderState/__tests__/ProviderState.test.ts`**
-- `createFlags` seeds `flags` from `config.defaultValue` (falls back to `false`)
-- `enableFlags` / `disableFlags` accept a string or `string[]`
-- `toggleFlags` flips the current value and re-runs `checkTriggers`
-- `removeFlags` throws `Flag "x" does not exist.` on an unknown flag name
-- `addTriggers` with a string array enables those flags transitively
-- `removeTriggers` with a string array disables those flags
-- object trigger writes into the **captured `settings` closure argument**, *not* `this.settings` — assert the documented quirk in AX-MOD-SUICOMMON-006, do not "fix" it in the test
+After these, proceed to `useResize` (Tier 3) and `LocalDb` (Tier 4, add `fake-indexeddb`).
 
-### Sprint 3 — IndexedDB-backed persistence
+---
 
-Add `fake-indexeddb` and update `src/__tests__/setup.ts`:
+## 8. Commands
 
-```ts
-import '@testing-library/jest-dom';
-import 'fake-indexeddb/auto';
-```
+```bash
+# Run the whole suite
+pnpm --filter @stoked-ui/common test
 
-**`src/LocalDb/__tests__/LocalDb.test.ts`**
-- `getRecordVersions` produces ascending versions for an `IDBProjectFile` with multiple version entries; `mediaType` is `'project'` when the mime includes `'project'`, else `'doc'`
-- save → load round-trip: write a `FileSaveRequest`, read back via `FileLoadRequestByName`; blob bytes match
-- save with missing `versions` entry creates the version (regression for the `saveVideo` issue in `MEMORY.md`)
-- load by URL (`FileLoadRequestByUrl`) resolves the same record as load by name
-- `disabled: true` short-circuits all writes/reads without throwing (AX-MOD-SUICOMMON-004)
-- `getVideos` returns flattened videos across versions; empty store returns `[]` (regression for the empty-`ScreenshotStore` count check)
-- `createFolder` produces a folder `IDBFile` with a generated id (or the supplied `options.id`)
-- SSR guard: importing the module does not throw when `indexedDB`/`window` are undefined (AX-MOD-SUICOMMON-004 — simulate by deleting the global before `require`)
+# Watch a single new file while developing (TDD)
+pnpm --filter @stoked-ui/common test:watch -- namedId
 
-Reset state between tests:
-```ts
-afterEach(async () => {
-  await new Promise((r) => {
-    const req = indexedDB.deleteDatabase('<dbName>');
-    req.onsuccess = () => r(undefined);
-    req.onerror = () => r(undefined);
-  });
-});
+# Coverage report
+pnpm --filter @stoked-ui/common test:coverage
+
+# Typecheck (separate gate, must stay green — AX-REPO-PACKAGE-BARREL)
+pnpm --filter @stoked-ui/common typescript
 ```
 
-### Sprint 4 — MIME + components
-
-**`src/MimeType/__tests__/MimeRegistry.test.ts`**
-- `MimeRegistry.create(app, name, ext, desc)` registers the same `IMimeType` in all four static maps (`exts`, `names`, `subtypes`, `types`), keyed correctly (`ext`, `name`, `${app}-${name}`, `${type}/${app}-${name}`)
-- the returned object's `accept` getter yields `{ [fullType]: ext }`
-- `getExtension('https://x/y.png')` → `.png` (dot-prefixed)
-- `getExtension('https://x/y')` (no extension) → `''`
-- `getExtension('y.png')` (bare filename) **throws** `TypeError` — verified `new URL()` footgun
-- use unique extensions per test to avoid static-map cross-test leakage
-
-**`src/MimeType/__tests__/MimeType.test.ts`**
-- `ExtensionMimeTypeMap` returns expected types for `mp4`, `png`, `pdf`, `json`, `zip` (spot check, not exhaustive)
-- map size is non-zero (sanity)
-
-**`src/MimeType/__tests__/StokedUiMime.test.ts`**
-- `SUIMime` registers its SUI-specific types and they resolve through the inherited `MimeRegistry` maps
-
-**`src/useResize/__tests__/useResize.test.tsx`** / **`src/useResizeWindow/__tests__/useResizeWindow.test.tsx`** (use `renderHook`)
-- no-ref branch: returns `window.innerWidth/innerHeight`; updates after `window.dispatchEvent(new Event('resize'))`
-- element-ref branch: returns stubbed `offsetWidth/offsetHeight`
-- removes the `resize` listener on unmount (spy on `window.removeEventListener`)
-
-**`src/UserMenu/__tests__/UserMenu.test.tsx`**
-- renders with required props, opens menu on click, fires the documented callbacks
-- wrap in `renderWithTheme` (shared MUI `ThemeProvider` helper)
-
-**`src/interfaces/__tests__/embed-visibility.test.ts`** (tiny, high-value)
-- `isPublicEmbedVisibility('public')` → `true`; `'authenticated'`/`'private'` → `false`
-- `isAuthenticatedEmbedVisibility` → `true` for `'public'` and `'authenticated'`, `false` for `'private'`
-- `DEFAULT_EMBED_VISIBILITY === 'private'` (most-restrictive default is a contract)
-
 ---
 
-## 8. Risks & Notes
+## 9. Guardrails to honor while testing
 
-- **`createSettings` Proxy is load-bearing across packages** — `MEMORY.md` calls out a specific footgun used by the editor (`file.media` properties set via `Object.assign` don't propagate through React state updates). Tests must lock in *current* behavior, not "ideal" behavior, until that gap is addressed deliberately (AX-MOD-SUICOMMON-006).
-- **`mergeWith` mutates `Array.prototype`.** Importing it in any test (or via the index barrel) installs the patch globally for the run — that matches production. Do not isolate or delete it (AX-MOD-SUICOMMON-005).
-- **`MimeRegistry` keeps module-level static state.** Tests that call `create()` leak across files unless reset. Prefer unique extensions per test (e.g. `.test-${Date.now()}`) to dodge the issue without reflecting into private fields.
-- **`getExtension` requires a full URL** (`new URL(...)`). Passing a bare filename throws `TypeError`. Either consumers always pass URLs, or the function needs a guard — until then, the test pins the throw as the contract.
-- **`process.env.FLAG_DEBUGGING`** is read by `enableFlags`/`disableFlags`. Leave it unset (or `delete` it in setup) so console output stays quiet.
-- **`Types.ts` `setProperty` logs `console.log('setProperty', 'name')` on every call** (note: logs the literal string `'name'`, a likely bug). If `setProperty` ends up under test, spy on `console.log`; consider filing a fix for the literal.
-- **No CI test step exists** for this package today, yet three axioms (-006, -007, and -006 again) name `pnpm --filter @stoked-ui/common test` as an acceptance check. Adding tests is half the work; wiring the command (and eventually `test:coverage`) into the root pipeline is the other half. Without that, regressions still ship green.
-- **Keep Jest, not Mocha.** `sui-common` is one of the two sanctioned standalone-Jest packages (`MEMORY.md` → "Dual test stacks"). Adding it to the umbrella Mocha glob would break that glob; the umbrella suite also needs Node v20.20.0 while this Jest suite runs fine on Node v26.
-
----
-
-## 9. Acceptance Snapshot
-
-A change to `sui-common` is test-ready when:
-
-1. `pnpm --filter @stoked-ui/common test` is green (today: 52 tests; growing).
-2. Every Tier 1 module touched by the change has a red→green regression test added in the same PR.
-3. `pnpm --filter @stoked-ui/common typescript` and `pnpm --filter @stoked-ui/common build` pass (barrel/contract integrity — AX-MOD-SUICOMMON-001).
-4. Downstream type-checks still pass for the consumers a contract change touches: `pnpm --filter @stoked-ui/editor typescript`, `pnpm --filter @stoked-ui/timeline typescript`, `pnpm --filter @stoked-ui/common-api typescript`, `pnpm --filter @stoked-ui/media-api typescript` (AX-MOD-SUICOMMON-003, -006).
+- **Barrel contract** (`AX-REPO-PACKAGE-BARREL`): every symbol exported from `src/index.tsx` is
+  public — adding a test should never require widening the barrel. If a util is hard to test because
+  it is not exported, test it via its module path, not by changing the public surface.
+- **Browser-safety** (`AX-REPO-BROWSER-NO-SERVER-DEPS`): all tests run under `jsdom`; a server-only
+  import would surface as a load failure — keep that signal, don't stub around it.
+- **Media-type coordination** (`AX-REPO-MEDIA-TYPE-COORDINATION`): `LocalDb` consumes `MimeType`; a
+  change to either should keep both suites green simultaneously.

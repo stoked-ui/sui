@@ -1,10 +1,10 @@
 # Stoked UI — Codebase Overview
 
-> **Generated:** 2026-05-21 (upgraded 0.3.0 → 0.4.0) · **Refreshed:** 2026-06-06 (timed re-verification — no codebase drift, HEAD `29ec514149`; prior same-day: audit-bot lead-gen pass + baseline; earlier: 2026-05-28) | **Meta version:** 0.4.0
+> **Generated:** 2026-05-21 (upgraded 0.3.0 → 0.4.0) · **Refreshed:** 2026-06-22 (upgrade 0.4.0 → 0.6.0 — added 12th package `sui-stokd`, Rust CLI/MCP tooling, CloudFront CDN-invalidation modules; prior: 2026-06-06 timed re-verification) | **Meta version:** 0.6.0
 > **Repository:** `@stoked-ui/sui` v0.1.0-alpha.5 (private monorepo root)
-> **Root:** `/opt/worktrees/stoked-ui/stoked-ui-main`
+> **Root:** `/opt/worktrees/stoked-ui/sui/main`
 > **Package manager:** pnpm 10.5.1 (enforced via `preinstall: npx only-allow pnpm`)
-> **Workspace packages tracked in meta v0.4.0:** 11 — `sui-cdn`, `sui-common`, `sui-common-api`, `sui-docs`, `sui-editor`, `sui-file-explorer`, `sui-github`, `sui-media`, `sui-media-api`, `sui-timeline`, `sui-video-renderer`
+> **Publishable `@stoked-ui/*` workspace packages:** 12 — `sui-cdn`, `sui-common`, `sui-common-api`, `sui-docs`, `sui-editor`, `sui-file-explorer`, `sui-github`, `sui-media`, `sui-media-api`, `sui-stokd`, `sui-timeline`, `sui-video-renderer`. The new `sui-stokd` is **not yet tracked** in `.stokd/meta/config.json` (still lists 11) nor under `.stokd/meta/packages/` — flagged for follow-up.
 > **Docs app framework (installed):** Next.js **13.5.11** (manifest `next@^13.5.1`, Pages Router) · port **5199**
 
 ---
@@ -21,12 +21,16 @@ The repo ships three product surfaces:
 
 A native Rust crate (`packages/sui-video-renderer`) compiles to WASM and is consumed by `@stoked-ui/editor` for in-browser video preview/rendering.
 
+A new publishable package, **`@stoked-ui/stokd`** (`packages/sui-stokd`, v0.2.2), ships the host-agnostic, CSS-variable-themed React component suite ("Current Activity" UX) shared by the Stokd web dashboard and a VS Code extension — `ActiveTaskCard`, `InteractiveSessionCard`, `PipelineShellCard`, `LiveTimer`, status/provider/prerequisite badges, plus session-grouping and view-model types. It themes via `--sui-*` CSS variables (`import '@stoked-ui/stokd/theme.css'`) so hosts can map Tailwind tokens (web) or `--vscode-*` tokens (VS Code webview). Its only runtime dep is `lucide-react`; tests run under Jest (not the repo-wide Mocha/Karma harness).
+
+A pair of Rust developer tools live in `packages-internal/`: **`@stoked-ui/cli`** (`packages-internal/stoked-cli`, binary `stoked`, a clap/reqwest/tokio CLI for the Stoked Next.js APIs — the `pnpm cli` shortcut targets it) and **`stoked-mcp`** (an MCP server). These are the `stoked` product CLI, distinct from the `stokd` orchestration CLI referenced in governance.
+
 ---
 
 ## 2. Top-Level Layout
 
 ```
-stoked-ui-main/
+sui/main/
 ├── packages/                    Public @stoked-ui/* workspace packages
 │   ├── sui-cdn/                 Embeddable CDN/S3 file browser component
 │   ├── sui-common/              Shared client utilities (LocalDb, Mime, FetchBackoff, hooks)
@@ -37,13 +41,14 @@ stoked-ui-main/
 │   ├── sui-github/              GitHub calendar / events / commits / branch components
 │   ├── sui-media/               Framework-agnostic media abstractions, players, hooks, FileSystemApi
 │   ├── sui-media-api/           NestJS API (media CRUD, metadata, thumbnails, S3, Mongo, Lambda)
+│   ├── sui-stokd/               Stokd "Current Activity" UX — host-agnostic CSS-var-themed React cards/badges (web + VS Code)
 │   ├── sui-timeline/            Animation/scrubber timeline engine + UI
 │   ├── sui-video-renderer/      Rust workspace (compositor + wasm-preview + cli) → WASM
 │   ├── stoked-ui-project-1/     Project sandbox
 │   └── zero-runtime/            Pigment CSS zero-runtime CSS-in-JS experiment
 │
 ├── packages-internal/           Private workspace packages
-│   ├── stoked-cli/, stoked-mcp/                   Rust CLI + MCP server tooling
+│   ├── stoked-cli/ (@stoked-ui/cli, bin `stoked`), stoked-mcp/   Rust CLI + MCP server tooling
 │   ├── api-docs-builder/, docs-utils/, markdown/  Documentation pipeline
 │   ├── proptypes/, react-docgen-types/            Docgen support
 │   ├── eslint-plugin-stoked-ui/                   House lint rules
@@ -131,6 +136,7 @@ Edges verified from each `package.json`:
 - **`@stoked-ui/github`** (`packages/sui-github`) — Depends on `@stoked-ui/common`. `GithubCalendar`, `GithubEvents`, `GithubBranch`, `GithubCommit`.
 - **`@stoked-ui/docs`** (`packages/sui-docs`) — Depends on `@stoked-ui/editor`, `@stoked-ui/file-explorer`, `@stoked-ui/media`, `@stoked-ui/timeline`. Exports declared via subpath `exports` map (e.g., `./Demo`, `./CodeSandbox`) rather than a single barrel.
 - **`@stoked-ui/media-api`** (`packages/sui-media-api`) — Depends on `@stoked-ui/common`, `@stoked-ui/common-api`. NestJS app with Mongo, S3, Sharp, fluent-ffmpeg, Stripe, JWT/Passport, Swagger. Deploys via `@codegenie/serverless-express` (`src/{app.module.ts, main.ts, lambda.ts}`).
+- **`@stoked-ui/stokd`** (`packages/sui-stokd`) — **No `@stoked-ui` deps.** Standalone, host-agnostic React component suite (peer-deps React 18.3.1; one runtime dep `lucide-react`). Single barrel `src/index.ts` re-exports `./types` plus components (`ShipStatusChips`, `StatusBadge`, `LiveTimer`, `ProviderBadge`, `PrerequisiteBadge`, `ActiveTaskCard`, `InteractiveSessionCard`, `PipelineShellCard`) and util/grouping helpers (`formatDuration`, `pickGroupDisplayStatus`, `groupSessionsByRequest`, …). Ships its own `theme.css`; tests use Jest.
 - **`sui-video-renderer`** — Rust Cargo workspace (`packages/sui-video-renderer/Cargo.toml` → `compositor`, `wasm-preview`, `cli`). Built with `cargo build --release` or `wasm-pack build` for the editor consumer.
 
 ### Critical boundary rule (from `.stokd/meta/SC_CONTEXT.md` and `CLAUDE.md`)
@@ -201,7 +207,7 @@ Each step shells out to root scripts:
 - `pnpm release` = `build:all` → `release:version` → `deploy:prod`.
 - `pnpm deploy:prod` — `dotenvx run -- sst deploy --stage production` (uses AWS profile `stokd-cloud`).
 - `pnpm clean` / `pnpm clean:build` — wipe build artifacts and lockfiles.
-- Package shortcuts: `pnpm common`, `pnpm common-api`, `pnpm editor`, `pnpm file-explorer`, `pnpm github`, `pnpm media`, `pnpm media-api`, `pnpm timeline`, `pnpm docs`, `pnpm cli`.
+- Package shortcuts: `pnpm common`, `pnpm common-api`, `pnpm editor`, `pnpm file-explorer`, `pnpm github`, `pnpm media`, `pnpm media-api`, `pnpm timeline`, `pnpm docs`, `pnpm stokd` (→ `@stoked-ui/stokd`), `pnpm cli` (→ `@stoked-ui/cli`, the Rust `stoked` CLI under `packages-internal/stoked-cli`).
 
 ### Turbo dev caveats
 - `dev:prepare` is what unblocks live editing — without it, downstream packages won't pick up upstream type/source updates.
@@ -235,6 +241,7 @@ Each step shells out to root scripts:
 - **Media metadata path:** `sui-media`'s `extractVideoMetadata` writes into a `ScreenshotStore`; consumers persist to IndexedDB via `sui-common/LocalDb`. The empty-store guard (`count > 0`) prevents the previous block on first generation.
 - **MediaCard render path** (analyzed directory): `packages/sui-media/src/components/MediaCard/MediaCard.tsx` consumes `MediaCard.types.ts` and is exercised by `__tests__/MediaCard.test.tsx`. `file.media` uses a `createSettings` Proxy — properties set via `Object.assign` don't always propagate through React state updates; detail views use DOM `<video>` element fallbacks for duration/width/height. **Active work (2026-06):** the `media-pairing-poster-detection` project (PRD at `.stokd/projects/media-pairing-poster-detection/prd.md`, 5 phases) pairs video+image objects sharing a basename, uses the image as the video card's poster, collapses the redundant image card in the `sui-cdn` `CdnBrowser` gallery, and exposes the image's actions via a thumbnail FAB/menu. Recent commits (`6145267e70`, `a1a92da872`, `76a8732750`) auto-extract a first-frame thumbnail for CORS-friendly video posters across `MediaCard` and CDN videos.
 - **Business API request flow:** browser → `docs/pages/api/<domain>/...` → MongoDB (`mongodb` 6.12). Stripe + Google OAuth integrate at this layer.
+- **CDN admin / S3 mutation flow:** the docs CDN admin (`@stoked-ui/cdn` `CdnBrowser` + `docs/pages/api/cdn/**`) routes folder/move/delete/upload mutations through `docs/src/modules/cdn/` — `cdnMutations.ts` (S3 ops against `CDN_BUCKET`: `createFolder`, `deletePath`, `movePath`, `.cdnkeep` directory markers), `cdnContents.ts`/`cdnAccess.ts` (listing + auth), `cdnUploadStore.ts` (multipart upload state). After any mutation, `cdnInvalidation.ts` (`invalidateCdnPaths`) issues a CloudFront `CreateInvalidationCommand` against `CDN_DISTRIBUTION_ID` (wired by `infra/cdn-site.ts` as a docs-Lambda env var; skipped silently in local dev). This `/api/cdn/*` contract is governed by `AX-REPO-CDN-API-CONTRACT`.
 - **Audit-bot lead-gen flow:** `web/components/AuditBot.tsx` → `POST /api/audit/turn` → `conversationRunner` selects the playbook persona and calls `llmClient` (OpenAI-compatible; LM Studio / Qwen by default). When the model calls the URL-fetch tool, `tools.ts` dials through an SSRF-safe undici agent enforcing `urlSafety.ts` (http/https only, no private/reserved IPs, redirects re-validated hop-by-hop). On completion, `POST /api/audit/save-lead` validates and assembles the report (`reportValidation` + `deliverables`), persists the lead (`auditStore`), emails it via SES (`auditMailer`, Brian BCC'd), and pings Telegram (`notifyTelegram`).
 - **Media API request flow:** client → `sui-media-api` NestJS controllers → Mongoose models → S3 / Sharp / ffmpeg. Same codebase runs locally (Nest CLI) and serverless (Lambda adapter).
 - **Deployment path:** `pnpm deploy:prod` → `sst deploy --stage production` → `infra/{site,cdn-site,api,cert,domains,secrets}.ts` provisions CloudFront, API Gateway v2, Lambdas, and certs.
@@ -281,11 +288,21 @@ MUI is pinned tree-wide (`@mui/material` 5.17.1, `@mui/system` 5.17.1, `@mui/uti
 - Recommendations log: `.stokd/meta/SC_RECOMMENDATIONS.md`
 - Governed project PRDs / phase plans: `.stokd/projects/<slug>/` (e.g. `media-pairing-poster-detection/{prd.md, phases/*}`); orchestration runtime state in top-level `projects/<slug>/`
 - Package READMEs: each `packages/sui-*/README.md` (e.g. the new `packages/sui-cdn/README.md`)
-- Meta tracking config: `.stokd/meta/config.json` (lists all 11 tracked packages; the 2026-05-28 refresh added `sui-cdn` and `sui-video-renderer`, resolving the prior drift between `config.json.packages` and the `.stokd/meta/packages/<pkg>/` directories)
+- Meta tracking config: `.stokd/meta/config.json` (currently lists 11 tracked packages and `metaVersion: 0.4.0`; **drifts** from the live tree, which now has 12 publishable `@stoked-ui/*` packages — `sui-stokd` is missing from both `config.json.packages` and `.stokd/meta/packages/`. Flagged for the next config sync.)
 
 ---
 
-## 10. Changes in 2026-06-06 Refresh — timed re-verification pass (meta v0.4.0)
+## 10. Changes in 2026-06-22 Upgrade — meta v0.4.0 → 0.6.0
+
+Upgrade pass for meta version 0.6.0. The previous content (audit-bot, dependency graph, build pipeline, SST/Next pins) was re-verified against the live tree and preserved where accurate; the following drift was corrected:
+
+- **Added the 12th publishable package `@stoked-ui/stokd`** (`packages/sui-stokd`, v0.2.2) — host-agnostic "Current Activity" UX (cards/badges/timers) themed via `--sui-*` CSS variables, shared by the Stokd web dashboard and a VS Code extension. No `@stoked-ui` deps; single `src/index.ts` barrel; Jest-tested; runtime dep `lucide-react`. Documented in §1, §2 layout, §3 dependency graph, and the §5 `pnpm stokd` shortcut. **`config.json` (11 pkgs, v0.4.0) and `.stokd/meta/packages/` now lag the tree — flagged in header and §9 for sync.**
+- **Documented the Rust developer tooling under `packages-internal/`:** `@stoked-ui/cli` (`stoked-cli`, binary `stoked`, clap/reqwest/tokio client for the docs Next.js APIs — the `pnpm cli` shortcut, added to §5) and `stoked-mcp` (MCP server). Distinguished the `stoked` product CLI from the `stokd` orchestration CLI per governance.
+- **Documented the CloudFront CDN-invalidation path** now present in `docs/src/modules/cdn/` (`cdnMutations.ts`, `cdnContents.ts`, `cdnAccess.ts`, `cdnUploadStore.ts`, and the new `cdnInvalidation.ts` → `invalidateCdnPaths` issuing `CreateInvalidationCommand` against `CDN_DISTRIBUTION_ID` from `infra/cdn-site.ts`). Added a CDN-admin critical-path entry to §6 and tied it to `AX-REPO-CDN-API-CONTRACT`.
+- **Corrected the workspace root path** to `/opt/worktrees/stoked-ui/sui/main` (was the stale `stoked-ui-main` path) in the header and §2 tree.
+- **Re-verified versions:** docs `next@^13.5.1` installed **13.5.11**; root SST installed **4.2.0** (docs still carries vestigial `sst@^3.6.19`); pnpm 10.5.1; MUI 5.17.1 / React 18.3.1 pins; `pnpm-workspace.yaml`, `turbo.json`, and the root `pnpm.overrides`/`resolutions` unchanged.
+
+## 11. Changes in 2026-06-06 Refresh — timed re-verification pass (meta v0.4.0)
 
 This pass was a scheduled (timed) refresh. The repository HEAD is unchanged since the same-day audit-bot pass (`29ec514149` "chore: land in-flight work from parallel sessions"), so **no architectural, dependency, or structural drift was found**. All claims below were re-verified against the live tree and preserved:
 
@@ -295,14 +312,14 @@ This pass was a scheduled (timed) refresh. The repository HEAD is unchanged sinc
 - **WASM artifacts present:** `packages/sui-video-renderer/pkg/` carries `wasm_preview*` outputs (`.wasm`, `.js`, `.d.ts`); editor `optionalDependency` `@stoked-ui/video-renderer-wasm` → `file:../sui-video-renderer/pkg` intact.
 - **Package rosters match:** `packages/` = 11 `sui-*` + `stoked-ui-project-1` + `zero-runtime`; `config.json.packages` lists the 11 tracked `sui-*` packages; `packages-internal/` contents match §2. No changes to `pnpm-workspace.yaml`, `turbo.json`, or the `pnpm.overrides` / `resolutions` pins in root `package.json`.
 
-## 11. Changes in 2026-06-06 Refresh — audit-bot lead-gen pass (meta v0.4.0)
+## 12. Changes in 2026-06-06 Refresh — audit-bot lead-gen pass (meta v0.4.0)
 
 - **Documented the completed audit-bot lead-gen agent** (commit `86ed35e3d0`, landed alongside `29ec514149`). `docs/src/modules/auditBot/` grew from a thin `{conversationRunner, playbooks, auditStore}` sketch into a full **playbooks × channels × leads** agent: playbooks `{ai-readiness, cloud-cost, security}`; channels `{web, linkedin, voice}` (`web/components/AuditBot.tsx`); and engine/lead plumbing `llmClient.ts`, `tools.ts` + `urlSafety.ts`, `leadFields.ts`, `reportValidation.ts`, `deliverables.ts`, `auditMailer.ts`, `notifyTelegram.ts`, `types.ts` (each with co-located `*.test.ts`). Expanded §1, the §3 boundary rule, the §6 entry-point table, and added an audit-bot critical-path entry in §6.
 - **Recorded the SSRF guard and its axiom:** visitor-supplied URL fetches now dial through an SSRF-safe undici agent enforcing `urlSafety.ts` (http/https only, no private/reserved IPs, hop-by-hop redirect re-validation, size/timeout caps), governed by the new `AX-AUDIT-BOT-URL-SAFETY` axiom in `.stokd/meta/SC_AXIOMS.md`. Cross-referenced in §9.
 - **Noted the inference stack:** `llmClient.ts` uses an OpenAI-compatible endpoint (`openai` dep in `docs/package.json`), defaulting to LM Studio serving Qwen 2.5 32B-Instruct at `AUDIT_BOT_BASE_URL`; the SES report mailer (`auditMailer.ts`) reuses `@aws-sdk/client-ses` and BCCs `AUDIT_REPORT_BCC_EMAIL`.
 - **Re-verified** installed Next.js (**13.5.11**), root SST (**4.2.0**, with `docs/package.json` still carrying the vestigial `sst@^3.6.19`), WASM artifacts present in both `packages/sui-video-renderer/pkg/` and `wasm-preview/pkg/`, the 11-package `config.json` roster, `pnpm-workspace.yaml`, and `turbo.json`. All preserved where accurate.
 
-## 12. Changes in 2026-06-06 Refresh — baseline pass (meta v0.4.0)
+## 13. Changes in 2026-06-06 Refresh — baseline pass (meta v0.4.0)
 
 - **Fixed two stale "Next.js 14" references** left in §2 (top-level layout) and §3 (dependency-graph diagram) — the docs app is Next.js **13.5.11** (manifest `next@^13.5.1`). The 2026-05-28 refresh corrected §1/§4/§6 but missed these; now consistent. Added the installed framework version to the header.
 - **Documented the Stokd governed-project structure** now present in the tree: `.stokd/projects/<slug>/` (PRDs + phase plans) and the top-level `projects/<slug>/` orchestration artifacts (`state.mjs`, `build-state.mjs`, `orchestrate.workflow.js`, `prd.md`). Added to §2 layout and §9 cross-references.
@@ -311,7 +328,7 @@ This pass was a scheduled (timed) refresh. The repository HEAD is unchanged sinc
 - **Verified WASM artifacts present** in both `packages/sui-video-renderer/pkg/` and `wasm-preview/pkg/` (`wasm_preview*` outputs); editor `optionalDependency` `@stoked-ui/video-renderer-wasm` → `file:../sui-video-renderer/pkg` intact (editor v0.1.2, media-api v1.0.0).
 - Re-verified the dependency graph, build pipeline, scripts, `pnpm-workspace.yaml`, `turbo.json`, and `config.json` against current manifests; preserved where accurate. Added an axioms cross-reference to §9.
 
-## 13. Changes in 2026-05-28 Refresh (meta v0.4.0)
+## 14. Changes in 2026-05-28 Refresh (meta v0.4.0)
 
 - **Corrected the docs-app framework version:** prior copies said "Next.js 14" throughout; the manifest is `next@^13.5.1` and the installed version is **13.5.11** (Pages Router). Updated §1, §4, §6 accordingly.
 - **Recorded the audit-bot / consulting surface:** new `docs/pages/api/audit/{turn.ts, save-lead.ts}` endpoints (backed by `docs/src/modules/auditBot/{conversationRunner, playbooks, auditStore}`) and the expanded `docs/pages/consulting/**` verticals (ai, front-end, back-end, devops, full-stack). Added to §1, §3 boundary list, and §6 entry-point table.
@@ -319,7 +336,7 @@ This pass was a scheduled (timed) refresh. The repository HEAD is unchanged sinc
 - Verified WASM artifact presence: `packages/sui-video-renderer/pkg/` and `wasm-preview/pkg/` both contain `wasm_preview*` output; editor `optionalDependency` `@stoked-ui/video-renderer-wasm` → `file:../sui-video-renderer/pkg` is intact.
 - All other architectural, dependency-graph, build-system, and pattern content re-verified against `package.json`, `docs/package.json`, `pnpm-workspace.yaml`, and per-package manifests; preserved where accurate.
 
-## 14. Changes vs. Meta v0.3.0
+## 15. Changes vs. Meta v0.3.0
 
 - Bumped meta version 0.3.0 → 0.4.0.
 - Removed dead reference to legacy `.stokd/meta/SC_MODULE_SUI_*.md` files (now deleted; see `git status`). Per-package module docs now live under `.stokd/meta/packages/<pkg>/SC_MODULE.md`.

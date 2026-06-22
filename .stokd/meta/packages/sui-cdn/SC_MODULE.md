@@ -1,6 +1,6 @@
 # SC_MODULE: sui-cdn (`@stoked-ui/cdn`)
 
-> **Generated:** 2026-06-06 | **Meta version:** 0.4.0
+> **Generated:** 2026-06-06 | **Updated:** 2026-06-22 (UPGRADE 0.4.0 → 0.6.0 — re-verified version/LOC/exports against the working tree; version is now `0.1.0`) | **Meta version:** 0.6.0
 > **Module classification document.** Module-level detail that used to live
 > inside product docs is consolidated here. See `.stokd/meta/SC_PRODUCT_STOKED_UI_SUI.md`
 > for product context, `.stokd/meta/SC_VIEWS.md` §13/§17 for view detail, and
@@ -12,7 +12,7 @@
 
 - **Module / package name:** `@stoked-ui/cdn`
 - **Package path:** `packages/sui-cdn`
-- **Version:** `0.1.0-alpha.5`
+- **Version:** `0.1.0`
 - **Entry point (barrel):** `packages/sui-cdn/src/index.ts`
 - **Published `main`:** `src/index.ts` (built to `build/` via the shared Babel pipeline)
 - **Stylesheet (side-effect):** `packages/sui-cdn/src/styles.css`, consumed by host apps as `@stoked-ui/cdn/styles.css` (declared `sideEffects: ["*.css"]`)
@@ -189,7 +189,7 @@ This module renders / materially shapes the following views in
 | `src/CdnApi/CdnApi.ts` (~363 LOC) | The REST client + resumable multipart upload engine. Highest correctness risk: chunk retry (`MAX_RETRIES=3`, no retry on `AbortError`, ETag required), URL batching (`URL_BATCH_SIZE=50`), `localStorage` session fingerprinting (`uploadFingerprint`), and the `/api/cdn/*` endpoint shapes all live here. Also `collectDroppedEntries` and `beginDesktopDownload`. |
 | `src/CdnBrowser/CdnBrowser.tsx` (~1,442 LOC) | The whole UI: listing, search (`useDeferredValue`), breadcrumbs, controlled/uncontrolled prefix, list/gallery view modes (auto-switch via `isMediaHeavy` ≥90%, persisted per-prefix in `localStorage`), drag-drop upload + move, rename, delete, permissions editor, and auth/role gating (`canManage`, `shouldForceLogout`, `isCredentialFailure`). Root class is `suiCdnBrowser`. |
 | `src/CdnBrowser/CdnBrowser.types.ts` | `CdnBrowserProps` — the component's documented prop contract and defaults. |
-| `src/utils/contents.ts` (~266 LOC) | Pure data layer: `normalizePrefix`, `fromFlatObjects` (groups flat S3 keys into folders/objects), `parseS3Xml`, `normalizeJson`, `getContents` (remote fetch via `fetchRemote` + localhost mock fallback), and presentation helpers (`getFileKind`, `formatBytes`, `formatTimestamp`, `buildCrumbs`, `buildPublicUrl`). Cheap to test, high ROI. |
+| `src/utils/contents.ts` (266 LOC) | Pure data layer: `normalizePrefix`, `fromFlatObjects` (groups flat S3 keys into folders/objects), `parseS3Xml`, `normalizeJson`, `getContents` (remote fetch via `fetchRemote` + localhost mock fallback), and presentation helpers (`getFileKind`, `formatBytes`, `formatTimestamp`, `buildCrumbs`, `buildPublicUrl`). Cheap to test, high ROI. |
 | `src/data/mockContents.ts` | `mockObjects` fixture — the fallback dataset when no endpoint is configured or on localhost credential failure. |
 | `src/styles.css` | All component styling, scoped under `.suiCdnBrowser`; shipped as a side-effect import. |
 | `package.json` | Build pipeline (`build:modern`→`node`→`stable`→`types`→`copy-files`), peer deps (React 18), `sideEffects`. |

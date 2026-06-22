@@ -1,0 +1,318 @@
+@startuml
+' =============================================================================
+' SC_SCHEMA.puml — Shared MongoDB persistent data model for @stoked-ui/sui
+' Meta version: 0.6.0 (upgraded from 0.4.0)
+'
+' OWNERSHIP: ONE shared MongoDB database (default db name "stoked-media",
+' MONGODB_URI -> docs/src/modules/db/mongodb.ts) backs the whole product.
+' It is reached three ways, all against the same collections:
+'   1. @stoked-ui/common-api  — Mongoose @Schema/SchemaFactory model defs
+'                               (packages/sui-common-api/src/models/*.model.ts)
+'   2. @stoked-ui/media-api    — NestJS MongooseModule.forFeature runtime
+'                               (Video/Image/File/UploadSession features)
+'   3. docs/pages/api/**       — raw mongodb driver db.collection(...) handlers
+'
+' Collection names follow Mongoose pluralization of the lower-cased class name
+' (User->users, Media->media, BlogPost->blogposts, UploadSession->uploadsessions).
+' Collections marked (raw) are accessed only via the native driver in docs.
+'
+' AX-REPO-MONGODB-BUSINESS-DATA: MongoDB is the sole business-domain store.
+' AX-REPO-SWAP-ID-WIRE-FORMAT: _id -> id and __v stripped on JSON serialization.
+' NOTE: BaseModel/File ObjectId refs use the string "UserRef", while the
+'       registered model is "User" (UserFeature) — known ref/registration
+'       mismatch (AX-CANDIDATE-REPO-MONGOOSE-REF-REGISTRATION).
+' =============================================================================
+
+' ---- Identity / ownership --------------------------------------------------
+
+entity "users" as users {
+  * _id : ObjectId
+  --
+  email : string <<unique, index>>
+  passwordHash : string
+  name : string
+  role : enum(admin|client|agent)
+  clientId : ObjectId <<FK clients>>
+  agentIds : ObjectId[] <<FK users>>
+  aliases : string[]
+  avatarUrl : string
+  active : boolean
+  createdAt : Date
+  updatedAt : Date
+}
+
+entity "clients" as clients {
+  * _id : ObjectId
+  --
+  name : string
+  slug : string <<unique, index>>
+  contactEmail : string
+  active : boolean
+  createdAt : Date
+  updatedAt : Date
+}
+
+entity "api_keys (raw)" as api_keys {
+  * _id : ObjectId
+  --
+  key : string
+  prefix : string
+  userId : ObjectId <<FK users>>
+  name : string
+  createdAt : Date
+  lastUsedAt : Date
+  revokedAt : Date
+}
+
+' ---- File hierarchy (BaseModel -> File -> Image/Video/Media) ---------------
+' BaseModel + File fields are embedded into every subclass collection via
+' SchemaFactory class inheritance; each subclass is its own collection.
+
+entity "files" as files {
+  * _id : ObjectId
+  --
+  ' BaseModel
+  likes : ObjectId[] <<FK users>>
+  dislikes : ObjectId[] <<FK users>>
+  denyAccess : ObjectId[] <<FK users>>
+  canAccess : ObjectId[] <<FK users>>
+  canEdit : ObjectId[] <<FK users>>
+  publicity : enum(public|private|paid|deleted)
+  deleted : boolean
+  deletedAt : Date
+  tokens : number
+  views : number
+  uniqueViews : number
+  score : number
+  ' File
+  title : string
+  description : string
+  author : ObjectId <<FK users>>
+  owners : ObjectId[] <<FK users>>
+  starring : ObjectId[] <<FK users>>
+  file : string
+  url : string
+  tags : string[]
+  price : number
+  originalName : string
+  hash : string
+  size : number
+  mime : string
+  rating : enum(ga|nc17)
+  bucket : string <<index>>
+  region : string
+}
+
+entity "images" as images {
+  * _id : ObjectId
+  --
+  ..File fields..
+  avatar : boolean
+  cover : boolean
+  type : string = "image"
+  paidThumbnail : string
+  width : number
+  height : number
+  aspectRatio : number
+  metadataProcessingFailures : object[]
+}
+
+entity "videos" as videos {
+  * _id : ObjectId
+  --
+  ..File fields..
+  type : string = "video"
+  thumbnail / thumb : string
+  thumbs : string[]
+  paidThumbnail / paidPreview : string
+  width / height / aspectRatio : number
+  scenes : object[]
+  sceneTimeCodes : string[]
+  duration : number
+  codec : string
+  container : enum(mp4|mov|webm|mkv)
+  moovAtomPosition : enum(start|end)
+  bitrate : number
+  scrubberSprite : string
+  scrubberSpriteConfig : object
+  mediaClass : ObjectId <<FK MediaClass*>>
+  recordingSessionId : ObjectId <<FK StreamRecording*>>
+  isStreamRecording : boolean
+  featuredUsers : ObjectId[] <<FK users>>
+  metadataProcessingFailures : object[]
+  playbackIssues : object[]
+}
+
+entity "media" as media {
+  * _id : ObjectId
+  --
+  ..File fields..
+  thumbnail / thumb : string
+  thumbs : string[]
+  scenes : object[]
+  sceneTimeCodes : string[]
+  duration : number
+  mediaType : string
+  location : string
+  width / height : number
+  embedVisibility : enum(public|authenticated|private) <<index>>
+  dataSource : object { sourceId:ObjectId, sourceType, externalId, lastSyncedAt }
+  playbackIssues : object[]
+  hasPlaybackIssues : boolean
+}
+
+entity "uploadsessions" as uploadsessions {
+  * _id : ObjectId
+  --
+  userId : ObjectId <<FK users>>
+  uploadId : string <<index>>
+  s3Key : string
+  bucket : string
+  region : string
+  filename : string
+  mimeType : string
+  totalSize : number
+  chunkSize : number
+  totalParts : number
+  hash : string <<index>>
+  status : enum(pending|in_progress|completed|aborted|expired) <<index>>
+  parts : object[] { partNumber, etag, status, size, uploadedAt }
+  expiresAt : Date <<TTL>>
+  errorMessage : string
+  createdAt : Date
+  updatedAt : Date
+}
+
+' ---- Commerce / licensing --------------------------------------------------
+
+entity "products" as products {
+  * _id : ObjectId
+  --
+  productId : string <<unique, index>>
+  name : string
+  description : string
+  keyPrefix : string
+  stripeProductId : string
+  stripePriceId : string
+  price : number
+  currency : string = "usd"
+  licenseDurationDays : number
+  gracePeriodDays : number
+  trialDurationDays : number
+  purchaseUrl : string
+  createdAt : Date
+  updatedAt : Date
+}
+
+entity "product_pages (raw)" as product_pages {
+  * _id : ObjectId
+  --
+  productId : string <<FK products.productId>>
+  slug : string
+  title : string
+  content : string
+  published : boolean
+  createdAt : Date
+}
+
+entity "licenses" as licenses {
+  * _id : ObjectId
+  --
+  key : string <<unique>>
+  email : string <<index>>
+  productId : string <<FK products.productId, index>>
+  hardwareId : string
+  machineName : string
+  status : enum(pending|active|expired|revoked) <<index>>
+  activatedAt : Date
+  expiresAt : Date
+  gracePeriodDays : number
+  stripeCustomerId : string <<index>>
+  stripeSubscriptionId : string
+  deactivationCount : number
+  activationHistory : string[]
+  createdAt : Date
+  updatedAt : Date
+}
+
+entity "invoices" as invoices {
+  * _id : ObjectId
+  --
+  configId : string <<index>>
+  customer : string <<index>>
+  startDate : string
+  endDate : string
+  text : string
+  totalHours : number
+  weeks : object[] { dateRange, totalHours, tasks[] }
+  generatedAt : Date
+  sentAt : Date
+  createdAt : Date
+  updatedAt : Date
+}
+
+entity "deliverables (raw)" as deliverables {
+  * _id : ObjectId
+  --
+  clientId : ObjectId <<FK clients>>
+  title : string
+  type : enum(download|link|ux|html)
+  url : string
+  version : string
+  createdAt : Date
+  updatedAt : Date
+}
+
+' ---- Content / marketing ---------------------------------------------------
+
+entity "blogposts" as blogposts {
+  * _id : ObjectId
+  --
+  ..File fields..
+  slug : string <<unique, index>>
+  body : string
+  status : enum(draft|published|archived) <<index>>
+  targetSites : string[]
+  nostrEventId : string <<sparse>>
+  source : enum(native|nostr|import)
+  date : Date
+  image : string
+  authors : string[]
+}
+
+entity "subscribers (raw)" as subscribers {
+  * _id : ObjectId
+  --
+  email : string
+  ' newsletter / subscription membership used to derive UserRole
+}
+
+' ---- Relationships (crow's foot) -------------------------------------------
+
+clients ||--o{ users : clientId
+users ||--o{ users : agentIds (self)
+users ||--o{ api_keys : userId
+users ||--o{ uploadsessions : userId
+
+users ||--o{ files : author / owners
+users ||--o{ images : author / owners
+users ||--o{ videos : author / featuredUsers
+users ||--o{ media : author / owners
+
+products ||--o{ product_pages : productId
+products ||--o{ licenses : productId
+clients  ||--o{ deliverables : clientId
+
+note bottom of videos
+  mediaClass -> "MediaClass" and recordingSessionId -> "StreamRecording"
+  are ObjectId refs to models NOT defined in this repo's model set
+  (legacy / externally-registered). Shown as soft FK with *.
+end note
+
+note bottom of licenses
+  licenses.email and licenses.stripeCustomerId/stripeSubscriptionId are
+  soft references reconciled through Stripe + POST /api/webhooks/stripe
+  (AX-REPO-STRIPE-LICENSE-COMMERCE). Not enforced ObjectId FKs.
+end note
+
+@enduml
