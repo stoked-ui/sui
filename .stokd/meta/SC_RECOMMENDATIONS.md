@@ -1,19 +1,19 @@
 # Stoked UI — Recommendations
 
-> **Generated:** 2026-05-05 (fresh) | **Updated:** 2026-05-21 (0.3.0 → 0.4.0), **2026-06-22 (0.4.0 → 0.6.0)** · **Refreshed:** 2026-05-28, 2026-06-06 (×3)
-> **Meta version:** 0.6.0 (previous: 0.4.0)
+> **Generated:** 2026-05-05 (fresh) | **Updated:** 2026-05-21 (0.3.0 → 0.4.0), **2026-06-22 (0.4.0 → 0.6.0)** · **Refreshed:** 2026-05-28, 2026-06-06 (×3), **2026-07-02 (timed refresh, HEAD `19b6261d5c`)**
+> **Meta version:** 0.6.0
 > **Repository:** `@stoked-ui/sui` v0.1.0-alpha.5 (root, private)
 > **Root:** `/opt/worktrees/stoked-ui/sui/main`
 
 This document captures actionable recommendations across code quality, architecture, testing, security, and performance, derived from a read of the monorepo (manifests, build config, CI workflows, source layout, and the existing `.stokd/meta/*` documents). Items are grouped by category and tagged **P0 / P1 / P2** by recommended urgency.
 
-**2026-06-22 (0.6.0 upgrade) — re-verified against HEAD `fae8df1ea5`.** Codebase drift since the 0.4.0 passes, all verified live this pass:
+**2026-07-02 (timed refresh) — re-verified against HEAD `19b6261d5c`.** Drift since the 0.6.0 pass (HEAD `fae8df1ea5`), verified live:
 
-- **New publishable package `@stoked-ui/stokd`** (`packages/sui-stokd/`, v0.2.2) — Stokd "current activity" UX components, shared by the web dashboard and a VS Code extension. It is **well-tested out of the gate** (its own `jest.config.js` + 10+ co-located `__tests__/` suites across `components/*`, `grouping/`, `types`). **Gap:** it has **no `.stokd/meta/packages/sui-stokd/` entry** — the per-package meta dir lists only the original 11 packages (§6.1 updated, now P1).
-- **Two new repo axioms landed** that should anchor recommendations: `AX-REPO-PUBLISH-NO-HOL-BLOCKING` (the npm publish loop must attempt every package independently — born from the `@stoked-ui/cdn` trusted-publisher misconfig on 2026-06-11) and `AX-REPO-NO-TEMPLATE-LITERAL-DYNAMIC-IMPORT` (literal `import()` specifiers in `docs/pages/**` — a template-literal import took down `consulting.stokd.cloud` / `sui.stokd.cloud` prod home with React #130 on 2026-06-12; fixed in `69bbbf0fa8`). Also note `AX-REPO-CDN-API-CONTRACT` and `AX-REPO-WASMLAYER-CONTRACT` as cross-surface contracts to guard in review.
-- **`@stoked-ui/cdn` is now published** (v0.1.0, commit `ddc68d281d`) and the internal `@stoked-ui/internal-cdn-sui` Vite wrapper is publishable (`e2d47c634f`); `cdn-sui` dist output is no longer tracked (`cca65c27ce`). The `/api/cdn/*` contract now spans four surfaces (§1, `AX-REPO-CDN-API-CONTRACT`).
-- **Version sprawl is now wider, not narrower** (§8.1, escalated): `media-api` `1.0.0`, `stokd` `0.2.2`, `common` `0.2.2`, `docs` `0.1.21`, `github` `0.1.0-alpha.11.3`, `cdn` `0.1.0`, `common-api` `0.1.0`, `editor` `0.1.2`, `file-explorer` `0.1.2`, `timeline` `0.1.3`, `media` `0.1.0-alpha.5`. Six distinct version schemes across 12 publishable packages.
-- **Unchanged P0/P1 gaps re-confirmed:** `shove` commits still in recent history (`53d61f20d5`, `359e8b4075`); **no `.husky/`, no `commitlint.config.*`, no `.github/dependabot.yml`, no `gitleaks`/`trufflehog` CI job** (§2.1, §4.2, §4.6 all stand). `resolutions` = **25 keys** (yarn-style, pnpm-ignored, dead weight); `pnpm.overrides` = **22 keys**; the `@minh.nguyen/plugin-transform-destructuring` fork is still **only in `resolutions`** → almost certainly a no-op (§2.2). **License store still has zero `*.test.*`** under `docs/src/modules/license/` (§3.3). **`docs/pages/api/audit/turn.ts` still has no per-IP rate limiting** (§4.7). CI is still **9 workflows** (`ci.yml`, `ci-check.yml`, `codeql.yml`, `scorecards.yml`, `vale-action.yml`, `deploy-site.yml`, `publish-packages.yml`, `claude.yml`, `claude-code-review.yml`).
+- **A THIRD production incident from a class a pre-merge gate would catch.** PR #395 (`d10d296845`, fix `2fe48ae437`) fixed a **circular dependency between `docs/src/modules/cdn/cdnInvalidation.ts` and `cdnMutations.ts` that produced a webpack TDZ `ReferenceError` crashing *all* CDN API routes at module-init time**. This is the third prod-breaking merge in a month (after the template-literal dynamic import → React #130, and the one-failed-package publish-loop halt). There is **no circular-dependency detection** in the toolchain (`madge` is not a dependency; nothing in `turbo.json`/CI checks for cycles) — see new §2.7. It further reinforces §2.1 (branch protection / pre-merge gates are not theoretical).
+- **`@stoked-ui/stokd` meta migration is half-done.** `.stokd/meta/packages/sui-stokd/` now exists but contains **only `SC_TEST.md` — `SC_MODULE.md` is still missing** (all 11 sibling packages have both). §6.1 updated: the gap narrowed but is not closed. The package landed in `13c8553b88` (v0.2.2, "current activity" UX components) and remains **well-tested out of the gate** (own `jest.config.js` + 10+ co-located `__tests__/`).
+- **Two more repo axioms landed** since the last pass: `AX-REPO-CDN-INVALIDATION-BEST-EFFORT` (CloudFront invalidation after a CDN write must be a swallow-and-log side effect; `13c8553b88`) and `AX-REPO-STOKD-HOST-AGNOSTIC` (`@stoked-ui/stokd` stays presentational, CSS-var-themed, no host imports / no I/O). Both should anchor review of the new CDN-invalidation and stokd code paths. Prior anchors still stand: `AX-REPO-PUBLISH-NO-HOL-BLOCKING`, `AX-REPO-NO-TEMPLATE-LITERAL-DYNAMIC-IMPORT`, `AX-REPO-CDN-API-CONTRACT`, `AX-REPO-WASMLAYER-CONTRACT`.
+- **Version sprawl unchanged — still six schemes across 12 packages** (§8.1): `media-api` `1.0.0`, `stokd` `0.2.2`, `common` `0.2.2`, `docs` `0.1.21`, `github` `0.1.0-alpha.11.3`, `cdn` `0.1.0`, `common-api` `0.1.0`, `editor` `0.1.2`, `file-explorer` `0.1.2`, `timeline` `0.1.3`, `media` `0.1.0-alpha.5`, root `sui` `0.1.0-alpha.5` (private).
+- **Unchanged P0/P1 gaps re-confirmed this pass:** `shove` commits still in history (`53d61f20d5`, `359e8b4075`); **no `.husky/`, no `commitlint.config.*`, no `.github/dependabot.yml`, no `gitleaks`/`trufflehog` CI job** (§2.1, §4.2, §4.6 all stand). `resolutions` = **25 keys** (yarn-style, pnpm-ignored, dead weight); `pnpm.overrides` = **22 keys**; the `@minh.nguyen/plugin-transform-destructuring` fork is still **only in `resolutions`, not in `pnpm.overrides`** → almost certainly a no-op (§2.2). **License store still has zero `*.test.*`** under `docs/src/modules/license/` (§3.3). **`docs/pages/api/audit/turn.ts` still has no per-IP rate limiting** (§4.7). CI is still **9 workflows** (`ci.yml`, `ci-check.yml`, `codeql.yml`, `scorecards.yml`, `vale-action.yml`, `deploy-site.yml`, `publish-packages.yml`, `claude.yml`, `claude-code-review.yml`).
 
 ---
 
@@ -129,6 +129,17 @@ The root `package.json` exposes 90+ scripts, many of them thin workspace aliases
 - Optionally add a matching ESLint rule in `packages-internal/eslint-plugin-stoked-ui/` so the editor flags it at author time, not just in CI.
 
 This is cheap insurance against a failure mode that already cost two prod outages.
+
+### 2.7 [P0 — NEW] Add circular-dependency detection to CI
+
+PR #395 (`d10d296845`, fix `2fe48ae437`) fixed a **circular import between `docs/src/modules/cdn/cdnInvalidation.ts` and `cdnMutations.ts`** that, once webpack hoisting kicked in, produced a temporal-dead-zone `ReferenceError` at module-init time and **crashed every CDN API route in production**. The fix inlined a `CDN_REGION` constant to break the cycle — a symptom fix; nothing prevents the next cycle.
+
+This is the third prod-breaking merge in roughly a month (template-literal dynamic import → React #130; one-failed-package publish-loop halt; now this TDZ crash). None of them produced a compile error — all three passed the current gates and shipped.
+
+- Add `madge` as a devDependency and a CI step: `madge --circular --extensions ts,tsx docs/src packages/*/src` failing the build on any cycle. Seed an allowlist for any pre-existing intentional cycle so the gate lands green, then burn the allowlist down.
+- Circular-import TDZ crashes are especially dangerous in the Next.js `docs/pages/api/**` routes (module-init-time evaluation) and in the publishable `@stoked-ui/*` barrels (`AX-REPO-PACKAGE-BARREL`) — scope the check to both.
+
+**Why P0:** three module-graph/build-time failure modes have reached production without any structural guard. A `madge --circular` gate is a few minutes of CI and directly targets the class that just took down CDN.
 
 ---
 
@@ -286,7 +297,7 @@ The 0.4.0 layout moves module docs into per-package folders:
   SC_TEST.md
 ```
 
-**[P1 — NEW GAP] `sui-stokd` is missing from the per-package meta layout.** `.stokd/meta/packages/` currently holds **11** dirs (`sui-cdn`, `sui-common`, `sui-common-api`, `sui-docs`, `sui-editor`, `sui-file-explorer`, `sui-github`, `sui-media`, `sui-media-api`, `sui-timeline`, `sui-video-renderer`) but the workspace now ships **12** publishable packages — the new `@stoked-ui/stokd` (`packages/sui-stokd/`) has no `SC_MODULE.md` / `SC_TEST.md`. Add `.stokd/meta/packages/sui-stokd/{SC_MODULE.md,SC_TEST.md}` and a `SC_MODULES.md` row so the new package is governed like the rest. Follow-ups:
+**[P1 — PARTIALLY RESOLVED] `sui-stokd` meta migration is half-done.** As of this refresh `.stokd/meta/packages/` holds **12** dirs (the new `sui-stokd/` was added) — but `sui-stokd/` contains **only `SC_TEST.md`; its `SC_MODULE.md` is still missing** while all 11 siblings have both. Finish the migration: add `.stokd/meta/packages/sui-stokd/SC_MODULE.md` (documenting the presentational/host-agnostic contract per `AX-REPO-STOKD-HOST-AGNOSTIC`) and a `SC_MODULES.md` row so the new package is governed like the rest. Follow-ups:
 
 - Commit the deletions so the migration lands cleanly; do not restore.
 - Grep `SC_OVERVIEW.md`, `SC_MODULES.md`, `SC_VIEWS.md`, `SC_FLOWS.md` for residual `SC_MODULE_SUI_` links and rewrite to `packages/<pkg>/SC_MODULE.md`.
@@ -349,17 +360,18 @@ This is now **six distinct version lines**, not a converging split. `media-api` 
 
 Ordered by ROI:
 
-1. Add `commitlint` + `.husky/commit-msg` + branch protection on `main` (P0, §2.1) — `shove` commits still in recent history; still no husky/commitlint; two recent prod incidents would have been caught by a pre-merge gate.
-2. Add the literal-dynamic-import CI grep gate (`AX-REPO-NO-TEMPLATE-LITERAL-DYNAMIC-IMPORT`) — one line, prevents a repeat of the React #130 prod crash (P1, §2.6).
-3. Add `gitleaks` to CI alongside the present CodeQL/Scorecards (P0→P1, §4.2) — still absent.
-4. Add `.stokd/meta/packages/sui-stokd/{SC_MODULE.md,SC_TEST.md}` + a `SC_MODULES.md` row — the new 12th package is ungoverned (P1, §6.1).
-5. Add a `test:jest` Turbo coverage gate surfacing the existing `sui-media-api`, `sui-media`, and `sui-stokd` suites, then add Jest configs to `sui-timeline`/`sui-editor`/`sui-common-api`/`sui-github`/`sui-docs` (P0/P1, §3.1, §3.3).
-6. Add per-IP rate limiting to `api/audit/turn.ts` (input caps now exist, but no throttle on the LLM+Mongo+SES+Telegram fan-out), then write the residual audit-bot tests (`conversationRunner`, `save-lead`, `llmClient`) — SSRF / mailer / lead-fields / report-validation are already covered (P1, §4.7, §3.5).
-7. Delete the dead `resolutions` block and resolve the pnpm-ignored `@minh.nguyen` Babel fork (adopt-and-pin in `pnpm.overrides`, or remove) (P1, §2.2, §4.6).
-8. Adopt Changesets for a single version source — six version schemes across 12 packages is drifting per-commit (P1, §8.1, §1.2).
-9. Resolve the `@stoked-ui/video-renderer-wasm` publication strategy or label editor monorepo-only; fix the WASM size-gate filename to `wasm_preview_bg.wasm` (P1, §1.4, §5.1).
-10. Add a bootstrap AWS-profile guard in `infra/index.ts` and the `deploy-site.yml` workflow (P0, §4.1).
-11. Add license-store tests (`activate`/`validate`/`deactivate` + webhook path) (P1, §3.3, §4.4).
+1. Add `commitlint` + `.husky/commit-msg` + branch protection on `main` (P0, §2.1) — `shove` commits still in recent history; still no husky/commitlint; **three** recent prod incidents would have been caught by a pre-merge gate.
+2. Add a `madge --circular` CI gate (P0, §2.7) — directly targets the TDZ circular-import crash that just took down all CDN API routes (PR #395); `madge` is not yet a dependency.
+3. Add the literal-dynamic-import CI grep gate (`AX-REPO-NO-TEMPLATE-LITERAL-DYNAMIC-IMPORT`) — one line, prevents a repeat of the React #130 prod crash (P1, §2.6).
+4. Add `gitleaks` to CI alongside the present CodeQL/Scorecards (P0→P1, §4.2) — still absent.
+5. Finish the `sui-stokd` meta migration — add the missing `.stokd/meta/packages/sui-stokd/SC_MODULE.md` (`SC_TEST.md` now exists) + a `SC_MODULES.md` row (P1, §6.1).
+6. Add a `test:jest` Turbo coverage gate surfacing the existing `sui-media-api`, `sui-media`, and `sui-stokd` suites, then add Jest configs to `sui-timeline`/`sui-editor`/`sui-common-api`/`sui-github`/`sui-docs` (P0/P1, §3.1, §3.3).
+7. Add per-IP rate limiting to `api/audit/turn.ts` (input caps now exist, but no throttle on the LLM+Mongo+SES+Telegram fan-out), then write the residual audit-bot tests (`conversationRunner`, `save-lead`, `llmClient`) — SSRF / mailer / lead-fields / report-validation are already covered (P1, §4.7, §3.5).
+8. Delete the dead `resolutions` block and resolve the pnpm-ignored `@minh.nguyen` Babel fork (adopt-and-pin in `pnpm.overrides`, or remove) (P1, §2.2, §4.6).
+9. Adopt Changesets for a single version source — six version schemes across 12 packages is drifting per-commit (P1, §8.1, §1.2).
+10. Resolve the `@stoked-ui/video-renderer-wasm` publication strategy or label editor monorepo-only; fix the WASM size-gate filename to `wasm_preview_bg.wasm` (P1, §1.4, §5.1).
+11. Add a bootstrap AWS-profile guard in `infra/index.ts` and the `deploy-site.yml` workflow (P0, §4.1).
+12. Add license-store tests (`activate`/`validate`/`deactivate` + webhook path) (P1, §3.3, §4.4).
 
 ---
 
@@ -369,8 +381,8 @@ Ordered by ROI:
 - Repo-global axioms (referenced inline as `AX-REPO-*`): `.stokd/meta/SC_AXIOMS.md`
 - Product brief: `.stokd/meta/SC_PRODUCT_STOKED_UI_SUI.md`
 - Module index: `.stokd/meta/SC_MODULES.md`
-- Per-package module + test docs: `.stokd/meta/packages/<pkg>/SC_MODULE.md` and `.../SC_TEST.md` (⚠ `sui-stokd` entry still missing — see §6.1)
-- Key axioms anchoring these recs: `AX-REPO-PUBLISH-NO-HOL-BLOCKING`, `AX-REPO-NO-TEMPLATE-LITERAL-DYNAMIC-IMPORT`, `AX-REPO-CDN-API-CONTRACT`, `AX-REPO-WASMLAYER-CONTRACT`, `AX-REPO-MEDIA-API-BOUNDARY`, `AX-REPO-MUI-REACT-PINS` (all in `SC_AXIOMS.md`)
+- Per-package module + test docs: `.stokd/meta/packages/<pkg>/SC_MODULE.md` and `.../SC_TEST.md` (⚠ `sui-stokd/SC_MODULE.md` still missing — `SC_TEST.md` now present; see §6.1)
+- Key axioms anchoring these recs: `AX-REPO-PUBLISH-NO-HOL-BLOCKING`, `AX-REPO-NO-TEMPLATE-LITERAL-DYNAMIC-IMPORT`, `AX-REPO-CDN-API-CONTRACT`, `AX-REPO-CDN-INVALIDATION-BEST-EFFORT`, `AX-REPO-STOKD-HOST-AGNOSTIC`, `AX-REPO-WASMLAYER-CONTRACT`, `AX-REPO-MEDIA-API-BOUNDARY`, `AX-REPO-MUI-REACT-PINS` (all in `SC_AXIOMS.md`)
 - Test plan (aggregate): `.stokd/meta/SC_TEST.md`
 - Views and screens: `.stokd/meta/SC_VIEWS.md`
 - User flows: `.stokd/meta/SC_FLOWS.md`

@@ -1,6 +1,6 @@
 # Module: @stoked-ui/timeline
 
-> **Generated:** 2026-05-05 (fresh, content) | **Updated:** 2026-06-22 (UPGRADE 0.4.0 → 0.6.0 — re-verified version/guards/exports against source; `scaleWidth *` grep, `'No controllers set!'` guard, controller/command dirs, and the single `themeAugmentation.spec.ts` spec all confirmed unchanged) | **Meta version:** 0.6.0
+> **Generated:** 2026-05-05 (fresh, content) | **Updated:** 2026-07-02 (TIMED REFRESH — re-verified against source: package still v0.1.3; `'No controllers set!'` guard at `Engine.ts:79`; `scaleWidth *` grep still returns only the approved `TimelineProviderFunctions.ts:122` match; `themeAugmentation.spec.ts` remains the only spec; `RemoveActionCommand.trackIndex` bug still present; all four docs showcase consumers still exist. Only source changes since 2026-06-22: `package.json` `repository.url` now points at `stoked-ui/sui` with a `directory` field for npm provenance validation, and `.axioms.md` gained `### Enforcement` tiers) | **Meta version:** 0.6.0
 > **Package location:** `packages/sui-timeline`
 > **NPM name:** `@stoked-ui/timeline` (v0.1.3)
 > **Source entry:** `packages/sui-timeline/src/index.ts`
@@ -297,5 +297,6 @@ Per `.stokd/meta/packages/sui-timeline/SC_TEST.md`: there is currently **one spe
 ### CI / build
 
 - The package is built via `node ../../scripts/build.mjs {modern,node,stable}` plus `buildTypes.mjs` and `copyFiles.mjs`. `prebuild` clears `build/` and `tsconfig.build.tsbuildinfo`. Watching uses Babel with `--extensions '.js,.ts,.tsx'` against `./src`.
+- `package.json#repository` points at `https://github.com/stoked-ui/sui.git` with `directory: packages/sui-timeline` (changed 2026-06 for npm trusted-publisher provenance validation — see `AX-REPO-PUBLISH-NO-HOL-BLOCKING`). Do not point it back at the legacy `stoked-ui/timeline` repo; publishes will fail provenance checks.
 - `sst-env.d.ts` is present (SST infrastructure types) — leave it untouched unless restructuring deployment.
 - Jest config (when added) needs `transformIgnorePatterns: ['node_modules/(?!(sorted-btree)/)']` because `sorted-btree` ships ESM.

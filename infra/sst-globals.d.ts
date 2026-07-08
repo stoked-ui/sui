@@ -16,6 +16,11 @@ declare namespace sst {
     class Nextjs {
       constructor(name: string, args?: any);
     }
+    class Router {
+      constructor(name: string, args?: any);
+      route(pattern: string, url: string, args?: any): void;
+      readonly url: any;
+    }
     class Function {
       constructor(name: string, args?: any);
       readonly arn: string;

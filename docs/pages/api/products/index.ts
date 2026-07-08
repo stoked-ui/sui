@@ -2,6 +2,10 @@ import type { NextApiResponse } from 'next';
 import { getDb } from 'docs/src/modules/db/mongodb';
 import { withAuth, AuthenticatedRequest } from 'docs/src/modules/auth/withAuth';
 import { createStripeProduct, createStripePrice } from 'docs/src/modules/license/stripeClient';
+import {
+  normalizeInstallSourceUrl,
+  normalizeSupportedOperatingSystems,
+} from 'docs/src/modules/products/install';
 
 type SubscriptionInput = {
   label?: string;
@@ -42,7 +46,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     }
     const products = await collection
       .find({ productId: { $ne: 'stoked-ui' } })
-      .sort({ createdAt: -1 })
+      .sort({ sortOrder: 1, createdAt: -1 })
       .toArray();
     return res.status(200).json(products);
   }
@@ -112,6 +116,9 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
         gracePeriodDays: req.body.gracePeriodDays || 14,
         trialDurationDays: req.body.trialDurationDays || 30,
         maxActivations: req.body.maxActivations || 3,
+        installSourceUrl: normalizeInstallSourceUrl(req.body.installSourceUrl),
+        supportedOperatingSystems: normalizeSupportedOperatingSystems(req.body.supportedOperatingSystems),
+        sortOrder: Number.isFinite(Number(req.body.sortOrder)) ? Number(req.body.sortOrder) : 0,
         createdAt: now,
         updatedAt: now,
       };

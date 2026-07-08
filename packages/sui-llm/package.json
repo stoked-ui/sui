@@ -8,7 +8,9 @@
   "bugs": {
     "url": "https://github.com/stoked-ui/sui/issues"
   },
-  "sideEffects": ["*.css"],
+  "sideEffects": [
+    "*.css"
+  ],
   "publishConfig": {
     "access": "public",
     "directory": "build"
@@ -42,7 +44,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/stoked-ui/sui.git",
+    "url": "git+https://github.com/stoked-ui/sui.git",
     "directory": "packages/sui-llm"
   },
   "dependencies": {

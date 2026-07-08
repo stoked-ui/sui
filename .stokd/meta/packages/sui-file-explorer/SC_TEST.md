@@ -1,6 +1,6 @@
 # Testing Strategy: `@stoked-ui/file-explorer`
 
-> **Generated:** 2026-05-21 · **Refreshed:** 2026-06-06 · **Re-verified:** 2026-06-22 (ran the suite under Node 20.20.0 + Mocha 10.8.2; confirmed harness-path breakage is still live; corrected harness locations against `test/utils/`; added concrete fix table and first-test plan) | **Meta version:** 0.6.0
+> **Generated:** 2026-05-21 · **Refreshed:** 2026-07-02 (TIMED REFRESH — static re-verification: no package source/test files changed since the 2026-06-22 runtime run (only meta docs / `.axioms.md` touched in `13c8553b88`); re-ran the §0.3 import grep and confirmed the harness-path breakage is unchanged; confirmed `fileExportUtils.test.ts` still imports `@jest/globals` and `File.test.tsx` still targets `@mui/x-file-list`; **corrected §0.3** — `test/utils/file-explorer/fakeContextValue.ts` now exists, so the `fakeContextValue` rows are a path rewrite, not a missing-harness gap; re-verified symbol locations: `fileListStateReducer` at `FileExplorerDndContext.ts:276`, `getFileExplorerStateDefault` at `:196`, all six `fileValidation.ts` exports present) | **Meta version:** 0.7.0
 > **Package:** `packages/sui-file-explorer` (`@stoked-ui/file-explorer` v0.1.2)
 > **Priority:** Medium
 > **Source entry:** `packages/sui-file-explorer/src/index.ts`
@@ -14,10 +14,11 @@ optional grid view (`useFileExplorerGrid`), runtime feature flags
 
 ---
 
-## 0. Ground Truth (verified 2026-06-22, do not skip)
+## 0. Ground Truth (runtime-verified 2026-06-22, statically re-verified 2026-07-02)
 
-These facts were established by **running** the toolchain, not by reading it.
-They override any optimistic claim that "the suites compile."
+These facts were established by **running** the toolchain (2026-06-22) and
+re-checked against an unchanged source tree (2026-07-02). They override any
+optimistic claim that "the suites compile."
 
 1. **Node version is load-bearing.** The repo runner pins to **Node 20.20.0**
    (`.nvmrc` requests `18.19.0`, which is not installed locally; `20.20.0` is
@@ -36,8 +37,9 @@ They override any optimistic claim that "the suites compile."
    that the suite passes. Both gates must be checked independently.
 
 3. **Most test files do not load** because their harness import paths point at
-   directories that do not exist. Verified mismatch (run
-   `grep -rhoE "from 'test/utils/[^']+'" packages/sui-file-explorer/src | sort | uniq -c`):
+   directories that do not exist. Verified mismatch (re-run 2026-07-02 with
+   `grep -rhoE "from 'test/utils/[^']+'" packages/sui-file-explorer/src | sort | uniq -c`
+   — counts unchanged):
 
    | Import used in tests | Count | Exists at repo root? | Correct path |
    |---|---|---|---|
@@ -47,15 +49,17 @@ They override any optimistic claim that "the suites compile."
    | `test/utils/fileExplorer/describeFileExplorer` | 1 | ❌ | `test/utils/file-explorer/describeFileExplorer` |
    | `test/utils/tree-view/describeFileExplorer` | 1 | ❌ | `test/utils/file-explorer/describeFileExplorer` |
    | `test/utils/file-list/describeFileExplorer` | 1 | ❌ | `test/utils/file-explorer/describeFileExplorer` |
-   | `test/utils/file-list/fakeContextValue` | 1 | ❌ | (harness needs a `fakeContextValue` export under `test/utils/file-explorer/`) |
-   | `test/utils/tree-view/fakeContextValue` | 1 | ❌ | (same) |
+   | `test/utils/file-list/fakeContextValue` | 1 | ❌ | `test/utils/file-explorer/fakeContextValue` (exists as of 2026-07-02) |
+   | `test/utils/tree-view/fakeContextValue` | 1 | ❌ | `test/utils/file-explorer/fakeContextValue` (exists as of 2026-07-02) |
 
    Exact failure observed:
    `Error: Cannot find module '.../test/utils/fileExplorer-view/describeFileExplorer'`
    (from `useFileExplorerSelection.test.tsx:4`). The bare `test/` prefix
    resolves to the repo-root `test/` dir at runtime, so only the **two**
    correctly-named imports above load; the other **~12** fail. The shared
-   harness genuinely lives at **`test/utils/file-explorer/describeFileExplorer/`**.
+   harness genuinely lives at **`test/utils/file-explorer/`**, which now
+   contains both `describeFileExplorer/` and `fakeContextValue.ts` — the fix
+   is a pure import-path rewrite (no harness code needs to be written).
 
 4. **`fileExportUtils.test.ts` uses the wrong runner.** It imports
    `{ describe, it, expect, beforeEach, afterEach } from '@jest/globals'` and
@@ -67,9 +71,9 @@ They override any optimistic claim that "the suites compile."
 5. **`File.test.tsx` tests the wrong code.** It imports
    `File` from `@mui/x-file-list/File` and a context from
    `@mui/x-file-list/internals/...` — i.e. the **upstream MUI package**, not
-   `packages/sui-file-explorer/src/File`. Even if its broken
-   `test/utils/file-list/fakeContextValue` path were fixed, it would assert on
-   MUI's component, not ours.
+   `packages/sui-file-explorer/src/File`. Even after its
+   `test/utils/file-list/fakeContextValue` path is rewritten, it would assert
+   on MUI's component, not ours, until retargeted.
 
 **Net effect:** the package ships ~5,000 lines of tests, but only the
 `describeConformance`-based portions can even load today, and several of those
@@ -82,15 +86,19 @@ as coverage.
 
 ### 1.1 Tier 1 — security & data-integrity (highest value, currently UNTESTED)
 
-- **`fileValidation.ts`** — `isDangerousExtension`, `isAllowedMimeType`,
-  `isAcceptableFileSize`, `validateFile`, `validateFiles`, `getRejectionReason`.
-  This is the **only sanctioned boundary** between OS-originated drops and
-  consumer code (AX-MOD-FILE-EXPLORER-003). It has **no test**. A regression
-  here silently widens the dangerous-extension denylist or the size cap.
+- **`src/internals/plugins/useFileExplorerDnd/fileValidation.ts`** —
+  `isDangerousExtension`, `isAllowedMimeType`, `isAcceptableFileSize`,
+  `validateFile`, `validateFiles`, `getRejectionReason` (all exports verified
+  present 2026-07-02). This is the **only sanctioned boundary** between
+  OS-originated drops and consumer code (AX-MOD-FILE-EXPLORER-003). It has
+  **no test**. A regression here silently widens the dangerous-extension
+  denylist or the size cap.
   *Pure functions, no DOM, no harness needed — easiest possible red→green.*
 
-- **`fileListStateReducer`** (`FileExplorerDndContext.ts:276`) — the reducer
-  behind every internal move/reparent/reorder and trash action. Pure
+- **`fileListStateReducer`**
+  (`src/internals/plugins/useFileExplorerDnd/FileExplorerDndContext.ts:276`,
+  with `getFileExplorerStateDefault` at `:196`) — the reducer behind every
+  internal move/reparent/reorder and trash action. Pure
   `(state, action) => state`. **No test.** Reducer bugs corrupt the tree model.
 
 - **`fileExportUtils.ts`** — `isExportable`, `fileBaseToBlob`, `fileBaseToFile`,
@@ -118,7 +126,8 @@ breakage. In load-bearing order (AX-MOD-FILE-EXPLORER-002):
   (`describeConformance` already wired — but retarget `File.test.tsx` to the
   **local** `src/File`, not `@mui/x-file-list`).
 - `FileExplorer`, `FileExplorerBasic`, `FileExplorerTabs` — top-level render +
-  prop plumbing; `FileExplorerAlternatingRows.test.tsx` (styling) already exists.
+  prop plumbing; `FileExplorerAlternatingRows.test.tsx` (styling) already
+  exists; `FileExplorerTabs` has **no test file** at all.
 - `FileDropzone` — external-drop → `validateFiles` → accept/reject UI path.
   (Two stale files exist: `FileDropzone.test.tsx` and `.test.js` — dedupe.)
 - `featureFlags/` — `FeatureFlagConfig.test.ts` and `FeatureFlagContext.test.tsx`
@@ -167,6 +176,11 @@ Do **not** introduce Vitest or a per-package Jest config — it violates the
 mono-repo's single-runner convention and the AX-REPO-PNPM-MONOREPO build
 pipeline. The one in-tree Jest file (`fileExportUtils.test.ts`) is the anomaly
 to fix, not the precedent to follow.
+
+Note: `packages/sui-file-explorer/benchmark-results.json` and
+`test-benchmark.html` (Work Item 4.1, stamped 2026-01-19) are **static
+performance-benchmark artifacts**, not part of the Mocha suite — most of their
+metrics are marked `"estimated": true`. Do not treat them as regression gates.
 
 ---
 
@@ -239,7 +253,7 @@ migration is finished.
      denylist/size cap turns a test red.*
 
 2. **`fileListStateReducer.test.ts`** (new, `.ts`) — DnD model integrity:
-   - `getFileExplorerStateDefault()` shape.
+   - `getFileExplorerStateDefault()` shape (`FileExplorerDndContext.ts:196`).
    - reorder within a folder, reparent across folders, move to trash.
    - **reject** drop onto self and onto a descendant.
    - unknown action returns state unchanged.
@@ -251,14 +265,17 @@ migration is finished.
    It already covers `isExportable` (folder/trash/no-media → false); keep those.
 
 4. **Fix the harness paths** (mechanical, unblocks 12 files): rewrite the broken
-   imports per the §0.3 table to `test/utils/file-explorer/describeFileExplorer`,
-   and add/point a `fakeContextValue` under `test/utils/file-explorer/`. Then run
+   imports per the §0.3 table — all four `describeFileExplorer` variants →
+   `test/utils/file-explorer/describeFileExplorer`, both `fakeContextValue`
+   variants → `test/utils/file-explorer/fakeContextValue` (the target file
+   exists; no harness code needs writing). Then run
    `useFileExplorerSelection.test.tsx` first — it's the most self-contained and
    confirms the harness wiring.
 
 5. **Retarget `File.test.tsx`** from `@mui/x-file-list/File` to the local
-   `@stoked-ui/file-explorer` `File` (and fix its `file-list/fakeContextValue`
-   import). Until then it is testing upstream MUI, not this package.
+   `@stoked-ui/file-explorer` `File` (and rewrite its
+   `file-list/fakeContextValue` import per step 4). Until then it is testing
+   upstream MUI, not this package.
 
 6. **De-duplicate `FileDropzone.test.tsx` vs `FileDropzone.test.js`** — keep the
    `.tsx`, delete the `.js`, and assert the external-drop → `validateFiles` →

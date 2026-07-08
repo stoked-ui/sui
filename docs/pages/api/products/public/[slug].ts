@@ -1,6 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getDb } from 'docs/src/modules/db/mongodb';
 import { normalizePublicProductUrl } from 'docs/src/modules/utils/siteRouting';
+import {
+  getInstallScriptUrl,
+  normalizeInstallSourceUrl,
+  normalizeSupportedOperatingSystems,
+} from 'docs/src/modules/products/install';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
@@ -29,6 +34,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           icon: 1,
           hideProductFeatures: 1,
           prerelease: 1,
+          installSourceUrl: 1,
+          supportedOperatingSystems: 1,
           'privacyPolicy.enabled': 1,
           'termsAndConditions.enabled': 1,
         },
@@ -48,6 +55,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     .sort({ order: 1 })
     .toArray();
 
+  const installable = !!normalizeInstallSourceUrl((product as any).installSourceUrl);
+
   return res.status(200).json({
     product: {
       ...product,
@@ -56,6 +65,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       termsEnabled: !!(product as any).termsAndConditions?.enabled,
       privacyPolicy: undefined,
       termsAndConditions: undefined,
+      supportedOperatingSystems: normalizeSupportedOperatingSystems((product as any).supportedOperatingSystems),
+      installUrl: installable ? getInstallScriptUrl(product.productId) : null,
+      // Never leak the source URL on the public API — only the install URL.
+      installSourceUrl: undefined,
     },
     pages,
   });

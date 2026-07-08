@@ -1,6 +1,6 @@
 # Module: @stoked-ui/file-explorer
 
-> **Generated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) · **Refreshed:** 2026-06-06 (timed refresh — re-verified against source; corrected DnD reducer action names) · **Upgraded:** 2026-06-22 (0.4.0 → 0.6.0 — re-verified barrel, plugin tuple, DnD reducer action/instruction names, `FileExplorerWithFlags` fallback, and `indentPerLevel = 32` against source; refreshed test inventory now that the suites compile) | **Meta version:** 0.6.0
+> **Generated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) · **Refreshed:** 2026-06-06 (timed refresh — re-verified against source; corrected DnD reducer action names) · **Upgraded:** 2026-06-22 (0.4.0 → 0.6.0 — re-verified barrel, plugin tuple, DnD reducer action/instruction names, `FileExplorerWithFlags` fallback, and `indentPerLevel = 32` against source; refreshed test inventory now that the suites compile) · **Refreshed:** 2026-07-02 (timed refresh — no source changes since 2026-06-11 (`51a3baad04`); re-verified barrel, plugin tuple, `FileExplorerWithFlags` fallback grep, and package TS gate (green); added feature-flag defaults, `DndTrashMode`, declared-only dependents, and the project-8 benchmark artifacts) | **Meta version:** 0.6.0
 > **Package location:** `packages/sui-file-explorer`
 > **NPM name:** `@stoked-ui/file-explorer` (v0.1.2)
 > **Source entry:** `packages/sui-file-explorer/src/index.ts`
@@ -159,8 +159,9 @@ This module also **materially shapes** these views authored elsewhere:
 
 - **`FileBase` / `FileBaseInput`** — the canonical item shape (`id`, `name`, `mediaType`, `type`, optional `size`, `lastModified`, `url`, `media`, `path`, `children`, `expanded`, `selected`, `version`, …). Every consumer must conform to this shape; the editor uses it as the runtime form of `EditorFile` / `IEditorTrack` data.
 - **`apiRef` (`FileExplorerPublicAPI`)** — imperative interface exposed to consumers: `focusItem`, `setItemExpansion`, `getItem`, `selectItem`, `getItemTree`, etc.
-- **DnD callbacks** — `onItemPositionChange` (internal reorder), `onAddFiles` (external drops), `onItemDoubleClick`. External drops are validated through `fileValidation.ts` before reaching consumer code.
-- **Feature flags** — when `FileExplorerWithFlags` is used, runtime behavior is gated by `useMuiXRendering`, `dndInternal`, `dndExternal`, `dndTrash` (see `featureFlags/FeatureFlagConfig.ts`). Consumers can wrap in `<FeatureFlagProvider userId="...">` to opt in.
+- **DnD callbacks** — `onItemPositionChange` (internal reorder), `onAddFiles` (external drops), `onItemDoubleClick`. External drops are validated through `fileValidation.ts` before reaching consumer code. Trash behavior is selected via `DndTrashMode` (`useFileExplorerDnd.types.ts:43`): `'remove' | 'collect-remove-restore' | 'collect-restore' | 'collect'`.
+- **Feature flags** — when `FileExplorerWithFlags` is used, runtime behavior is gated by `useMuiXRendering`, `dndInternal`, `dndExternal`, `dndTrash` (see `featureFlags/FeatureFlagConfig.ts`). Consumers can wrap in `<FeatureFlagProvider userId="...">` to opt in. `DEFAULT_FEATURE_FLAGS` currently enables **all four flags at 100% traffic** (`FeatureFlagConfig.ts:104`); the production entry in `ENVIRONMENT_CONFIGS` deliberately overrides nothing and falls back to these defaults, so runtime overrides (localStorage / provider props) are the rollout lever. The three DnD flags each depend on `USE_MUI_X_RENDERING` via `FEATURE_FLAG_DEPENDENCIES`.
+- **Declared-only dependents** — `packages/sui-timeline/package.json:54` and `packages/sui-docs/package.json:92` declare `"@stoked-ui/file-explorer": "workspace:^"` but have **no source imports** today (verified 2026-07-02). Removing those entries is safe only after re-checking; adding imports there would create new real consumers.
 
 ---
 
@@ -208,6 +209,7 @@ This module also **materially shapes** these views authored elsewhere:
 | `src/icons/icons.tsx`, `LottieIcon.{js,d.ts}` | Default icon set (folder, file, expand chevrons) and Lottie wrapper. |
 | `src/models/items.ts` | `FileBase`, `FileBaseInput`, `FileId`. The cross-package data contract. |
 | `src/themeAugmentation/` | TypeScript module augmentation so `MuiFileExplorer*` slots/classes appear in MUI theme types. |
+| `scripts/benchmark.mjs`, `benchmark-results.json`, `test-benchmark.html` (package root) | Project-8 performance-benchmarking artifacts (Work Item 4.1, 2026-01-19): render-time targets for 100/1000 items, drag latency baselines. The JSON is a checked-in snapshot (values marked `estimated: true`), not a CI gate. |
 
 ---
 
@@ -235,7 +237,7 @@ When this module changes, the following is what usually breaks or needs validati
 ### Validation playbook
 
 - Run `pnpm typescript` in `packages/sui-file-explorer` (full TS check via `tsconfig.json`).
-- Run `cross-env NODE_ENV=test mocha 'packages/sui-file-explorer/src/**/*.test.{ts,tsx}'`. Current suite inventory (21 files): component tests (`File.test.tsx`, `FileElement.test.tsx`, `FileExplorer.test.tsx`, `FileExplorerAlternatingRows.test.tsx`, `FileExplorerBasic.test.tsx`, `FileDropzone.test.{js,tsx}`, `useFile.test.tsx`), plugin tests (`useFileExplorer{Expansion,Files,Focus,Grid,Icons,KeyboardNavigation,Selection}.test.tsx`, `useFileExplorer.test.tsx`), DnD (`fileExportUtils.test.ts`), feature flags (`FeatureFlagConfig.test.ts`, `FeatureFlagContext.test.tsx`), and theme augmentation (`themeAugmentation.spec.ts`). See `SC_TEST.md` §1.2 for any remaining harness import-path caveats.
+- Run `cross-env NODE_ENV=test mocha 'packages/sui-file-explorer/src/**/*.test.{ts,tsx}'`. Current suite inventory (21 files): component tests (`File.test.tsx`, `FileElement.test.tsx`, `FileExplorer.test.tsx`, `FileExplorerAlternatingRows.test.tsx`, `FileExplorerBasic.test.tsx`, `FileDropzone.test.{js,tsx}`, `useFile.test.tsx`), plugin tests (`useFileExplorer{Expansion,Files,Focus,Grid,Icons,KeyboardNavigation,Selection}.test.tsx`, `useFileExplorer.test.tsx`), DnD (`fileExportUtils.test.ts`), feature flags (`FeatureFlagConfig.test.ts`, `FeatureFlagContext.test.tsx`), and theme augmentation (`themeAugmentation.spec.ts`). **Caveat (re-verified 2026-07-02):** TS-green ≠ suite-loads — the SC_TEST.md §0 harness-path breakage is still live (~12 files import `test/utils/fileExplorer-view/…` / `tree-view/…` / `file-list/…` paths that don't exist; the harness lives at `test/utils/file-explorer/describeFileExplorer`), `fileExportUtils.test.ts` still imports `@jest/globals`, and `File.test.tsx` still targets upstream `@mui/x-file-list`. See `SC_TEST.md` §0/§6 for the fix plan.
 - `pnpm build` to verify the modern + node + stable + types builds all succeed.
 - Start `pnpm docs:dev` (port 5199) and click through:
   - `/file-explorer/docs/` demos (selection, expansion, dropzone),

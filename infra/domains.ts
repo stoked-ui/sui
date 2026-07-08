@@ -82,6 +82,33 @@ export interface CdnDomainInfo {
   stokedUiOrigin: string;
 }
 
+export interface InstallDomainInfo {
+  resourceName: string;
+  domain: string;
+  primaryZoneId: string;
+  consultingOrigin: string;
+}
+
+// install.stokd.cloud — serves product install scripts (install.stokd.cloud/<product>.sh)
+// by proxying every request onto the consulting API's /api/install/* routes, which is
+// also how the subdomain shares auth credentials with cdn/consulting/sui.
+export const getInstallDomainInfo = (rootDomains: string, stage: string): InstallDomainInfo => {
+  const rootDomainParts = getRootDomainParts(rootDomains);
+  const consultingRootDomain = rootDomainParts.find((domain) => domain === 'consulting.stokd.cloud')
+    ?? rootDomainParts[rootDomainParts.length - 1];
+  const installRootDomain = rootDomainParts.find((domain) => domain === 'stokd.cloud') ?? 'stokd.cloud';
+  const consultingDomain = getPrimaryDomain(consultingRootDomain, stage);
+  const installBaseDomain = getPrimaryDomain(installRootDomain, stage);
+  const domain = `install.${installBaseDomain}`;
+
+  return {
+    resourceName: `${domain.replace(/\./g, '')}Router`,
+    domain,
+    primaryZoneId: ZONE_IDS[installRootDomain] ?? '',
+    consultingOrigin: `https://${consultingDomain}`,
+  };
+};
+
 export const getCdnSuiDomainInfo = (rootDomains: string, stage: string): CdnDomainInfo => {
   const info = getCdnDomainInfo(rootDomains, stage);
   // cdn.stokd.cloud -> cdn-sui.stokd.cloud

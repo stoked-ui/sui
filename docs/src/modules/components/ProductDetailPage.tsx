@@ -20,6 +20,8 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import FormGroup from '@mui/material/FormGroup';
+import Checkbox from '@mui/material/Checkbox';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
@@ -38,6 +40,12 @@ import {
   type PrivacyPolicyLocalizedContent,
   TRANSLATABLE_PRIVACY_POLICY_LOCALES,
 } from 'docs/src/modules/utils/legalLocalization';
+import {
+  getInstallScriptUrl,
+  SUPPORTED_OS_LABELS,
+  SUPPORTED_OS_VALUES,
+  type SupportedOs,
+} from 'docs/src/modules/products/install';
 
 interface Feature {
   name: string;
@@ -76,6 +84,8 @@ interface ProductData {
   promo?: ProductPromo | null;
   privacyPolicy?: LegalDoc | null;
   termsAndConditions?: LegalDoc | null;
+  installSourceUrl?: string | null;
+  supportedOperatingSystems?: SupportedOs[];
 }
 
 interface DocPage {
@@ -129,6 +139,10 @@ export default function ProductDetailPage({ productSlug }: { productSlug: string
     ctaLabel: 'Learn More',
     ctaUrl: '',
   });
+
+  // Install script state
+  const [installSourceUrlDraft, setInstallSourceUrlDraft] = React.useState('');
+  const [installOs, setInstallOs] = React.useState<SupportedOs[]>([]);
 
   // Legal documents state
   const [privacyEnabled, setPrivacyEnabled] = React.useState(false);
@@ -206,6 +220,14 @@ export default function ProductDetailPage({ productSlug }: { productSlug: string
 
   React.useEffect(() => {
     if (!product) {return;}
+    setInstallSourceUrlDraft(product.installSourceUrl || '');
+    setInstallOs(
+      SUPPORTED_OS_VALUES.filter((os) => (product.supportedOperatingSystems || []).includes(os)),
+    );
+  }, [product]);
+
+  React.useEffect(() => {
+    if (!product) {return;}
     setPrivacyEnabled(!!product.privacyPolicy?.enabled);
     setPrivacyContent(product.privacyPolicy?.content ?? '');
     setPrivacyLocalizedContent(product.privacyPolicy?.localizedContent ?? {});
@@ -259,6 +281,34 @@ export default function ProductDetailPage({ productSlug }: { productSlug: string
 
       return next;
     });
+  };
+
+  // --- Install handlers ---
+  const handleToggleInstallOs = (os: SupportedOs, checked: boolean) => {
+    setInstallOs((previous) => {
+      const next = new Set(previous);
+      if (checked) {
+        next.add(os);
+      } else {
+        next.delete(os);
+      }
+      return SUPPORTED_OS_VALUES.filter((value) => next.has(value));
+    });
+  };
+
+  const handleSaveInstall = async () => {
+    try {
+      await apiFetch(`/api/products/${productSlug}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          installSourceUrl: installSourceUrlDraft.trim(),
+          supportedOperatingSystems: installOs,
+        }),
+      });
+      fetchData();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to save install settings');
+    }
   };
 
   // --- Feature handlers ---
@@ -497,6 +547,50 @@ export default function ProductDetailPage({ productSlug }: { productSlug: string
                 <MenuItem value="none">None</MenuItem>
               </Select>
             </FormControl>
+          </Stack>
+        </Stack>
+      </Paper>
+
+      {/* Install Script Section */}
+      <Paper variant="outlined" sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h5">Install</Typography>
+        <Typography color="text.secondary" sx={{ mb: 2 }}>
+          When an install source URL is set, the script is served at{' '}
+          <code>{getInstallScriptUrl(product.productId)}</code>.
+        </Typography>
+        <Stack spacing={2}>
+          <TextField
+            label="Install Script Source URL"
+            value={installSourceUrlDraft}
+            onChange={(event) => setInstallSourceUrlDraft(event.target.value)}
+            helperText={`The URL install.stokd.cloud/${product.productId}.sh pulls the script from, e.g. "https://raw.githubusercontent.com/stoked-ui/sui/HEAD/scripts/install.sh".`}
+            fullWidth
+          />
+          <Box>
+            <Typography variant="subtitle2" sx={{ mb: 0.5 }}>Supported Operating Systems</Typography>
+            <FormGroup row>
+              {SUPPORTED_OS_VALUES.map((os) => (
+                <FormControlLabel
+                  key={os}
+                  control={(
+                    <Checkbox
+                      checked={installOs.includes(os)}
+                      onChange={(event) => handleToggleInstallOs(os, event.target.checked)}
+                    />
+                  )}
+                  label={SUPPORTED_OS_LABELS[os]}
+                />
+              ))}
+            </FormGroup>
+          </Box>
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant="contained"
+              onClick={handleSaveInstall}
+              disabled={Boolean(installSourceUrlDraft.trim()) && !/^https?:\/\//i.test(installSourceUrlDraft.trim())}
+            >
+              Save Install Settings
+            </Button>
           </Stack>
         </Stack>
       </Paper>

@@ -1,6 +1,6 @@
 # SC_TEST: sui-cdn (`@stoked-ui/cdn`)
 
-> **Generated:** 2026-06-06 | **Re-verified:** 2026-06-22 | **Meta version:** 0.4.0
+> **Generated:** 2026-06-06 | **Re-verified:** 2026-07-02 | **Meta version:** 0.4.1
 > **Package:** `packages/sui-cdn` (`@stoked-ui/cdn` v0.1.0)
 > **Priority:** Medium
 > **Source entry (barrel):** `packages/sui-cdn/src/index.ts`
@@ -52,9 +52,9 @@ half lives in **`docs/pages/api/cdn/**`** (`contents.ts`, `folders.ts`, `move.ts
 `upload/[sessionId]/{status,urls,part/[partNumber],complete,abort}.ts`,
 `path/[format]/[[...prefix]].ts`). Tests in *this* package mock the network boundary
 and verify the **client side** of that contract (method, path, body, headers). The
-server side is tested under `docs/`. Keep the two in sync — see the
-`AX-CANDIDATE-REPO-CDN-API-CONTRACT` note in `packages/sui-cdn/.axioms.md` and
-`AX-MOD-CDN-002`.
+server side is tested under `docs/`. Keep the two in sync — see
+`AX-REPO-CDN-API-CONTRACT` in `.stokd/meta/SC_AXIOMS.md` (promoted 2026-06-06 from
+the candidate noted in `packages/sui-cdn/.axioms.md`) and `AX-MOD-CDN-002`.
 
 ---
 
@@ -544,7 +544,7 @@ regresses." Record the red→green outcome per criterion (see `~/.stokd/SC_AXIOM
   mandatory for `collectDroppedEntries`.
 - **Cross-surface contract drift:** `createCdnApi`'s paths/bodies must match
   `docs/pages/api/cdn/**`. A client-only change that diverges from the server is a
-  contract break (`AX-MOD-CDN-002`, `AX-CANDIDATE-REPO-CDN-API-CONTRACT`); pair client
+  contract break (`AX-MOD-CDN-002`, `AX-REPO-CDN-API-CONTRACT`); pair client
   tests here with the server tests in `docs/`.
 - **Barrel is the contract** (`AX-MOD-CDN-001`): the public surface is `src/index.ts`.
   Within-package tests import the source files by relative path (not the published

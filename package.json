@@ -286,6 +286,10 @@
       "js-yaml": ">=4.1.1",
       "glob": ">=10.5.0",
       "babel-plugin-module-resolver>glob": "9.3.5",
+      "test-exclude>glob": "^7.2.3",
+      "@jest/reporters>glob": "^7.2.3",
+      "jest-config>glob": "^7.2.3",
+      "jest-runtime>glob": "^7.2.3",
       "enzyme>cheerio": "1.0.0-rc.12",
       "micromatch": ">=4.0.8",
       "webpack": ">=5.104.1"

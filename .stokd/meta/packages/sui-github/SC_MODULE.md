@@ -1,7 +1,7 @@
 # SC_MODULE — sui-github
 
 **Meta version:** 0.6.0
-**Last refreshed:** 2026-06-22 (UPGRADE 0.4.0 → 0.6.0 — re-verified against source: barrel (`src/index.ts` + `src/apiHandlers/index.ts`), package version `0.1.0-alpha.11.3`, file tree, LOC (`GithubEvents.tsx` 1,377 / `GithubCalendar.tsx` 462 / `GithubCommit.tsx` 171 / `GithubBranch.tsx` 175 / `githubApi.ts` 226), cache constants (`CACHE_PERSIST_LIMITS = [200,150,100,50,25]`, key `github_events_<user.toLowerCase()>`, `DEFAULT_DIFF_LINE_LIMIT = 24`), detail-panel dispatch chain (`GithubEvents.tsx:1357`–`1370`, terminal `JsonFallbackView` at `:1370`), and the four docs-app routes under `docs/pages/api/github/` all confirmed unchanged. `react-json-view@^1.21.3` remains a declared-but-unimported dead dep.)
+**Last refreshed:** 2026-07-02 (TIMED REFRESH at 0.6.0 — full re-verification against source found **zero drift** since 2026-06-22: barrel (`src/index.ts` + `src/apiHandlers/index.ts`), package version `0.1.0-alpha.11.3`, file tree, LOC (`GithubEvents.tsx` 1,377 / `GithubCalendar.tsx` 462 / `GithubCommit.tsx` 171 / `GithubBranch.tsx` 175 / `githubApi.ts` 226), cache constants (`CACHE_PERSIST_LIMITS = [200,150,100,50,25]`, key `github_events_<user.toLowerCase()>`, `DEFAULT_DIFF_LINE_LIMIT = 24`), detail-panel dispatch chain (`GithubEvents.tsx:1357`–`1370`, terminal `JsonFallbackView` at `:1370`), and the four docs-app routes under `docs/pages/api/github/` all confirmed unchanged; the only commit touching these paths since the last refresh (13c8553b88) modified meta docs only. `react-json-view@^1.21.3` remains a declared-but-unimported dead dep. Clarified that the 405/400/502 + `Cache-Control` behavior lives inside the package's `create*Handler.ts` factories (now codified as `AX-MOD-GITHUB-009` in `packages/sui-github/.axioms.md`).)
 **Module name:** `@stoked-ui/github`
 **Package location:** `packages/sui-github/`
 **Package version:** `0.1.0-alpha.11.3`
@@ -126,7 +126,7 @@ The docs app wires all four factories one-to-one:
 | `docs/pages/api/github/commit.ts` | `createGithubCommitHandler()` | `s-maxage=300, stale-while-revalidate=3600` |
 | `docs/pages/api/github/branch.ts` | `createGithubBranchHandler()` | `s-maxage=300, stale-while-revalidate=3600` |
 
-All four reject non-GET with `405` + `Allow: GET`, map missing required params to `400`, and map upstream/query failures to `502`.
+All four reject non-GET with `405` + `Allow: GET`, map missing required params to `400`, and map upstream/query failures to `502`. This behavior is implemented **inside the package's `create*Handler.ts` factories** (the docs routes are one-line mounts), so it is part of this module's contract — see `AX-MOD-GITHUB-009`.
 
 ### Workspace integration
 
@@ -140,7 +140,7 @@ Consumed by the docs app at `docs/data/github/docs/**` (demos and MDX) and surfa
 |---|---|
 | `src/index.ts` | Single barrel — components + handler factories + server helpers + types |
 | `src/apiHandlers/index.ts` | Re-export hub for the handler/helper set the barrel forwards |
-| `src/GithubCalendar/GithubCalendar.tsx` (~464 LOC) | Calendar component; payload normalization, responsive block sizing, SVG `punch`/`highlight` animation that mutates `react-activity-calendar` DOM directly |
+| `src/GithubCalendar/GithubCalendar.tsx` (~462 LOC) | Calendar component; payload normalization, responsive block sizing, SVG `punch`/`highlight` animation that mutates `react-activity-calendar` DOM directly |
 | `src/GithubEvents/GithubEvents.tsx` (~1,377 LOC) | Core events pipeline: quota-aware localStorage cache (key `github_events_<username>` where `<username>` is lowercased, 8h TTL, `CACHE_PERSIST_LIMITS = [200,150,100,50,25]` truncation, `get/set/removeStorageItem` wrappers; sessionStorage de-dup), filters, pagination, master/detail rendering, `processEvents` switch + detail-panel renderer dispatch (`PullRequest → Push → Delete → Create → Issues → IssueComment → JsonFallbackView`, around `GithubEvents.tsx:1355`), `JsonFallbackView` for unhandled types |
 | `src/GithubEvents/EventTypes/PullRequest/` | PR row (`PullRequestEvent`) + `PullRequestView` (tabbed) + `CommitsList` + `FileChanges` (`@mui/x-tree-view` diff viewer) — full PR detail surface |
 | `src/GithubEvents/EventTypes/{Push,Issues,IssueComment,Create,Delete}Event.tsx` | Per-event-type renderers currently wired into the detail panel |

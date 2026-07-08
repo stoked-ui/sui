@@ -240,6 +240,25 @@ export default function ProductsPage() {
     }
   };
 
+  const handleMove = async (id: string, direction: -1 | 1) => {
+    const index = products.findIndex((p) => p._id === id);
+    const targetIndex = index + direction;
+    if (index === -1 || targetIndex < 0 || targetIndex >= products.length) {return;}
+    const reordered = [...products];
+    [reordered[index], reordered[targetIndex]] = [reordered[targetIndex], reordered[index]];
+    // Optimistic update; the API persists sortOrder = index for every product.
+    setProducts(reordered);
+    try {
+      await apiFetch('/api/products/reorder', {
+        method: 'POST',
+        body: JSON.stringify({ productIds: reordered.map((p) => p._id) }),
+      });
+    } catch (err: unknown) {
+      setProducts(products);
+      setError(err instanceof Error ? err.message : 'Failed to reorder products');
+    }
+  };
+
   const handleToggleLive = async (id: string, live: boolean) => {
     try {
       await apiFetch(`/api/products/${id}`, {
@@ -288,7 +307,7 @@ export default function ProductsPage() {
         </Typography>
       ) : (
         <Grid container spacing={2}>
-          {products.map((product) => (
+          {products.map((product, index) => (
             <Grid item xs={12} sm={6} md={4} key={product._id}>
               <ProductCard
                 product={product}
@@ -299,6 +318,10 @@ export default function ProductsPage() {
                 onToggleLive={handleToggleLive}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                onMoveUp={(id) => handleMove(id, -1)}
+                onMoveDown={(id) => handleMove(id, 1)}
+                canMoveUp={index > 0}
+                canMoveDown={index < products.length - 1}
               />
             </Grid>
           ))}

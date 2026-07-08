@@ -1,29 +1,30 @@
 # Testing Strategy: `@stoked-ui/common-api`
 
-> **Generated:** 2026-05-21 | **Refreshed:** 2026-06-06; **re-verified 2026-06-22** for v0.6.0 (re-read `base.model.ts`, `image.model.ts`, `defaultSchemaOptions.ts`, `stdschema.decorator.ts`, `package.json`, both tsconfigs against the v0.6.0 `SC_MODULE.md`) | **Meta version:** 0.6.0
+> **Generated:** 2026-05-21 | **Refreshed:** 2026-06-06; re-verified 2026-06-22 (v0.6.0); **re-verified 2026-07-02** (TIMED REFRESH — re-read `base.model.ts`, `image.model.ts`, `product.model.ts`, `uploadSession.model.ts`, `upload.dto.ts`, both decorators, `package.json`, `tsconfig.json`, `.axioms.md`, and the root `package.json` test scripts) | **Meta version:** 0.6.1
 > **Package:** `packages/sui-common-api` (`@stoked-ui/common-api` v0.1.0)
 > **Priority:** Medium
 > **Source entry:** `packages/sui-common-api/src/index.ts`
-> **Axioms:** `packages/sui-common-api/.axioms.md` (9 active: `AX-MOD-SUICOMMONAPI-001…009`)
+> **Axioms:** `packages/sui-common-api/.axioms.md` (**10 active:** `AX-MOD-SUICOMMONAPI-001…010`; -009 covers the `.methods` copy idiom, -010 the `Product` install-fields mirror)
 >
-> **2026-06-22 re-verification result — NO DRIFT.** All six known bugs are still present at the exact lines cited in §4.2 (`base.model.ts:102` dislikeScore-uses-likes; `:103-104` `.length` on Number props → `NaN`; `:82-89` `addToSet('uniqueViews', …)` on a Number; `image.model.ts:68` `Array.from(userId)` char-split; `:76-77` `like()` writes `this.dislikes` + `markModified('likeSet')`; `:65,73` `(cb, userId)` signature). `swapId` (27 lines) and `StdSchema`/`mergeOptions`/`cloneDeep` (29 lines) are byte-for-byte as described. Still **0 committed tests, no `test` script, no test runner** in `package.json` — so `pnpm --filter @stoked-ui/common-api test` still errors (missing script), and the `AX-MOD-SUICOMMONAPI-008` acceptance check cannot pass until §2 lands. This plan is unchanged and current.
+> **2026-07-02 re-verification result — NO DRIFT in the plan; ONE source addition.** All six known bugs are still present at the exact lines cited in §4.2 (`base.model.ts:102` dislikeScore-uses-likes; `:103-104` `.length` on Number props → `NaN`; `:82-89` `addToSet('uniqueViews', …)` on a Number; `image.model.ts:68` `Array.from(userId)` char-split; `:76-77` `like()` writes `this.dislikes` + `markModified('likeSet')`; `:65,73` `(cb, userId)` signature). Still **0 committed tests, no `test` script, no test runner** (`find src -name '*.spec.*' -o -name '*.test.*'` → 0 files), so `pnpm --filter @stoked-ui/common-api test` still errors and the `AX-MOD-SUICOMMONAPI-008` acceptance check cannot pass until §2 lands. The umbrella Mocha globs (`test:unit` line 121, `test:coverage*`) still target `packages/**/*.test.{js,ts,tsx}` — the `.spec.ts` naming rule in §2 remains mandatory. **New since 0.6.0:** `product.model.ts` gained three uncommitted install-distribution fields (`githubRepo`, `installPath`, `supportedOperatingSystems`, lines 46-56) mirrored to the docs raw-driver `products` collection per `AX-MOD-SUICOMMONAPI-010` — Phase 3 product cases updated in §7.
 
-`@stoked-ui/common-api` is the **server-side schema + DTO layer** for every Stoked UI NestJS API service. It ships 12 Mongoose models (each as a `class` + `Schema` + `*Feature: ModelDefinition` triple), two schema decorators (`@StdSchema`, `DefaultSchemaOptions`/`swapId`), and the multipart-upload wire DTOs. It has **no controllers, services, or providers** — it is pure schema/contract code consumed today by `@stoked-ui/media-api` via `MongooseModule.forFeature([...])`.
+`@stoked-ui/common-api` is the **server-side schema + DTO layer** for every Stoked UI NestJS API service. It ships 12 Mongoose models (each as a `class` + `Schema` + `*Feature: ModelDefinition` triple), two schema decorators (`@StdSchema`, `DefaultSchemaOptions`/`swapId`), and the multipart-upload wire DTOs. It has **no controllers, services, or providers** — it is pure schema/contract code consumed today by `@stoked-ui/media-api` via `MongooseModule.forFeature([...])` (which registers exactly `VideoFeature`, `ImageFeature`, `FileFeature`, `UploadSessionFeature`).
 
 > **Backend-only (`AX-MOD-SUICOMMONAPI-002`).** Depends on `@nestjs/mongoose`, `@nestjs/swagger`, `class-validator`, `mongoose`. Test environment is **Node**, never `jsdom`.
 
 ---
 
-## 1. Current State (verified 2026-06-06)
+## 1. Current State (verified 2026-07-02)
 
 | Item | Status |
 |---|---|
 | Test runner | **None configured** — no `jest`/`ts-jest` in `devDependencies`, no `jest.config.js`, no `jest` key in `package.json`, no `test` script |
 | Committed tests | **0** (`find src -name '*.test.*' -o -name '*.spec.*'` → empty) |
 | Coverage | **0%** |
-| `typescript` script | `tsc -p tsconfig.json` — passes today; `experimentalDecorators` + `emitDecoratorMetadata` enabled, `types: ["node"]` |
+| `typescript` script | `tsc -p tsconfig.json` — passes today; `experimentalDecorators` + `emitDecoratorMetadata` enabled, `types: ["node"]`, `exclude: ["**/*.test.tsx"]` only (see §2 tsconfig warning) |
 | Build | Babel pipeline (`build:modern`→`node`→`stable`→`types`→`copy-files`); ignores `*.test.*` / `*.spec.*` / `*.d.ts` (`scripts/build.mjs`) |
 | Closest analog with tests | `packages/sui-media-api` — same NestJS/Mongoose stack (see §1.1) |
+| Uncommitted source change | `product.model.ts` install-distribution fields (`githubRepo`, `installPath`, `supportedOperatingSystems`) — covered in §7 Phase 3 |
 
 `AX-MOD-SUICOMMONAPI-008` ("existing tests must pass before merge") already names this file as the source of truth and declares the test globs `src/**/__tests__/**/*.{ts,tsx}`, `src/**/*.test.{ts,tsx}`, `src/**/*.spec.{ts,tsx}` with acceptance check `pnpm --filter @stoked-ui/common-api test`. That `test` script must be added (see §2). Until it exists, `pnpm --filter @stoked-ui/common-api test` **errors** (missing script) rather than running zero tests.
 
@@ -42,7 +43,7 @@
 ### Framework: Jest + `ts-jest` + `mongodb-memory-server`, **`.spec.ts` naming**
 
 > **⚠️ Use `.spec.ts`, NOT `.test.ts`. This is the single most important decision in this file.**
-> The umbrella Mocha CI gate globs **`packages/**/*.test.{js,ts,tsx}`** (root `package.json` → `test:unit`, `test:coverage`, `test:coverage:ci`, all verified 2026-06-06) and excludes **only** `packages/pigment-css-react/**`. That suite runs under Babel + jsdom (`.mocharc.js`). A `*.test.ts` file added here would be swept into the umbrella Mocha and force NestJS-decorator + Mongoose-ESM + `mongodb-memory-server` code through a jsdom/Babel context — **breaking the CI gate**. `.spec.ts` files are invisible to that glob, exactly like `sui-media-api`. (`sui-media`/`sui-common` are the only sanctioned `.test.ts` Jest islands and are a known friction source — do not add a third.)
+> The umbrella Mocha CI gate globs **`packages/**/*.test.{js,ts,tsx}`** (root `package.json` → `test:unit` line 121, `test:coverage`, `test:coverage:ci`, all re-verified 2026-07-02) and excludes **only** `packages/pigment-css-react/**`. That suite runs under Babel + jsdom (`.mocharc.js`). A `*.test.ts` file added here would be swept into the umbrella Mocha and force NestJS-decorator + Mongoose-ESM + `mongodb-memory-server` code through a jsdom/Babel context — **breaking the CI gate**. `.spec.ts` files are invisible to that glob, exactly like `sui-media-api`. (`sui-media`/`sui-common` are the only sanctioned `.test.ts` Jest islands and are a known friction source — do not add a third.)
 
 ### devDependencies to add
 
@@ -113,7 +114,7 @@ Adding `test` satisfies `AX-MOD-SUICOMMONAPI-008`'s acceptance check `pnpm --fil
 
 ### ⚠️ tsconfig must exclude test files (or the `typescript` acceptance check breaks)
 
-`tsconfig.json` (used by `pnpm --filter @stoked-ui/common-api typescript`) currently has `include: ["src/**/*"]` and only `exclude: ["**/*.test.tsx"]` (verified). With `.spec.ts` files present, `tsc -p tsconfig.json` pulls them in and **fails on Jest globals** (`describe`, `it`, `expect`, `jest`) because `types: ["node"]` omits `@types/jest`. Extend the exclude **before** adding any test:
+`tsconfig.json` (used by `pnpm --filter @stoked-ui/common-api typescript`) currently has `include: ["src/**/*"]` and only `exclude: ["**/*.test.tsx"]` (re-verified 2026-07-02). With `.spec.ts` files present, `tsc -p tsconfig.json` pulls them in and **fails on Jest globals** (`describe`, `it`, `expect`, `jest`) because `types: ["node"]` omits `@types/jest`. Extend the exclude **before** adding any test:
 
 ```jsonc
 // packages/sui-common-api/tsconfig.json
@@ -171,12 +172,13 @@ src/
 | `BaseModelSchema` instance methods | `like`, `dislike`, `view`, `delete`, `updateScore`, `addToSet`, `removeFromArray` — engagement primitives shared by all content models. **Multiple known bugs (§4.2).** | `src/models/base.model.ts:49-106` |
 | `InitiateUploadDto` validation | Guards the multipart-upload entry point; multi-client wire contract per `AX-MOD-SUICOMMONAPI-005`. | `src/dtos/upload.dto.ts:19-68` |
 | `UploadSession` virtuals | `progress`, `completedPartsCount`, `uploadedBytes` drive the resumable-upload UI; count only `status === "completed"`. | `src/models/uploadSession.model.ts:160-180` |
-| Inheritance + method-copy chain | `BaseModel → File → Media/Image/Video/BlogPost`. `Media` copies methods by reference (`MediaSchema.methods = BaseModelSchema.methods`, `media.model.ts:95`); `BlogPost` does the same — silent to lose. | multiple files |
+| Inheritance + method-copy chain | `BaseModel → File → Media/Image/Video/BlogPost`. `Media` copies methods by reference (`MediaSchema.methods = BaseModelSchema.methods`, `media.model.ts:95`); `BlogPost` does the same — silent to lose. Codified as `AX-MOD-SUICOMMONAPI-009`. | multiple files |
 | Production index declarations | Performance contract per `AX-MOD-SUICOMMONAPI-006`: 8 indexes on `MediaSchema`, TTL on `UploadSessionSchema.expiresAt`, unique on `License.key` / `BlogPost.slug` / `Product.productId` / `Client.slug` / `User.email`. | `media.model.ts`, `uploadSession.model.ts`, `license.model.ts`, `blogPost.model.ts`, `product.model.ts` |
+| `Product` install-distribution shape mirror | `githubRepo` / `installPath` / `supportedOperatingSystems` mirror the docs raw-driver `products` collection writes and the `install.stokd.cloud` script projection per `AX-MOD-SUICOMMONAPI-010`. Schema tests here pin the shape side of the mirror; the normalizers live (and are tested) in `docs/src/modules/products/install.ts`. | `src/models/product.model.ts:46-56` |
 
 ### 4.2 Known Bugs (TDD: write the failing `.spec.ts` first, see it RED, then fix → GREEN — per Axiom 5)
 
-All six re-confirmed present in source at the 2026-06-06 re-read, with exact line references.
+All six re-confirmed present in source at the 2026-07-02 re-read, with exact line references.
 
 | # | Location | Issue |
 |---|----------|-------|
@@ -219,7 +221,7 @@ All six re-confirmed present in source at the 2026-06-06 re-read, with exact lin
 - `Media.embedVisibility` → `'private'` (line 75, enum `public|authenticated|private`); `Media.hasPlaybackIssues` → `false` (line 55)
 - `UploadSession.status` → `'pending'` (line 104); `UploadSession.region` → `'us-east-1'` (line 68); part `status` default `'pending'`
 - `License.status` → `'pending'`; `gracePeriodDays` → `14`; `deactivationCount` → `0`
-- `Product.licenseDurationDays` → `365`; `gracePeriodDays` → `14`; `trialDurationDays` → `30`; `currency` → `'usd'`
+- `Product.licenseDurationDays` → `365`; `gracePeriodDays` → `14`; `trialDurationDays` → `30`; `currency` → `'usd'`; `price` → `0`; **new:** `supportedOperatingSystems` → `[]` (line 55-56); `githubRepo`/`installPath` optional strings with **no schema-level format validation** (the "owner/repo" and repo-relative-path shapes are enforced only by the docs normalizers — assert this gap explicitly, per `AX-MOD-SUICOMMONAPI-010`)
 - `BlogPost.status` → `'draft'`; `source` → `'native'`; `targetSites` → `['sui.stokd.cloud']`
 - `Client.active` → `true`; `User.role` → `'client'` (TS union only — **no Mongoose `enum`**, so invalid roles are NOT rejected at the DB layer — assert this gap explicitly); `User.active` → `true`
 
@@ -232,10 +234,11 @@ All six re-confirmed present in source at the 2026-06-06 re-read, with exact lin
 
 - `TypeMetadataStorage.addSchemaMetadata()` registration inside `StdSchema` (line 24)
 - `SchemaFactory.createForClass()` produces the expected paths per model
-- Method-copy idiom: `MediaSchema.methods = BaseModelSchema.methods` (`media.model.ts:95`), same in `blogPost.model.ts`
-- Index declarations: `MediaSchema` (8 — `media_text_search`, `media_views_date`, `media_author_date`, `media_type_date`, `media_price_date`, `media_publicity_date`, `media_score_date`, `media_duration` sparse), `UploadSessionSchema` (3 incl. TTL `expireAfterSeconds: 0` on `expiresAt`, compound `(userId,status,expiresAt)`, `(hash,status)`), `LicenseSchema` (5), `BlogPostSchema` (text + compounds + unique slug + sparse nostrEventId)
+- Method-copy idiom (`AX-MOD-SUICOMMONAPI-009`): `MediaSchema.methods = BaseModelSchema.methods` (`media.model.ts:95`), same in `blogPost.model.ts`
+- Index declarations: `MediaSchema` (8 — `media_text_search`, `media_views_date`, `media_author_date`, `media_type_date`, `media_price_date`, `media_publicity_date`, `media_score_date`, `media_duration` sparse), `UploadSessionSchema` (3 incl. TTL `expireAfterSeconds: 0` on `expiresAt`, compound `(userId,status,expiresAt)`, `(hash,status)`), `LicenseSchema` (5), `BlogPostSchema` (text + compounds + unique slug + sparse nostrEventId), `ProductSchema` (`product_id_unique`)
 - Re-exports from `@stoked-ui/common` (`src/index.ts:9-22`) — PUBLICITY / EmbedVisibility constants + helpers
-- `*Feature: ModelDefinition` objects consumed by `MongooseModule.forFeature([...])` in `sui-media-api`
+- `*Feature: ModelDefinition` objects consumed by `MongooseModule.forFeature([...])` in `sui-media-api` (today: `VideoFeature`, `ImageFeature`, `FileFeature`, `UploadSessionFeature`)
+- **Out of scope here but coordinated:** the docs raw-driver `products` writes (`docs/pages/api/products/index.ts`, `[id].ts`) and the install-script projection (`docs/pages/api/install/[script].ts`) do **not** import this package — their normalizer tests belong under `docs/`, not in this suite. This package's product spec only pins the schema-shape side of the mirror.
 
 ---
 
@@ -416,14 +419,18 @@ KNOWN BUGS
 ```
 video.model.spec.ts   ✓ type 'video' · mediaType virtual 'video' · *Failed/scrubber* default false
                       ✓ container enum mp4|mov|webm|mkv · moovAtomPosition enum start|end
-media.model.spec.ts   ✓ inherits File+BaseModel · methods copied from BaseModelSchema (are functions, line 95)
+media.model.spec.ts   ✓ inherits File+BaseModel · methods copied from BaseModelSchema (are functions, line 95 — AX-009)
                       ✓ embedVisibility default 'private' enum public|authenticated|private · hasPlaybackIssues false
                       ✓ 8 indexes incl. media_text_search weights {title:10,tags:5,description:1} · media_duration sparse
-blogPost.model.spec.ts✓ inherits File+BaseModel + copied methods · status 'draft' · source 'native'
+blogPost.model.spec.ts✓ inherits File+BaseModel + copied methods (AX-009) · status 'draft' · source 'native'
                       ✓ targetSites ['sui.stokd.cloud'] · slug+body required · unique slug · sparse nostrEventId
 license.model.spec.ts ✓ status 'pending' enum · gracePeriodDays 14 · deactivationCount 0 · unique key
                       ✓ indexes (email,productId) · sparse(hardwareId) · stripeSubscriptionId · (status,expiresAt)
-product.model.spec.ts ✓ licenseDurationDays 365 · gracePeriodDays 14 · trialDurationDays 30 · currency 'usd' · unique productId
+product.model.spec.ts ✓ licenseDurationDays 365 · gracePeriodDays 14 · trialDurationDays 30 · currency 'usd' · price 0
+                      ✓ unique productId (index product_id_unique)
+                      ✓ NEW: supportedOperatingSystems defaults [] · accepts ['macos','linux','windows']
+                      ✓ NEW: githubRepo/installPath optional strings — assert NO schema-level format validation
+                        (shape enforced only by docs normalizers; pin the gap per AX-MOD-SUICOMMONAPI-010)
 invoice.model.spec.ts ✓ nested weeks/tasks subdocs · weeks default [] · required configId/customer/totalHours
                       ✓ compound invoice_customer_date · invoice_config_date
 file.model.spec.ts    ✓ extends BaseModel (all base fields) · rating 'nc17' enum ga|nc17 · bucket indexed
@@ -449,8 +456,11 @@ common re-exports✓ PUBLICITY_TYPES, ADMIN_ONLY_PUBLICITY_TYPES, ALL_FILTER_PUB
 
 ## 8. Implementation Notes
 
-### `.js` extensions in relative imports
-Source files import with `.js` suffixes (`from './file.model.js'`) for ESM (verified across all model files and the three barrels). The `moduleNameMapper` rule `'^(\\.{1,2}/.*)\\.js$': '$1'` rewrites only **relative** specifiers so ts-jest resolves the `.ts` source (the leading `./`/`../` anchor avoids rewriting `node_modules` paths). Mirror the convention in test imports: `from '../base.model.js'`. (media-api needs no such mapper, which is why its `jest` key omits one.)
+### `.js` extensions in relative imports — and the extensionless exceptions
+Most source files import with `.js` suffixes (`from './file.model.js'`) for ESM (verified across the original models and the three barrels). The `moduleNameMapper` rule `'^(\\.{1,2}/.*)\\.js$': '$1'` rewrites only **relative** specifiers so ts-jest resolves the `.ts` source (the leading `./`/`../` anchor avoids rewriting `node_modules` paths). Mirror the convention in test imports: `from '../base.model.js'`. **Note:** the newer domain models (`blogPost`, `invoice`, `license`, `product`) use **extensionless** relative imports (e.g. `product.model.ts:3-4`) — those resolve naturally under Jest with no mapper involvement; both styles work with the config in §2.
+
+### ⚠️ Stale committed `src/**/*.js` artifacts vs. Jest resolution
+The repo has git-tracked, **stale** compiled `*.js` + `*.js.map` files sitting next to their `.ts` sources (root `src/index.js`, all of `decorators/` and `dtos/`, and the six original models — see SC_MODULE.md §6). Two protections in the §2 config keep them inert: `moduleFileExtensions: ['ts', 'js', 'json']` resolves the `.ts` **before** the stale sibling `.js`, and `testRegex` only matches `.spec.ts`. Do not reorder `moduleFileExtensions`; if those artifacts are ever deleted in a governed cleanup task, nothing in the test setup changes.
 
 ### Decorator metadata
 `@StdSchema`/`@Prop` rely on `reflect-metadata` + `experimentalDecorators` + `emitDecoratorMetadata`. The config enables both in the ts-jest tsconfig override and loads `reflect-metadata` via `setupFiles`. An `undefined` metadata lookup in a test almost always means `setupFiles` didn't run before the decorated class imported.
@@ -464,6 +474,9 @@ Source files import with `.js` suffixes (`from './file.model.js'`) for ESM (veri
 ### BUG-6 polymorphism
 `BaseModelSchema.methods.like/dislike` are `(userId, save=true)`; `ImageSchema.methods.like/dislike` are `(cb, userId)`. Assert the current broken shape first; the fix aligns the signature to `(userId, save)`.
 
+### Product install fields land with the in-flight install-site work
+The three new `Product` props are **uncommitted** working-tree changes coordinated with `docs/pages/api/install/[script].ts` and `docs/src/modules/products/install.ts`. If `product.model.spec.ts` is written before that work merges, run it against the working tree (the fields are already in source); if the install work is reverted, drop the two `NEW:` cases in §7 Phase 3 and the §4.3 default assertions together with it.
+
 ### Bug-fix execution order (one RED→GREEN cycle each, per Axiom 5)
 1. `base.model.ts:102` — `dislikeScore` → `this.dislikes.length`.
 2. `base.model.ts:103-104` — drop `.length`, use the Number props directly.
@@ -475,7 +488,7 @@ Source files import with `.js` suffixes (`from './file.model.js'`) for ESM (veri
 > Per Axiom 5, record the per-criterion outcome series (e.g. `red, green`) for each bug. If a "bug" test goes GREEN before any fix, the test isn't exercising the defect — rewrite it until it's RED for the right reason. Preserve any reviewer rejection of an acceptance criterion rather than silently overwriting it.
 
 ### Estimated effort
-≈ 135 cases across ~16 `.spec.ts` files. Phase 1 (~50 cases) runs in well under a second; Phases 2–3 carry `mongodb-memory-server` startup (the first `MongoMemoryServer.create()` downloads a binary — cache it in CI).
+≈ 140 cases across ~16 `.spec.ts` files (was ~135; +4-5 for the Product install fields). Phase 1 (~50 cases) runs in well under a second; Phases 2–3 carry `mongodb-memory-server` startup (the first `MongoMemoryServer.create()` downloads a binary — cache it in CI).
 
 ---
 

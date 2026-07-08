@@ -1,6 +1,6 @@
 # Module: @stoked-ui/docs
 
-> **Generated:** 2026-05-05 (fresh) | **Updated:** 2026-06-22 (UPGRADE 0.4.0 → 0.6.0; re-verified against the live tree: `package.json#exports` = **31 entries** (root `.` → `./index.ts` + 30 subpaths), test script still `"exit 0"`, Next.js coupling = **5 files** (`BrandingCssVarsProvider.tsx`, `MarkdownLinks.js`, `Link.tsx`, `DemoToolbar.tsx`, `CodeCopy.tsx`), `DocsConfig` = 4 fields with `useDocsConfig` throw, `cssVarPrefix: 'muidocs'` @ `BrandingCssVarsProvider.tsx:66`, `DemoCodeViewer/` + `DemoToolbarFallback/` directories present, source-file layout + line counts (MarkdownElement 824, DemoToolbar 748, ThemeContext 351, brandingTheme 1292, Dependencies 162, i18n 140, Link 138, utils 144), and the five restructure scripts) | **Meta version:** 0.6.0 (previous: 0.4.0)
+> **Generated:** 2026-05-05 (fresh) | **Updated:** 2026-07-02 (TIMED REFRESH — no source commits touched `packages/sui-docs` since the 0.6.0 pass; re-verified against the live tree: `package.json#exports` = **31 entries** (root `.` → `./index.ts` + 30 subpaths), version 0.1.21, test script still `"exit 0"`, Next.js coupling = **5 files** (`BrandingCssVarsProvider.tsx`, `MarkdownLinks.js`, `Link.tsx`, `DemoToolbar.tsx`, `CodeCopy.tsx`), `DocsConfig` = 4 fields with `useDocsConfig` throw (node -e field-count check exit 0), `cssVarPrefix: 'muidocs'` @ `BrandingCssVarsProvider.tsx:66`, all four `window.muiDocConfig` hooks present in `Dependencies.ts`, `npx tsc --noEmit -p packages/sui-docs/tsconfig.json` exit 0 on 2026-07-02; count corrections only: MarkdownElement 824→823 LOC, docs/src importers 112→111) | **Meta version:** 0.6.0 (previous: 0.6.0)
 > **Package location:** `packages/sui-docs`
 > **NPM name:** `@stoked-ui/docs` (v0.1.21)
 > **Source entry:** `packages/sui-docs/src/index.ts` (declared in `package.json#main` as `./src/index.js`; resolved as `.ts` via the build pipeline / TS path mapping)
@@ -46,7 +46,7 @@ export { en };                              // default English translations bund
 | Surface | Exports | Source |
 |---|---|---|
 | Demo plumbing | `Demo`, `DemoEditor`, `DemoEditorError`, `DemoSandbox`, `DemoToolbar`, `DemoToolbarRoot` | `Demo.tsx`, `DemoEditor.tsx`, `DemoEditorError.tsx`, `DemoSandbox.tsx`, `DemoToolbar.tsx`, `DemoToolbarRoot.tsx` |
-| Code rendering | `HighlightedCode`, `HighlightedCodeWithTabs`, `MarkdownElement`, `RichMarkdownElement`, `ReactRunner` | `HighlightedCode.tsx`, `HighlightedCodeWithTabs.tsx`, `MarkdownElement.tsx` (824 LOC), `RichMarkdownElement.tsx`, `ReactRunner.tsx` |
+| Code rendering | `HighlightedCode`, `HighlightedCodeWithTabs`, `MarkdownElement`, `RichMarkdownElement`, `ReactRunner` | `HighlightedCode.tsx`, `HighlightedCodeWithTabs.tsx`, `MarkdownElement.tsx` (823 LOC), `RichMarkdownElement.tsx`, `ReactRunner.tsx` |
 | Clipboard | `CodeCopyButton`, `useCodeCopy`, `CodeCopyProvider` | `CodeCopyButton.tsx`, `CodeCopy.tsx` |
 | Sandbox launchers | `CodeSandbox`, `StackBlitz`, `SandboxDependencies` | `CodeSandbox.tsx`, `StackBlitz.tsx`, `Dependencies.ts` |
 | Code variant / styling | `CodeVariantProvider`, `useCodeVariant`, `useNoSsrCodeVariant`, `useSetCodeVariant`, `CodeStylingProvider`, `useCodeStyling`, `useNoSsrCodeStyling`, `useSetCodeStyling`, `CODE_VARIANTS`, `LANGUAGES_LABEL`, `CODE_STYLING`, `GA_ADS_DISPLAY_RATIO`, `stylingSolutionMapping` | `codeVariant.tsx`, `codeStylingSolution.tsx`, `constants.js`, `stylingSolutionMapping.ts` |
@@ -82,7 +82,7 @@ There are **no NestJS controllers, no CLI commands, and no runtime daemons** —
 
 This module is consumed by the single product documented in this repo:
 
-- **SC_PRODUCT_STOKED_UI_SUI.md** — `@stoked-ui/sui`. Every public-facing surface in the `docs/` Next.js site uses `@stoked-ui/docs` for theming, MDX rendering, demos, and i18n. No other published `@stoked-ui/*` package depends on it (it is `devDependency`-only inside other packages); only the docs app imports it as a runtime dependency. A grep for `@stoked-ui/docs` (barrel + subpaths) shows **112 files** under `docs/src/**` and **46 files** under `docs/pages/**` (158 total) importing the package.
+- **SC_PRODUCT_STOKED_UI_SUI.md** — `@stoked-ui/sui`. Every public-facing surface in the `docs/` Next.js site uses `@stoked-ui/docs` for theming, MDX rendering, demos, and i18n. No other published `@stoked-ui/*` package depends on it (it is `devDependency`-only inside other packages); only the docs app imports it as a runtime dependency. A grep for `@stoked-ui/docs` (barrel + subpaths) shows **111 files** under `docs/src/**` and **46 files** under `docs/pages/**` (157 total) importing the package.
 
 ---
 
@@ -100,7 +100,7 @@ From `SC_VIEWS.md` §15 ("Docs Package Primitives — `@stoked-ui/docs`"), this 
 | `DemoToolbar` | `src/components/DemoToolbar.tsx` (748 LOC) | Edit / sandbox / copy / share controls; pulls in GA ads, copy state, code variant + styling pickers. |
 | `DemoCodeViewer` | `src/components/DemoCodeViewer/index.tsx` | Collapsed/expanded/copied code block. |
 | `HighlightedCode` / `HighlightedCodeWithTabs` | `src/components/HighlightedCode*.tsx` | Syntax-highlighted block; tabbed variant for multi-language samples. |
-| `MarkdownElement` / `RichMarkdownElement` | `src/components/MarkdownElement.tsx` (824 LOC), `RichMarkdownElement.tsx` | The MDX render skin: prose, headings, code blocks, callouts, tables, images, anchors. |
+| `MarkdownElement` / `RichMarkdownElement` | `src/components/MarkdownElement.tsx` (823 LOC), `RichMarkdownElement.tsx` | The MDX render skin: prose, headings, code blocks, callouts, tables, images, anchors. |
 | `BrandingCssVarsProvider` | `src/BrandingCssVarsProvider/BrandingCssVarsProvider.tsx` | Theme injection (CSS variables, light/dark/system), `NextNProgressBar`, `CssBaseline`, `SkipLink`, `MarkdownLinks`. |
 | `BrandingProvider` | `src/branding/BrandingProvider.tsx` | Legacy nested theme provider for component branches. |
 | `DocsProvider` | `src/DocsProvider/DocsProvider.tsx` | Language config context + `UserLanguageProvider` composition. |
@@ -133,7 +133,7 @@ This module **materially shapes** every view documented in `SC_VIEWS.md` §1 (pu
 
 ### Downstream (consumers)
 
-- **`docs/` Next.js site** — pervasive: `_app.tsx`, every `pages/**/*.tsx`, `docs/src/modules/components/MarkdownDocs.js`, `docs/src/modules/components/AppLayoutDocs.tsx`, hero / showcase components in `docs/src/components/{home,showcase,productMaterial,productBaseUI,productDesignKit,productTemplate,about,action,...}` (~112 importing files under `docs/src/**`).
+- **`docs/` Next.js site** — pervasive: `_app.tsx`, every `pages/**/*.tsx`, `docs/src/modules/components/MarkdownDocs.js`, `docs/src/modules/components/AppLayoutDocs.tsx`, hero / showcase components in `docs/src/components/{home,showcase,productMaterial,productBaseUI,productDesignKit,productTemplate,about,action,...}` (~111 importing files under `docs/src/**`).
 - **Workspace packages** — none consume `@stoked-ui/docs` as a runtime dependency. It only appears in the `docs/` app's `package.json`. Other packages reference doc primitives indirectly through their own MDX trees rendered by the docs site.
 - **External examples / templates** — the `examples/stoked-ui-nextjs-pages-router*` folders mirror `Link` semantics (see comment in `Link.tsx` line 11–15).
 
@@ -157,7 +157,7 @@ This module **materially shapes** every view documented in `SC_VIEWS.md` §1 (pu
 |---|---|---|
 | `src/index.ts` | 12 | Barrel — every public export flows here. |
 | `src/components/index.ts` | 35 | Components barrel — adding/removing here flips package surface. |
-| `src/components/MarkdownElement.tsx` | 824 | Massive CSS-in-JS skin for every MDX element. Drives prose, code-block, table, callout, anchor styles. |
+| `src/components/MarkdownElement.tsx` | 823 | Massive CSS-in-JS skin for every MDX element. Drives prose, code-block, table, callout, anchor styles. |
 | `src/components/DemoToolbar.tsx` | 748 | Demo toolbar: edit/copy/sandbox/share/codestyling/codevariant pickers, GA ads, MUI menus. |
 | `src/components/ThemeContext.tsx` | 351 | Theme + dispatch context (`useChangeTheme`, `useColorSchemeShim`, density toggle). |
 | `src/components/DemoSandbox.tsx` | 227 | Iframe + JSS skeleton for sandboxed demo rendering. |

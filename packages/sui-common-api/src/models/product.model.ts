@@ -42,6 +42,19 @@ export class Product {
 
   @Prop({ type: String })
   purchaseUrl?: string;
+
+  // Source URL of the product's install.sh; install.stokd.cloud/<productId>.sh
+  // pulls from this URL (e.g. a raw.githubusercontent.com link or release asset).
+  @Prop({ type: String })
+  installSourceUrl?: string;
+
+  // Operating systems the product supports ('macos' | 'linux' | 'windows').
+  @Prop({ type: [String], default: [] })
+  supportedOperatingSystems?: string[];
+
+  // Display order across product listings (install.stokd.cloud, products pages).
+  @Prop({ type: Number, default: 0 })
+  sortOrder?: number;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

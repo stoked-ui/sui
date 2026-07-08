@@ -11,6 +11,8 @@ import Box from '@mui/material/Box';
 import EditIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import DescriptionIcon from '@mui/icons-material/DescriptionOutlined';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { alpha } from '@mui/material/styles';
 
 interface ProductCardProps {
@@ -27,9 +29,16 @@ interface ProductCardProps {
   onToggleLive: (id: string, live: boolean) => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
+  onMoveUp?: (id: string) => void;
+  onMoveDown?: (id: string) => void;
+  canMoveUp?: boolean;
+  canMoveDown?: boolean;
 }
 
-export default function ProductCard({ product, pageCount, onClick, onToggleLive, onEdit, onDelete }: ProductCardProps) {
+export default function ProductCard({
+  product, pageCount, onClick, onToggleLive, onEdit, onDelete,
+  onMoveUp, onMoveDown, canMoveUp = false, canMoveDown = false,
+}: ProductCardProps) {
   return (
     <Card
       variant="outlined"
@@ -79,6 +88,26 @@ export default function ProductCard({ product, pageCount, onClick, onToggleLive,
           />
         </Box>
         <Stack direction="row" spacing={0.5}>
+          {onMoveUp && (
+            <IconButton
+              size="small"
+              disabled={!canMoveUp}
+              onClick={(e) => { e.stopPropagation(); onMoveUp(product._id); }}
+              aria-label="Move product up"
+            >
+              <ArrowUpwardIcon fontSize="small" />
+            </IconButton>
+          )}
+          {onMoveDown && (
+            <IconButton
+              size="small"
+              disabled={!canMoveDown}
+              onClick={(e) => { e.stopPropagation(); onMoveDown(product._id); }}
+              aria-label="Move product down"
+            >
+              <ArrowDownwardIcon fontSize="small" />
+            </IconButton>
+          )}
           <IconButton
             size="small"
             onClick={(e) => { e.stopPropagation(); onEdit(product._id); }}

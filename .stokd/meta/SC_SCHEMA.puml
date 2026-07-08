@@ -1,7 +1,14 @@
 @startuml
 ' =============================================================================
 ' SC_SCHEMA.puml — Shared MongoDB persistent data model for @stoked-ui/sui
-' Meta version: 0.6.0 (upgraded from 0.4.0)
+' Meta version: 0.6.0 | Updated: 2026-07-02 (TIMED REFRESH — re-verified all
+' entities against source; added auditLeads/auditMessages (auditBot),
+' productFeedback/productFeedbackVerifications, chatSessions/chatMessages/
+' chatState, cdnUploadSessions, cdnPermissions, legacy license_products;
+' extended products with install-site fields (githubRepo/installPath/
+' supportedOperatingSystems/live) and the docs-handler superset; extended
+' users with emailVerifiedAt/notificationPreferences; extended deliverables
+' with source/payload)
 '
 ' OWNERSHIP: ONE shared MongoDB database (default db name "stoked-media",
 ' MONGODB_URI -> docs/src/modules/db/mongodb.ts) backs the whole product.
@@ -10,7 +17,8 @@
 '                               (packages/sui-common-api/src/models/*.model.ts)
 '   2. @stoked-ui/media-api    — NestJS MongooseModule.forFeature runtime
 '                               (Video/Image/File/UploadSession features)
-'   3. docs/pages/api/**       — raw mongodb driver db.collection(...) handlers
+'   3. docs/pages/api/** + docs/src/modules/** — raw mongodb driver
+'                               db.collection(...) stores
 '
 ' Collection names follow Mongoose pluralization of the lower-cased class name
 ' (User->users, Media->media, BlogPost->blogposts, UploadSession->uploadsessions).
@@ -36,6 +44,8 @@ entity "users" as users {
   agentIds : ObjectId[] <<FK users>>
   aliases : string[]
   avatarUrl : string
+  emailVerifiedAt : Date
+  notificationPreferences : object
   active : boolean
   createdAt : Date
   updatedAt : Date
@@ -62,6 +72,15 @@ entity "api_keys (raw)" as api_keys {
   createdAt : Date
   lastUsedAt : Date
   revokedAt : Date
+}
+
+entity "subscribers (raw)" as subscribers {
+  * _id : ObjectId
+  --
+  email : string
+  active : boolean
+  notificationPreferences : object
+  ' newsletter / subscription membership used to derive UserRole
 }
 
 ' ---- File hierarchy (BaseModel -> File -> Image/Video/Media) ---------------
@@ -183,6 +202,40 @@ entity "uploadsessions" as uploadsessions {
   updatedAt : Date
 }
 
+' ---- CDN admin (raw, docs/src/modules/cdn) ----------------------------------
+
+entity "cdnUploadSessions (raw)" as cdnUploadSessions {
+  * _id : ObjectId
+  --
+  userId : ObjectId <<FK users>>
+  uploadId : string
+  s3Key : string
+  bucket : string
+  region : string
+  filename : string
+  mimeType : string
+  totalSize : number
+  chunkSize : number
+  totalParts : number
+  hash : string
+  status : enum(pending|in_progress|completed|aborted|expired)
+  parts : object[] { partNumber, size, etag, status }
+  expiresAt : Date
+  createdAt : Date
+  updatedAt : Date
+}
+
+entity "cdnPermissions (raw)" as cdnPermissions {
+  * _id : ObjectId
+  --
+  path : string <<lookup key>>
+  viewRoles : UserRole[]
+  viewUserIds : string[]
+  updatedBy : string
+  createdAt : Date
+  updatedAt : Date
+}
+
 ' ---- Commerce / licensing --------------------------------------------------
 
 entity "products" as products {
@@ -200,8 +253,30 @@ entity "products" as products {
   gracePeriodDays : number
   trialDurationDays : number
   purchaseUrl : string
+  githubRepo : string
+  installPath : string
+  supportedOperatingSystems : string[] (macos|linux|windows)
+  ' docs-handler superset (docs/pages/api/products/index.ts)
+  subscriptions : object[] { price, currency, interval, label, stripePriceId }
+  fullName : string
+  icon : string
+  url : string
+  live : boolean
+  managed : boolean
+  hideProductFeatures : boolean
+  prerelease : string = "alpha"
+  features : object[] { id, name, description }
+  maxActivations : number
   createdAt : Date
   updatedAt : Date
+}
+
+entity "license_products (raw, legacy)" as license_products {
+  * _id : ObjectId
+  --
+  productId : string
+  ' read-only fallback: licenseStore resolves product config from
+  ' ['license_products', 'products'] in order
 }
 
 entity "product_pages (raw)" as product_pages {
@@ -213,6 +288,32 @@ entity "product_pages (raw)" as product_pages {
   content : string
   published : boolean
   createdAt : Date
+}
+
+entity "productFeedback (raw)" as productFeedback {
+  * _id : ObjectId
+  --
+  productId : string <<FK products.productId>>
+  userId : ObjectId <<FK users>>
+  rating : number
+  message : string
+  email : string
+  name : string
+  createdAt : Date
+  updatedAt : Date
+}
+
+entity "productFeedbackVerifications (raw)" as productFeedbackVerifications {
+  * _id : ObjectId
+  --
+  email : string
+  name : string
+  passwordHash : string
+  codeHash : string
+  codeExpiresAt : Date
+  resendAvailableAt : Date
+  createdAt : Date
+  updatedAt : Date
 }
 
 entity "licenses" as licenses {
@@ -259,7 +360,80 @@ entity "deliverables (raw)" as deliverables {
   type : enum(download|link|ux|html)
   url : string
   version : string
+  source : string
+  payload : object
   createdAt : Date
+  updatedAt : Date
+}
+
+' ---- Consulting audit bot (raw, docs/src/modules/auditBot) ------------------
+
+entity "auditLeads (raw)" as auditLeads {
+  * _id : ObjectId
+  --
+  sessionId : string (uuid) <<lookup key>>
+  playbook : PlaybookId
+  name : string
+  email : string
+  company : string
+  companyUrl : string
+  industry : string
+  city : string
+  transcript : AuditMessage[] { role, content, createdAt } (capped ~200)
+  report : object (validated AuditReport)
+  bookedCall : boolean
+  promotedClientId : string <<FK clients>>
+  reportEmailedAt : string
+  chatNotifiedAt : string
+  createdAt : string (ISO)
+  updatedAt : string (ISO)
+}
+
+entity "auditMessages (raw)" as auditMessages {
+  * _id : ObjectId
+  --
+  sessionId : string <<FK auditLeads.sessionId>>
+  playbook : PlaybookId
+  role : enum(user|assistant)
+  content : string
+  sequence : number
+  createdAt : Date
+}
+
+' ---- Support chat (raw, docs/src/modules/chat) ------------------------------
+' Falls back to an in-memory store when MONGODB_URI is unset (CHAT_STORE=memory).
+
+entity "chatSessions (raw)" as chatSessions {
+  * _id : ObjectId
+  --
+  sessionId : string (uuid)
+  provider : enum(telegram|whats-app)
+  name : string
+  email : string
+  lastSequence : number
+  status : enum(open)
+  createdAt : Date
+  updatedAt : Date
+}
+
+entity "chatMessages (raw)" as chatMessages {
+  * _id : ObjectId
+  --
+  sessionId : string <<FK chatSessions.sessionId>>
+  role : enum(user|support)
+  content : string
+  sequence : number
+  source : enum(web|telegram)
+  telegramMessageId : number
+  telegramUpdateId : number
+  replyToTelegramMessageId : number
+  createdAt : Date
+}
+
+entity "chatState (raw)" as chatState {
+  * _id : string (singleton key)
+  --
+  telegramOffset : number
   updatedAt : Date
 }
 
@@ -280,28 +454,38 @@ entity "blogposts" as blogposts {
   authors : string[]
 }
 
-entity "subscribers (raw)" as subscribers {
-  * _id : ObjectId
-  --
-  email : string
-  ' newsletter / subscription membership used to derive UserRole
-}
-
 ' ---- Relationships (crow's foot) -------------------------------------------
 
 clients ||--o{ users : clientId
 users ||--o{ users : agentIds (self)
 users ||--o{ api_keys : userId
 users ||--o{ uploadsessions : userId
+users ||--o{ cdnUploadSessions : userId
 
 users ||--o{ files : author / owners
 users ||--o{ images : author / owners
 users ||--o{ videos : author / featuredUsers
 users ||--o{ media : author / owners
+users ||--o{ productFeedback : userId
 
 products ||--o{ product_pages : productId
 products ||--o{ licenses : productId
+products ||--o{ productFeedback : productId
 clients  ||--o{ deliverables : clientId
+
+auditLeads ||--o{ auditMessages : sessionId
+clients ||--o{ auditLeads : promotedClientId
+chatSessions ||--o{ chatMessages : sessionId
+
+note bottom of products
+  The Mongoose Product model (sui-common-api) defines the core license/Stripe
+  fields plus the install-site trio (githubRepo, installPath,
+  supportedOperatingSystems) consumed by /api/install/* for
+  install.stokd.cloud. The docs POST /api/products handler writes a superset
+  (subscriptions, live, managed, prerelease, features, maxActivations, ...);
+  licenseStore also falls back to the legacy read-only "license_products"
+  collection when resolving product config.
+end note
 
 note bottom of videos
   mediaClass -> "MediaClass" and recordingSessionId -> "StreamRecording"
@@ -313,6 +497,13 @@ note bottom of licenses
   licenses.email and licenses.stripeCustomerId/stripeSubscriptionId are
   soft references reconciled through Stripe + POST /api/webhooks/stripe
   (AX-REPO-STRIPE-LICENSE-COMMERCE). Not enforced ObjectId FKs.
+end note
+
+note bottom of auditLeads
+  Best-effort persistence (AX-REPO-AUDIT-BOT-BEST-EFFORT): auditStore writes
+  log-and-continue and never fail a chat turn. promoteAuditToDeliverable
+  mirrors a completed report into "deliverables" (source/payload fields),
+  idempotent on (clientId, title, type, version).
 end note
 
 @enduml

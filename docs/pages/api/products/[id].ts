@@ -4,6 +4,11 @@ import { getDb } from 'docs/src/modules/db/mongodb';
 import { withAuth, AuthenticatedRequest } from 'docs/src/modules/auth/withAuth';
 import { createStripeProduct, createStripePrice } from 'docs/src/modules/license/stripeClient';
 import { sanitizePrivacyPolicyLocalizedContent } from 'docs/src/modules/utils/legalLocalization';
+import {
+  normalizeInstallSourceUrl,
+  normalizeSupportedOperatingSystems,
+  SUPPORTED_OS_VALUES,
+} from 'docs/src/modules/products/install';
 
 type SubscriptionInput = {
   label?: string;
@@ -132,6 +137,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
       keyPrefix, price, currency, subscriptions,
       licenseDurationDays, gracePeriodDays, trialDurationDays,
       maxActivations, privacyPolicy, termsAndConditions,
+      installSourceUrl, supportedOperatingSystems, sortOrder,
     } = req.body || {};
 
     if (!existingProduct) {
@@ -160,6 +166,32 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     if (gracePeriodDays !== undefined) {update.gracePeriodDays = gracePeriodDays;}
     if (trialDurationDays !== undefined) {update.trialDurationDays = trialDurationDays;}
     if (maxActivations !== undefined) {update.maxActivations = maxActivations;}
+    if (installSourceUrl !== undefined) {
+      if (installSourceUrl === null || installSourceUrl === '') {
+        update.installSourceUrl = null;
+      } else {
+        const normalizedSourceUrl = normalizeInstallSourceUrl(installSourceUrl);
+        if (!normalizedSourceUrl) {
+          return res.status(400).json({ message: 'installSourceUrl must be an http(s) URL to the install script' });
+        }
+        update.installSourceUrl = normalizedSourceUrl;
+      }
+    }
+    if (sortOrder !== undefined) {
+      const numericSortOrder = Number(sortOrder);
+      if (!Number.isFinite(numericSortOrder)) {
+        return res.status(400).json({ message: 'sortOrder must be a number' });
+      }
+      update.sortOrder = numericSortOrder;
+    }
+    if (supportedOperatingSystems !== undefined) {
+      if (!Array.isArray(supportedOperatingSystems)) {
+        return res.status(400).json({
+          message: `supportedOperatingSystems must be an array of: ${SUPPORTED_OS_VALUES.join(', ')}`,
+        });
+      }
+      update.supportedOperatingSystems = normalizeSupportedOperatingSystems(supportedOperatingSystems);
+    }
     if (privacyPolicy !== undefined) {
       if (privacyPolicy === null) {
         update.privacyPolicy = null;

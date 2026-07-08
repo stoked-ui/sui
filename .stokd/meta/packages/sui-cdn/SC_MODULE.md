@@ -1,6 +1,6 @@
 # SC_MODULE: sui-cdn (`@stoked-ui/cdn`)
 
-> **Generated:** 2026-06-06 | **Updated:** 2026-06-22 (UPGRADE 0.4.0 → 0.6.0 — re-verified version/LOC/exports against the working tree; version is now `0.1.0`) | **Meta version:** 0.6.0
+> **Generated:** 2026-06-06 | **Updated:** 2026-07-02 (TIMED REFRESH — re-verified barrel exports, LOC, endpoint layout, consumers, and all `packages/sui-cdn/.axioms.md` acceptance checks against the working tree; source unchanged since 2026-06-22. Updated the contract reference to the promoted `AX-REPO-CDN-API-CONTRACT`, noted best-effort CloudFront edge invalidation on the server side, and recorded the npm release of `@stoked-ui/cdn@0.1.0`) | **Meta version:** 0.6.0
 > **Module classification document.** Module-level detail that used to live
 > inside product docs is consolidated here. See `.stokd/meta/SC_PRODUCT_STOKED_UI_SUI.md`
 > for product context, `.stokd/meta/SC_VIEWS.md` §13/§17 for view detail, and
@@ -163,8 +163,18 @@ This module renders / materially shapes the following views in
   which always sends `credentials: 'include'` + JSON. This contract is governed by
   **AX-REPO-MEDIA-API-BOUNDARY** (CDN admin routes live under `docs/pages/api/**`,
   **not** `sui-media-api`) and has its own server-side axiom file at
-  `docs/pages/api/cdn/.axioms.md`; the client/server coupling is tracked by the
-  `AX-CANDIDATE-REPO-CDN-API-CONTRACT` candidate in `packages/sui-cdn/.axioms.md`.
+  `docs/pages/api/cdn/.axioms.md`. The client/server coupling is now a **promoted
+  repo-wide axiom, `AX-REPO-CDN-API-CONTRACT`** (`.stokd/meta/SC_AXIOMS.md`): any
+  route/shape change must update the `CdnApi` client, the docs handler, and the
+  legacy `packages-internal/cdn` client (`src/lib/cdnApi.js`) in the same change
+  (cdn-sui consumes it transitively). The module-local form is **AX-MOD-CDN-002**
+  in `packages/sui-cdn/.axioms.md`.
+- **Server-side write side effects are best-effort** — after CDN mutations
+  (upload-complete / delete / move) the docs handlers trigger CloudFront edge
+  invalidation via `docs/src/modules/cdn/cdnInvalidation.ts`; per
+  **AX-REPO-CDN-INVALIDATION-BEST-EFFORT** a failed or unconfigured invalidation
+  never fails the mutation response, so the client may briefly see stale edge
+  content but never a spurious error.
 - **Auth-session endpoint** (`authEndpoint`) — returns
   `{ authenticated, user: { name, role, avatarUrl? } }`. Admin role (`role === 'admin'`)
   gates management UI. 401 / credential-expiry errors force a logout redirect.
@@ -191,8 +201,9 @@ This module renders / materially shapes the following views in
 | `src/CdnBrowser/CdnBrowser.types.ts` | `CdnBrowserProps` — the component's documented prop contract and defaults. |
 | `src/utils/contents.ts` (266 LOC) | Pure data layer: `normalizePrefix`, `fromFlatObjects` (groups flat S3 keys into folders/objects), `parseS3Xml`, `normalizeJson`, `getContents` (remote fetch via `fetchRemote` + localhost mock fallback), and presentation helpers (`getFileKind`, `formatBytes`, `formatTimestamp`, `buildCrumbs`, `buildPublicUrl`). Cheap to test, high ROI. |
 | `src/data/mockContents.ts` | `mockObjects` fixture — the fallback dataset when no endpoint is configured or on localhost credential failure. |
-| `src/styles.css` | All component styling, scoped under `.suiCdnBrowser`; shipped as a side-effect import. |
-| `package.json` | Build pipeline (`build:modern`→`node`→`stable`→`types`→`copy-files`), peer deps (React 18), `sideEffects`. |
+| `src/styles.css` (972 LOC) | All component styling, scoped under `.suiCdnBrowser`; shipped as a side-effect import. |
+| `package.json` | Build pipeline (`build:modern`→`node`→`stable`→`types`→`copy-files`), peer deps (React 18 only — the package has **zero runtime `dependencies`**), `sideEffects: ["*.css"]`, `publishConfig.directory: "build"`. Published to npm as `@stoked-ui/cdn@0.1.0`. |
+| `.axioms.md` | The module's binding invariants (`AX-MOD-CDN-001` … `AX-MOD-CDN-009`) with computational acceptance checks; read before any edit to this package. |
 
 ---
 
@@ -204,10 +215,12 @@ When this module changes, validate the following:
   contract change. Re-typecheck and re-build every consumer
   (`packages-internal/cdn-sui`, docs admin). Run `pnpm --filter @stoked-ui/cdn typescript`.
 - **`CdnApi` endpoint or payload changes:** must be landed together with the
-  matching `docs/pages/api/cdn/**` handler. A drift between client paths/bodies
-  (`/folders`, `/move`, `/permissions`, `/upload/*`, `/contents`, `/export`) and
-  the server breaks browse, upload, move, and permissions flows at once. Verify
-  every verb still sends `credentials: 'include'` and the expected JSON.
+  matching `docs/pages/api/cdn/**` handler **and** the legacy
+  `packages-internal/cdn/src/lib/cdnApi.js` client (per `AX-REPO-CDN-API-CONTRACT`).
+  A drift between client paths/bodies (`/folders`, `/move`, `/permissions`,
+  `/upload/*`, `/contents`, `/export`) and the server breaks browse, upload,
+  move, and permissions flows at once. Verify every verb still sends
+  `credentials: 'include'` and the expected JSON.
 - **Multipart upload logic:** regressions are invisible without tests (package
   currently ships **0 tests** — see SC_TEST.md). Re-verify resume (stored
   `sessionId` → `status` → only pending parts), fresh-initiate fallback on a

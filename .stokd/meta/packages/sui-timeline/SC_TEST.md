@@ -1,6 +1,6 @@
 # Testing Strategy: `@stoked-ui/timeline`
 
-> **Generated:** 2026-05-21 | **Refreshed:** 2026-06-06 | **Re-verified:** 2026-06-22 (re-read source against this doc; confirmed Mocha glob excludes the lone `.spec.ts`; confirmed package has no `test` script and is absent from the Turbo `test` pipeline; recorded local Node 26 runner breakage as ground truth; re-listed `deal_data.ts` exports and the `interface/const.ts` defaults) | **Meta version:** 0.5.0
+> **Generated:** 2026-05-21 | **Refreshed:** 2026-06-06 | **Re-verified:** 2026-07-02 (re-read source against this doc; confirmed the package still has ZERO runtime tests and no `test` script; **updated the Node ground truth** — this worktree now runs Node v24.18.0 and the Mocha runner boots cleanly (verified by executing the timeline glob: setupBabel/setupJSDOM loaded, "No test files found" reported), so the prior Node-26 `yargs` breakage note is historical; re-confirmed `deal_data.ts` exports, `interface/const.ts` defaults, Engine line refs (guard `Engine.ts:78–80`, `setPlayRate:206`, `setTime:275`, `time:307`, `duration:124`, `canvasDuration:132`, `rewind:315`, `fastForward:324`), and TimelineFile refs (volume warn `:59`, `volumeIndex:66`, action-id backfill `:69`, controller resolution `:90–97`, track-id backfill `:108`); documented the `setTime(…, isTick)` veto-bypass semantics) | **Meta version:** 0.6.0
 > **Package:** `packages/sui-timeline` (`@stoked-ui/timeline` v0.1.3)
 > **Priority:** Medium
 > **Source entry:** `packages/sui-timeline/src/index.ts`
@@ -23,7 +23,7 @@ pixel-math tests are ship-blocking**.
 
 ---
 
-## 0. Ground Truth (verified 2026-06-22 — do not skip)
+## 0. Ground Truth (verified 2026-07-02 — do not skip)
 
 These are established facts about the toolchain as it actually behaves, not
 aspirations. They override any optimistic "the suite runs" claim.
@@ -48,18 +48,24 @@ aspirations. They override any optimistic "the suite runs" claim.
    No per-package wiring is required to be picked up — just name files
    `*.test.ts(x)`.
 
-3. **Node version is load-bearing — local default is Node 26, which breaks the
-   runner.** The repo Mocha runner depends transitively on `yargs@16`, which
-   throws `ReferenceError: require is not defined in ES module scope` under
-   Node 26 (verified: `node -v` → `v26.0.0` in this worktree). The known-good
-   version for the sibling suites is **Node 20.20.0**. Before running anything:
+3. **Node version is load-bearing — this worktree runs Node v24.18.0 and the
+   runner boots.** Verified 2026-07-02 by executing
+   `NODE_ENV=test npx mocha 'packages/sui-timeline/src/**/*.test.{js,ts,tsx}'`:
+   both setup hooks loaded (JSDOM banner printed) and Mocha correctly reported
+   `No test files found` — i.e. the harness works end-to-end under 24.18.0;
+   only test files are missing. Historical caveat: under **Node 26** the runner
+   previously failed to boot (`yargs@16` → `ReferenceError: require is not
+   defined in ES module scope`, recorded 2026-06-22). Known-good versions:
+   **20.20.0 and 24.18.0**. If Mocha won't boot, check `node -v` first:
    ```bash
    unset npm_config_prefix
    export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; nvm use 20.20.0
    ```
    **"TypeScript is green" ≠ "tests run."** `pnpm --filter @stoked-ui/timeline
    typescript` can pass while Mocha cannot even boot under the wrong Node.
-   Gate on both independently.
+   Gate on both independently. Note also `cross-env` is not on the shell PATH
+   in this worktree — invoke via the root pnpm scripts or plain
+   `NODE_ENV=test npx mocha …`.
 
 4. **The shared harness is `@stoked-ui/internal-test-utils`**, required globally
    in root `.mocharc.js`:
@@ -84,10 +90,10 @@ aspirations. They override any optimistic "the suite runs" claim.
 # type-only contract (compiles themeAugmentation.spec.ts + all src):
 pnpm --filter @stoked-ui/timeline typescript
 
-# run runtime tests once you add *.test.ts(x) (Node 20.20.0!):
+# run runtime tests once you add *.test.ts(x):
 pnpm test:unit:no-docs          # all packages, no docs
 # or scope to one file while iterating:
-cross-env NODE_ENV=test npx mocha 'packages/sui-timeline/src/utils/deal_data.test.ts'
+NODE_ENV=test npx mocha 'packages/sui-timeline/src/utils/deal_data.test.ts'
 
 # coverage:
 pnpm test:coverage:no-docs
@@ -127,34 +133,42 @@ dropped, and would not catch the playhead-drift class of bug the axiom warns of.
 
 - **Constructor guard (AX-MOD-TIMELINE-001):** `new Engine({})` (options without
   a non-empty `controllers`) **throws** `Error: No controllers set!`
-  (`Engine.ts:78–79`). `new Engine({ controllers: { x: fakeController } })` does
-  NOT throw. This is the canonical first engine test — it is the axiom's
+  (`Engine.ts:78–80`; the check is `!params?.controllers`, so the no-arg
+  `new Engine()` throws too). `new Engine({ controllers: { x: fakeController } })`
+  does NOT throw. This is the canonical first engine test — it is the axiom's
   acceptance check.
-- `isPlayMode(mode | mode[])` — array and scalar forms agree.
+- `isPlayMode(mode | mode[])` (`Engine.ts:83`) — array and scalar forms agree.
 - `setPlayRate(rate)` (`Engine.ts:206`) — returns `false` and does NOT mutate
   `_playRate` when a `beforeSetPlayRate` listener vetoes (trigger returns falsy);
   returns `true` and fires `afterSetPlayRate` otherwise. `getPlayRate()` reflects
   the set value.
 - `setTime(time, isTick?)` / `get time` (`Engine.ts:275,307`) — round-trips;
-  respects the `beforeSetTime` veto; `CANVAS` vs `TRACK_FILE`/`MEDIA` branches.
+  respects the `beforeSetTime` veto **only when `isTick` is falsy** —
+  `isTick=true` short-circuits the veto entirely (`isTick || this.trigger(...)`)
+  and fires `setTimeByTick` instead of `afterSetTime`. Pin both event paths.
+  `CANVAS` mode runs `_dealLeave`/`_dealEnter`; `TRACK_FILE`/`MEDIA` with media
+  writes `media.currentTime` (offset by `playbackCurrentTimespans[0]`).
 - `get duration` / `get canvasDuration` (`Engine.ts:124,132`) — `canvasDuration`
   = max `action.end` across actions; `duration` switches on playmode + media.
 - `getAction(id)` / `getActionTrack(id)` / `getSelectedActions()`
   (`Engine.ts:143,150,154`) — return `undefined` for missing ids; selected-only.
-- `rewind`/`fastForward` playRate sign-flip guards (`Engine.ts:315–338`).
+- `rewind`/`fastForward` playRate sign-flip guards (`Engine.ts:315–338`):
+  `rewind` snaps a non-negative rate to `-1` then decrements; `fastForward`
+  snaps a non-positive rate to `1.5` then increments.
 
 ### Tier 2 — TimelineFile data model (`src/TimelineFile/TimelineFile.ts`)
 
-- **Volume validation:** the `actionInitializer` (`TimelineFile.ts:50–63`) emits
-  `console.info` when an action volume is `< 0` or `> 1`, sets
-  `volumeIndex = -2` when no volume parts, `-1` when unassigned. Spy
-  `console.info`.
-- **Id backfill:** actions without `id` get `namedId('action')`; tracks without
-  `id` get `namedId('track')` (constructor loop, `TimelineFile.ts:68,~104`).
-- **Controller resolution order:** explicit `track.controller` >
-  `track.controllerName` → `TimelineFile.Controllers[name]` >
-  `track.file.mediaType` → `TimelineFile.Controllers[mediaType]`
-  (`TimelineFile.ts:91–98`).
+- **Volume validation:** the `actionInitializer` (constructor,
+  `TimelineFile.ts:50–72`) emits `console.info` (`:59`) when any volume part
+  resolves outside `[0,1]` via `Controller.getVol`; sets `volumeIndex = -2`
+  when the action has no volume parts, `-1` when parts exist but are unassigned
+  (`:66`). Spy `console.info` — it must warn and continue, never throw.
+- **Id backfill:** actions without `id` get `namedId('action')`
+  (`TimelineFile.ts:69`); tracks without `id` get `namedId('track')` (`:108`).
+- **Controller resolution order** (`TimelineFile.ts:90–97`): explicit
+  `track.controller` > `track.controllerName` →
+  `TimelineFile.Controllers[name]` > `track.file.mediaType` →
+  `TimelineFile.Controllers[mediaType]`.
 - `static newTrack()`, `static getTrackColor(track)` (muted → distinct color;
   `alpha(controller.color ?? '#666', 0.11)`), `static collapsedTrack(tracks)`.
 - `getName(props)` precedence: `props.name` > first named track > generated.
@@ -219,7 +233,7 @@ pipeline; the root globs already collect `packages/sui-timeline/**/*.test.ts(x)`
 | `react-virtualized` `AutoSizer` | `TimelineTrackArea` | Provide fixed `width`/`height` via a stub so children render (AutoSizer measures `0×0` in JSDOM otherwise). |
 | `howler` / `AudioController` | `src/Controller/AudioController.ts` | Mock the `Howl` constructor; assert play/seek/volume calls, no real audio. |
 | `MediaFile.fromUrl` / network | `TimelineFile.fromUrl`/`loadUrls`/`preload` | Stub `@stoked-ui/media` `MediaFile.fromUrl` to return a fixture; never hit the network. |
-| `console.info` | volume range warning in `TimelineFile` | `sinon.spy(console, 'info')`; restore in `afterEach`. |
+| `console.info` | volume range warning in `TimelineFile`; `setTime` media branch also logs | `sinon.spy(console, 'info')`; restore in `afterEach`. |
 
 Keep mocks minimal: Tier-1 pure-math and the Engine constructor guard need **no
 mocks at all** — that is exactly why they are the first tests.
@@ -271,6 +285,8 @@ Each is a TDD red→green cycle. Items 1–3 require no mocks and no DOM.
      `false`, `getPlayRate()` unchanged.
    - With no veto: `setPlayRate(2)` → `true`, `getPlayRate()` → `2`,
      `afterSetPlayRate` fired once (spy).
+   - `setTime(t, true)` bypasses a vetoing `beforeSetTime` listener and fires
+     `setTimeByTick` (not `afterSetTime`); `setTime(t)` respects the veto.
 
 4. **`src/TimelineFile/TimelineFile.test.ts` — volume range warning + id backfill.**
    - Action with `volume` out of `[0,1]` triggers one `console.info` (spy).
@@ -302,6 +318,9 @@ catch — each is a candidate regression test:
   guard is ever softened — keep test #2 as the tripwire.
 - **Volume validation regressing to a throw** instead of a warning — pin that it
   only `console.info`s and continues (it must not break file load).
+- **`setTime(…, isTick=true)` regressing to fire `afterSetTime`** (or to honor
+  the veto) — the tick path is what the playback loop uses (`Engine.ts:485`);
+  listeners distinguish user seeks from ticks by event name.
 
 ---
 

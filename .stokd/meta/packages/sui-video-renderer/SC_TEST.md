@@ -1,6 +1,6 @@
 # SC_TEST: sui-video-renderer (`@stoked-ui/video-renderer-wasm` + `video-render` CLI)
 
-> **Generated:** 2026-06-06 | **Re-verified:** 2026-06-22 | **Meta version:** 0.5.0
+> **Generated:** 2026-06-06 | **Re-verified:** 2026-07-02 | **Meta version:** 0.5.1
 > **Package:** `packages/sui-video-renderer` (Rust Cargo workspace, workspace version `0.1.0`, edition 2021)
 > **Priority:** Medium
 > **Build products:** WASM bundle in `pkg/` (consumed by `@stoked-ui/editor`) + native `video-render` CLI binary.
@@ -11,6 +11,10 @@
 > against the working tree** by running the suite (see §2). This is
 > a Rust workspace — it is **exempt** from the JS/Mocha umbrella runner and the
 > `AX-REPO-PNPM-MONOREPO` / `AX-REPO-PACKAGE-BARREL` axioms (see `SC_MODULE.md` §intro).
+>
+> **2026-07-02 re-verification:** a fresh `cargo test --workspace --exclude wasm-preview`
+> run again reproduced **333 passed; 0 failed** with zero source changes since 2026-06-22 —
+> see the verification log in §12. Everything below remains accurate as written.
 >
 > **2026-06-22 re-verification (ground truth):** every inline `#[test]` and integration-test
 > count in §2 still matches the source byte-for-byte (no test added/removed since 2026-06-06;
@@ -499,3 +503,13 @@ cargo llvm-cov -p video-compositor --html                # coverage report
   (`touch cli/tests/e2e.rs`, or `cargo clean -p video-renderer-cli`) and re-run; a clean
   build is 21/21 (333 workspace-wide). Don't "fix" the source in response to this symptom —
   confirm against a fresh compile first.
+
+---
+
+## 12. Verification Log
+
+| Date | Result | Notes |
+|---|---|---|
+| 2026-06-06 | 333 passed; 0 failed | Initial ground-truth run; strategy authored. |
+| 2026-06-22 | 333 passed; 0 failed | No test drift; stale-`e2e`-binary gotcha recorded in §11. |
+| 2026-07-02 | **333 passed; 0 failed** (153 + 40 + 8 + 45 + 31 + 25 + 21 + 10) | Zero source changes to the package since 2026-06-22 (the only touch was the `.axioms.md` candidate-note re-verification). Every inline `#[test]` count in §2 re-grepped and byte-for-byte identical (`cli/src/render.rs` still **0** — §7 Priority 1 remains open and unstarted). `to_timeline` still `bail!`s on video/text tracks (`cli/src/project.rs:297,306`); the `--fps 30` override quirk is still inline at `cli/src/render.rs:43` (not yet extracted to `resolve_fps`). Toolchain: `cargo 1.93.0`, `wasm-pack 0.14.0`, `ffmpeg 8.0.1` — all unchanged. §2 count-table clarification: `wasm-preview/src/video.rs`'s 4 tests are 2 `#[test]` (wasm32-gated `mod tests`) + 2 `#[wasm_bindgen_test]` (browser-only). |

@@ -8,8 +8,8 @@
 **Lines of source (non-test):** ~16,500
 **Existing test suites:** 11 (`205` cases — `197` passing, `8` skipped/todo)
 **Test runner:** Jest 29 + `ts-jest` + `jsdom`
-**Coverage threshold:** 80% (branches, functions, lines, statements)
-**Last verified against source:** 2026-06-22 (re-verified suite count, case totals, `setup.ts` mocks, `jest.config.js` thresholds, and the `__tests__/{utils/test-utils.tsx,mocks/api-client.mock.ts}` helpers against current source — all unchanged since 2026-06-06)
+**Coverage threshold:** 80% (branches, functions, lines, statements) — **currently failing: measured ~31% stmts/branches/lines, ~27% functions** (see §5)
+**Last verified against source:** 2026-07-02 (TIMED REFRESH — recounted suites/cases against source: still 11 suites · 205 cases, no source change to `src/` since the 2026-06-22 pass. New this refresh: measured real coverage now that `jest --coverage` works again (§5, §9); added `Stage` to the zero-coverage targets with a new §7.19 plan — its registry keys are now a governed editor contract per `packages/sui-media/.axioms.md` `AX-MOD-SUIMEDIA-010` — and pinned the `#stage-${host}` cache-key quirk in §10)
 
 > ⚠️ **Run under Node 20, not Node 26.** Node 26 breaks the umbrella mocha runner; this package is Jest, but the repo convention is to keep Node 20 (`nvm use v20.20.0`) on `PATH` for all test work. `@stoked-ui/media` and `@stoked-ui/common` are the **only** publishable packages allowed to run a standalone Jest stack — do not add Jest to other packages (it breaks the umbrella mocha glob).
 
@@ -57,6 +57,7 @@ Verified 2026-06-06 by counting `it()`/`test()` declarations in each suite.
 | `useHybridMetadata` / `useServerThumbnail` | `src/components/MediaCard/` | ~254 | **High** | gate the MediaCard render path (blank → rendered) |
 | `useAdaptiveBitrate` | `src/components/MediaViewer/hooks/` | 321 | **High** | EWMA bandwidth, hysteresis, cooldown |
 | `getMediaType` / `MimeMediaWildcardMap` | `src/MediaType/MediaType.ts` | 47 | **High** | drives controller/icon selection across 3 downstream packages; pure — 100% achievable |
+| `Stage` | `src/Stage/Stage.ts` | 85 | **High** | shadow-DOM registry the editor's `VideoController` mounts `<video>` into; key pattern is a governed contract (`AX-MOD-SUIMEDIA-010`) with a latent cache-key quirk (§7.19, §10) |
 | `WebFile` | `src/WebFile/WebFile.ts` | 304 | **Medium** | persistence, versioning, checksum, IDB version-entry guard |
 | `zip/Zip.ts` | `src/zip/Zip.ts` | 86 | **Medium** | project bundling; `splitProps`/`pickProps` have a latent quirk (see §10) |
 | `FileSystemApi` | `src/FileSystemApi/FileSystemApi.ts` | ~60 | **Medium** | modern + deprecated picker fallback |
@@ -135,6 +136,7 @@ src/
 ├── WebFile/__tests__/WebFile.test.ts               # NEW (P1)
 ├── zip/__tests__/Zip.test.ts                       # NEW (P1)
 ├── FileSystemApi/__tests__/FileSystemApi.test.ts   # NEW (P2)
+├── Stage/__tests__/Stage.test.ts                   # NEW (P1, AX-MOD-SUIMEDIA-010)
 ├── api/__tests__/
 │   ├── media-api-client.test.ts                    # NEW (P0)
 │   └── upload-client.test.ts                       # NEW (P0)
@@ -217,7 +219,7 @@ Assign to `global.fetch` in `beforeEach`, restore in `afterEach`. For `UploadCli
 
 ## 5. Coverage Targets
 
-Global threshold is **80%** (already enforced via `test:ci`). Per-module aims:
+Global threshold is **80%** (enforced via `test:ci`) — but as of 2026-07-02 the check is **red**: measured coverage is **~31%** statements/branches/lines and **~27%** functions, because `src/api/`, `src/hooks/`, `src/server/`, `src/performance/`, `src/zip/`, `src/MediaFile/`, and `src/Stage/` are untested. This was previously invisible: a repo-wide `jest --coverage` break (root `glob: ">=10.5.0"` pnpm override vs Jest's glob-v7 consumers) made coverage runs crash; it was fixed 2026-07-02 with scoped overrides (`test-exclude>glob`, `@jest/reporters>glob`, `jest-config>glob`, `jest-runtime>glob` in the root `package.json`). **The remedy is writing the planned suites below — do not lower the threshold** (that is itself an axiom acceptance check in `packages/sui-media/.axioms.md`). Per-module aims:
 
 | Module | Lines | Rationale |
 |--------|------:|-----------|
@@ -231,6 +233,7 @@ Global threshold is **80%** (already enforced via `test:ci`). Per-module aims:
 | `src/components/MediaViewer/*` | 75% | fullscreen/ABR hard in jsdom |
 | `src/WebFile/WebFile.ts` | 80% | versioning/checksum |
 | `src/MediaFile/MediaFile.ts` | 70% | 1,022 lines, heavy browser API; some paths unreachable in jsdom |
+| `src/Stage/Stage.ts` | 95% | 85 lines, pure DOM; governed editor contract (`AX-MOD-SUIMEDIA-010`) |
 | `src/performance/*` | 75% | utility tier |
 
 ---
@@ -253,6 +256,7 @@ Global threshold is **80%** (already enforced via `test:ci`). Per-module aims:
 11. `WebFile` — checksum, version, dirty, IDB version-entry guard
 12. `MediaApiProvider` — context + missing-provider throw
 13. `zip/Zip` — round-trip + prop helpers (+ document the `splitProps` quirk)
+13b. `Stage` — registry key pattern + temp→permanent lifecycle (`AX-MOD-SUIMEDIA-010`; pin the `#`-prefix cache quirk, §7.19)
 
 ### P2 (utilities, mutations, integration)
 14. `FileSystemApi` — modern + deprecated fallback
@@ -481,6 +485,37 @@ Renders children; builds `MediaApiClient`/`UploadClient` from config (`baseUrl`,
 ### 7.18 `integration-upload-flow.test.ts` (NEW — P2)
 Full lifecycle (initiate → chunks → complete → appears in list); resume after interrupt; cancel + cleanup; duplicate → returns existing.
 
+### 7.19 `src/Stage/__tests__/Stage.test.ts` (NEW — P1)
+
+`Stage` is a static registry of `HTMLDivElement`s keyed by host id. `@stoked-ui/editor`'s `VideoController` (`packages/sui-editor/src/Controllers/VideoController.ts:52,64`) mounts `<video>` elements via `Stage.getStage(editorId)` — the key pattern and lifecycle are a governed contract per `AX-MOD-SUIMEDIA-010`. `Stage._stages` is module-static; **reset it between tests** (e.g. `(Stage as any)._stages = {}` in `beforeEach`) and clean `document.body`.
+
+```
+describe('Stage')
+  getStage — no DOM element, no cache
+    ✎ creates a temp stage: id `temp-stage-${host}`, appended to document.body,
+      display:none, pointerEvents:none, zIndex 49, position absolute
+    ✎ second call with same host returns the SAME temp element (cached under temp key)
+    ✎ distinct hosts get distinct temp stages
+  getStage — permanent element present in DOM (`<div id="stage-${host}">`)
+    ✎ returns the DOM element
+    🔴 QUIRK (pin, do not fix here): caches it under key `#stage-${host}` (stray `#`,
+       Stage.ts:46) while lookups use `stage-${host}` — so the permanent stage is
+       re-queried from the DOM on every call and the cached-permanent branch
+       (Stage.ts:19) never hits via this path. Consequence: the temp→permanent child
+       transfer loop (Stage.ts:21-32) is unreachable from the DOM-discovery path.
+       Pin CURRENT behavior; the fix is a governed task because AX-MOD-SUIMEDIA-010
+       declares the transfer lifecycle an editor contract — fixing the key makes the
+       transfer live for the first time and must be eyeballed in the editor
+       (/x/editor on 5199: drop a video clip, scrub, frames render).
+  temp→permanent transfer (exercise by seeding `_stages['stage-${host}']` directly)
+    ✎ children of the temp stage are appendChild-moved to the permanent stage in order
+    ✎ the temp key is deleted from the registry after transfer
+    ✎ subsequent getStage returns the permanent stage
+  getElementById
+    ✎ finds an element by id across ALL registered stages
+    ✎ returns null when absent (and when the registry is empty)
+```
+
 ---
 
 ## 8. Implementation Roadmap (TDD: red → green per case)
@@ -495,7 +530,7 @@ Extend `setup.ts` (crypto.subtle, URL.createObjectURL, AudioContext, navigator.c
 `MediaFile.test.ts`, `MediaApiProvider.test.tsx`, `useMediaUpload.test.tsx` (incl. the stale-closure regression), `useMediaItem.test.tsx`, `useMediaList.test.tsx`.
 
 **Phase 4 — Component + UI hooks.**
-Expand `MediaCard`/`MediaViewer`; add `useAdaptiveBitrate`, `useHybridMetadata`, `useServerThumbnail`.
+Expand `MediaCard`/`MediaViewer`; add `useAdaptiveBitrate`, `useHybridMetadata`, `useServerThumbnail`, `Stage.test.ts` (§7.19).
 
 **Phase 5 — Remaining + integration.**
 `WebFile.test.ts`, `FileSystemApi.test.ts`, `MediaGallery.test.tsx`, mutation hooks, `performance/*`, `integration-upload-flow.test.ts`. Run full coverage, close gaps to 80% global.
@@ -507,7 +542,10 @@ Expand `MediaCard`/`MediaViewer`; add `useAdaptiveBitrate`, `useHybridMetadata`,
 ```bash
 # from packages/sui-media (Node 20 on PATH)
 pnpm test                                   # all suites
-pnpm test:coverage                          # + coverage report
+pnpm test:coverage                          # + coverage report (works again since 2026-07-02 — the root
+                                            #   glob>=10.5.0 override broke Jest's glob-v7 consumers until
+                                            #   scoped test-exclude>glob / @jest/reporters>glob /
+                                            #   jest-config>glob / jest-runtime>glob overrides landed)
 pnpm test:ci                                # CI: coverage + thresholds, --maxWorkers=2
 pnpm test -- --testPathPattern=upload-client
 pnpm test -- -t "getMediaType"             # by test/describe name
@@ -536,6 +574,7 @@ After non-trivial changes, also run the downstream guard:
 | **Hooks** | unmount during fetch, query-key collisions across param sets, React StrictMode double-mount, cache bleed between tests (`queryClient.clear()` in `afterEach`) |
 | **AdaptiveBitrate** | no/one track, bandwidth → 0, oscillation prevention (hysteresis + cooldown), Network Info API absent |
 | **WebFile** | empty-data checksum, missing IDB version entry (must create, not throw), FSA denied by user, `fromUrl` redirect |
+| **Stage** | 🔴 `#stage-${host}` cache-key mismatch (Stage.ts:46) makes the cached-permanent branch + temp→permanent transfer unreachable from the DOM path — pin current behavior (§7.19); fixing the key is a governed change under `AX-MOD-SUIMEDIA-010`. Static `_stages` registry leaks across tests — reset in `beforeEach`. |
 
 ---
 

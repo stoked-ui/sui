@@ -1,6 +1,6 @@
 # Stoked UI — View Classification
 
-> **Generated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) | **Refreshed:** 2026-06-06 (timed refresh — verified package/route topology, added §25 template/theme demo & experiment surfaces) | **Updated:** 2026-06-22 (upgrade 0.4.0 → 0.6.0 — re-verified route/package topology against current tree; added §26 `@stoked-ui/stokd` activity-UX components and §16's `CalendarBooking`; refreshed root path) | **Meta version:** 0.6.0
+> **Generated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) | **Refreshed:** 2026-06-06 (timed refresh — verified package/route topology, added §25 template/theme demo & experiment surfaces) | **Updated:** 2026-06-22 (upgrade 0.4.0 → 0.6.0 — re-verified route/package topology against current tree; added §26 `@stoked-ui/stokd` activity-UX components and §16's `CalendarBooking`; refreshed root path) | **Refreshed:** 2026-07-02 (TIMED REFRESH — re-verified all view file paths and route topology (unchanged since 0.6.0); added §27 `stoked` admin CLI terminal surface (`packages-internal/stoked-cli`) and cross-linked it from §1.11 and §5.6; confirmed `CalendarBooking` (§16) and `promoteAuditToDeliverable` (§5.6) remain unmounted/unwired) | **Meta version:** 0.6.0
 > **Repository:** `@stoked-ui/sui`
 > **Root:** `/opt/worktrees/stoked-ui/sui/main`
 
@@ -46,6 +46,7 @@ The view inventory is grouped by surface:
 24. Consulting Audit Bot — AI/cloud/security audit chat widget (`docs/src/modules/auditBot`)
 25. Template / theme demo & experiment surfaces (`premium-themes`, `experiments`, `performance`)
 26. Stokd Activity-UX components (`@stoked-ui/stokd`)
+27. Stoked admin CLI / terminal output (`packages-internal/stoked-cli`)
 
 ---
 
@@ -143,6 +144,7 @@ All routes resolve from `docs/pages/`. Shared chrome: `AppHeader` (`docs/src/lay
 - **Location:** `docs/pages/cli/auth.tsx`
 - **Regions:** AppHeader · status card · Footer
 - **States:** checking (validating token), authorizing (issuing API key), success (CLI authorized, shows email), error (missing params or auth failed)
+- **Notes:** This page is the browser half of the `stoked auth login` flow (§27) — the CLI opens `/cli/auth?port=…&state=…&name=…` and listens on the local port for the issued API key.
 
 ---
 
@@ -288,7 +290,7 @@ All require admin role; check from localStorage `auth` and redirect to `/consult
 - **Location:** `docs/pages/consulting/deliverables/[id].tsx` → `docs/src/modules/components/DeliverableViewerPage.tsx`
 - **Regions:** Full-height (`100dvh`) flex container · viewer surface (loads deliverable by id; types: download/link/ux/html)
 - **States:** auth-not-checked (spinner), authenticated (viewer), unauthenticated (redirect with `?redirect=`), invalid-id (null render)
-- **Notes:** A completed audit-bot report can be mirrored into this viewer as a client deliverable via `promoteAuditToDeliverable` (`docs/src/modules/auditBot/deliverables.ts`, idempotent on `clientId`/`title`/`type`/`version`); the helper exists but is not yet wired into an API route or UI trigger.
+- **Notes:** A completed audit-bot report can be mirrored into this viewer as a client deliverable via `promoteAuditToDeliverable` (`docs/src/modules/auditBot/deliverables.ts`, idempotent on `clientId`/`title`/`type`/`version`); the helper exists but is not yet wired into an API route or UI trigger. Deliverable file payloads are ingested via `POST /api/deliverables/upload-file` (`docs/pages/api/deliverables/upload-file.ts` — S3 + CloudFront-invalidated CDN storage); its only caller today is the `stoked deliverables upload` CLI command (§27), not any web UI.
 
 ### 5.7 Blog Admin (List + Editor)
 
@@ -897,6 +899,24 @@ Legacy MUI-forked demo apps and benchmark/experiment pages that ship alongside t
   - `ProviderBadge` — provider SVG logo or letter avatar + optional label; `data-provider=claude/codex/gemini/amp/grok/stokd/local/unknown`, `data-size=xs/sm/md`, theme-aware logo
   - `PrerequisiteBadge` — render-null when none; blocked ("Blocked — waiting on N prerequisite(s)") vs met ("Prerequisites met"); `data-blocked`
   - `LiveTimer` — formatted elapsed text, ticks every 1s, `paused` prop, optional base-ms offset, "-" when no start time
+
+---
+
+## 27. Stoked Admin CLI / Terminal Output — `packages-internal/stoked-cli`
+
+Rust CLI binary `stoked` (clap-based; `packages-internal/stoked-cli/src/main.rs`) — "CLI for Stoked Next.js APIs". A terminal client for the docs-site business API (`docs/pages/api/**`), targeting `https://consulting.stokd.cloud` by default, `http://localhost:5199` with `--dev`, or any `--base_url`/`STOKED_BASE_URL`. Distinct from the `video-render` CLI (§18) and from the `stokd` orchestration CLI (not in this repo).
+
+### 27.1 `stoked` Subcommand Output
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `packages-internal/stoked-cli/src/main.rs` (arg parsing + dispatch), `packages-internal/stoked-cli/src/commands/{mod.rs,blog.rs,promo.rs}` (subcommand handlers), `packages-internal/stoked-cli/src/client.rs` (`print_value` output formatter), `packages-internal/stoked-cli/src/auth.rs` (login flow), `packages-internal/stoked-cli/src/config.rs` (profiles + local settings)
+- **Subcommands:** `auth` (login/keys/profile management) · `set`/`get` (local settings, e.g. `deliverables-dir`) · `blog` · `clients` · `users` · `products` · `licenses` · `invoices` · `deliverables` (list/create/**upload** — syncs a local deliverables dir to the server via `POST /api/deliverables/upload-file` — /update/delete, delete gated behind `--yes`) · `promo` (Stripe promo codes, admin only) · `api` (generic method/path/query/body passthrough for any Next.js route, `--no-auth` for public endpoints)
+- **Output regions:**
+  - Result payload: pretty-printed JSON (default) or compact JSON (`--json`) via `print_value` (`client.rs:365`)
+  - Auth login flow: "Opening browser for OAuth login..." status line → opens `/cli/auth?port=…&state=…&name=…` (§1.11) and listens on a local port for the callback → `{"message": "Login successful"}` on completion
+  - Errors: `Error: <anyhow chain>` on stderr, exit code 1; non-admin scope hint listing the allowed commands (`stoked licenses products`, `stoked invoices list/get/has`, `stoked deliverables list`)
+- **States:** success (JSON printed, exit 0), unauthenticated ("Not authenticated. Run `stoked auth login` first."), login-in-progress (browser open, local listener waiting), login-cancelled, state-mismatch (OAuth state error → retry), error (exit 1), destructive-confirm (`--yes` required for deletes)
+- **Notes:** Auth credentials are stored per `--profile` (default from `STOKED_PROFILE` or "default"). Non-admin users get a reduced command surface (see error hint above).
 
 ---
 

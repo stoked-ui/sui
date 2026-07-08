@@ -1,6 +1,6 @@
 # Testing Strategy: `@stoked-ui/docs`
 
-> **Generated:** 2026-06-06 | **Updated:** 2026-06-22 (re-grounded against source: confirmed `"test": "exit 0"`, zero in-package tests, the 2-arg vs 1-arg `getProductInfoFromUrl` drift, the seven pure-function targets, and the Mocha + `@stoked-ui/internal-test-utils` umbrella via root `.mocharc.js` — all still accurate, no content change) | **Meta version:** 0.4.0
+> **Generated:** 2026-06-06 | **Updated:** 2026-07-02 (TIMED REFRESH — re-verified against the working tree: `"test": "exit 0"` still in `packages/sui-docs/package.json`, still zero in-package `*.test.*` files, the 2-arg package copy vs 1-arg docs copy `getProductInfoFromUrl` drift still present (`docs/src/modules/utils/getProductInfoFromUrl.ts:48`), all five docs-side template tests still exist, root `.mocharc.js` still requires `setupBabel`/`setupJSDOM`, and root `test:coverage` still globs `packages/**/*.test.{js,ts,tsx}` under Mocha/nyc. Content change: `packages/sui-docs/.axioms.md` grew from four to eight axioms — tied `AX-MOD-SUIDOCS-005` (window.muiDocConfig surface) into §4.3/Phase 2 and `AX-MOD-SUIDOCS-006` (i18n lookup semantics) into the Phase 3 i18n cases, and updated §8 cross-references to -001…-008) | **Meta version:** 0.4.1
 > **Package:** `packages/sui-docs` (`@stoked-ui/docs` v0.1.21)
 > **Priority:** Medium
 > **Source entry:** `packages/sui-docs/src/index.ts`
@@ -196,7 +196,9 @@ Mocha has no `jest.mock`. Use `sinon` and dependency-injection points instead:
 ### 4.3 `window.muiDocConfig` global (Dependencies.ts)
 
 `SandboxDependencies` reads `(window as any).muiDocConfig` and, if present, calls
-`csbIncludePeerDependencies` / `csbGetVersions`. Reset it per test:
+`csbIncludePeerDependencies` / `csbGetVersions` / `postProcessImport`. This override
+surface is now a pinned contract (`AX-MOD-SUIDOCS-005`) — the tests below double as
+its acceptance checks. Reset it per test:
 
 ```ts
 afterEach(() => { delete (window as any).muiDocConfig; });
@@ -383,7 +385,7 @@ it('returns the config inside a provider', () => {
 });
 ```
 
-#### `src/i18n/i18n.test.tsx`
+#### `src/i18n/i18n.test.tsx` (pins `AX-MOD-SUIDOCS-006` — lookup semantics are baked into MDX content)
 - `useTranslate`: returns translation for a known key; falls back to English for a
   missing language key; logs error + returns the key when the language is missing
   entirely; `ignoreWarning: true` suppresses the warn-once.
@@ -432,7 +434,11 @@ candidate to surface this way).
 
 - Package axioms: `packages/sui-docs/.axioms.md`
   (`AX-MOD-SUIDOCS-001` exports/barrel sync, `-002` `muidocs` CSS var prefix,
-  `-003` `DocsConfig` shape + `useDocsConfig` throw, `-004` variant/styling precedence)
+  `-003` `DocsConfig` shape + `useDocsConfig` throw, `-004` variant/styling precedence,
+  `-005` `window.muiDocConfig` override surface → §4.3 / Phase 2,
+  `-006` i18n lookup semantics → Phase 3 i18n cases,
+  `-007` Next.js coupling — a reason component smoke stays JSDOM-light (Phase 4),
+  `-008` ESM publish from `build/` — build-time contract, no unit test needed)
 - Framework convention & Node pin: `MEMORY.md` → "Dual test stacks", "Node version for tests"
 - Umbrella config: root `package.json` (`test:unit`, `test:coverage`), `.mocharc.js`
 - Live templates: `docs/src/modules/sandbox/*.test.js`,

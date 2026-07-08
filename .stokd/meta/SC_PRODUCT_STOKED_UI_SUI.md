@@ -1,6 +1,6 @@
 # Stoked UI — Product Classification
 
-> **Generated:** 2026-05-05 | **Updated:** 2026-06-06 (TIMED REFRESH — re-verified end-to-end) | **Updated:** 2026-06-22 (UPGRADE 0.4.0 → 0.6.0 — re-verified root version `v0.1.0-alpha.5`, pnpm `10.5.1` + MUI/React `pnpm.overrides`, video-renderer crates + `pkg/` artifact, `next.config.mjs` WASM alias, `docs/pages/api/**` topology, audit-bot layout (`channels/{linkedin,voice}` still empty stubs, `promoteAuditToDeliverable` still dormant). Added the 12th constituent package **`@stoked-ui/stokd`** v0.2.2 (agent-activity UX, flows §14); added flows §1.6 consulting service-line discovery, §6.3 CloudFront cache invalidation, §9.4 self-hosted `CalendarBooking` (component exists, not yet wired); fixed the stale root path.) | **Meta version:** 0.6.0
+> **Generated:** 2026-05-05 | **Updated:** 2026-06-06 (TIMED REFRESH — re-verified end-to-end) | **Updated:** 2026-06-22 (UPGRADE 0.4.0 → 0.6.0 — re-verified root version `v0.1.0-alpha.5`, pnpm `10.5.1` + MUI/React `pnpm.overrides`, video-renderer crates + `pkg/` artifact, `next.config.mjs` WASM alias, `docs/pages/api/**` topology, audit-bot layout (`channels/{linkedin,voice}` still empty stubs, `promoteAuditToDeliverable` still dormant). Added the 12th constituent package **`@stoked-ui/stokd`** v0.2.2 (agent-activity UX, flows §14); added flows §1.6 consulting service-line discovery, §6.3 CloudFront cache invalidation, §9.4 self-hosted `CalendarBooking` (component exists, not yet wired); fixed the stale root path.) | **Updated:** 2026-07-02 (TIMED REFRESH — added the product install-script distribution surface: `install.stokd.cloud` router (`infra/install-site.ts`, `createInstallSite`) proxying to `docs/pages/api/install/{index,[script]}.ts` with helpers in `docs/src/modules/products/install.ts` and new `githubRepo`/`installPath`/`supportedOperatingSystems` fields on `product.model.ts` (flow §1.7); noted the `publish-packages.yml` → `scripts/npmRelease.mjs` CI publish pipeline (flow §11.2 rewrite, `AX-REPO-PUBLISH-NO-HOL-BLOCKING`); re-verified `sui-stokd` still has no `SC_MODULE.md` (only `SC_TEST.md`) and `CalendarBooking` is still not wired; flagged the new untracked `marketing/` directory; appended axioms 015–017.) | **Meta version:** 0.6.0
 > **Repository:** `@stoked-ui/sui` v0.1.0-alpha.5
 > **Root:** `/opt/worktrees/stoked-ui/sui/main`
 
@@ -33,6 +33,7 @@ Adjacent in-repo surfaces that belong to the same product but are not in the lis
 
 - **`docs/`** — Next.js 14 docs/marketing/consulting/admin app (`stokedui-com`) on port **5199**, which also hosts every non-media business API under `docs/pages/api/**` and the consulting audit-bot lead-gen subsystem (`docs/src/modules/auditBot/**`).
 - **`packages-internal/cdn` & `packages-internal/cdn-sui`** (Vite admin apps), **`api/`** standalone Lambda handlers, **`infra/`** SST stack — supporting surfaces consumed by the same product.
+- **`marketing/`** (NEW, currently untracked) — an "AI Marketing Suite for Claude Code" skill system (`/market` commands, agents, templates) with its own `install.sh`/`uninstall.sh`. It is **not** a pnpm workspace member and not yet committed; it looks like a first candidate for distribution via the new install-script surface (flow §1.7). Treat as an emerging adjacent offering — if it stabilizes with its own users/flows it may warrant a separate product doc.
 
 ---
 
@@ -44,7 +45,7 @@ Stoked UI is an integrated, media-first product for building, demonstrating, sel
 2. A documentation + marketing + commerce + consulting + admin site (`docs/`, `stokedui-com`) that showcases the components, sells licenses via Stripe, runs the consulting business, and captures leads via an LLM-driven audit bot.
 3. A media backend (`@stoked-ui/media-api`, NestJS) for uploads, metadata extraction, and thumbnail generation.
 4. A native Rust video renderer (`packages/sui-video-renderer`) that compiles to WASM for in-browser preview/render and ships a CLI binary (`video-render`) for offline rendering of `.sue` projects.
-5. SST-driven AWS infrastructure (CloudFront sites, API Gateway v2 + Lambda, certs) deploying the public surfaces to `sui.stokd.cloud` / `consulting.stokd.cloud`.
+5. SST-driven AWS infrastructure (CloudFront sites, API Gateway v2 + Lambda, certs) deploying the public surfaces to `sui.stokd.cloud` / `consulting.stokd.cloud` / `install.stokd.cloud` (the latter a one-line `curl | sh` product-install distribution channel, flow §1.7).
 
 **Problem solved:** Building production-grade media editing UIs (timelines, asset libraries, video preview, render pipelines) is painful — teams either reach for monolithic SaaS editors or stitch together low-level libraries. Stoked UI provides composable, MUI-consistent React primitives plus the WASM/native renderer, the API, and the licensing/admin plumbing needed to ship these experiences. The same surface doubles as the go-to-market engine for the consulting practice (marketing pages, audit-bot lead capture, licensing, deliverables).
 
@@ -61,6 +62,7 @@ Stoked UI is an integrated, media-first product for building, demonstrating, sel
 | **Consulting clients & partners** | Auth-gated `/consulting/{home, customer, clients, deliverables, invoices, partners}` portal. |
 | **Stoked UI internal admins / operators** | `/consulting/admin`, `/admin/products`, blog editor (`/blog/editor`), CDN admin (`packages-internal/cdn`, `cdn-sui`, embedded `CdnBrowser`), Swagger UIs; Brian receives Telegram lead notifications. |
 | **Operators of the native renderer** | `video-render` CLI (`render`, `info` subcommands) for batch / headless rendering of `.sue` projects. |
+| **Developers / operators installing products from a terminal** | `curl -fsSL https://install.stokd.cloud/<productId>.sh \| sh` — one-command install of any live product with a configured `githubRepo` + `installPath`; curl-friendly index at `install.stokd.cloud/` (flow §1.7). |
 | **Operators watching autonomous agent work** | `@stoked-ui/stokd` activity components embedded in the Stokd web dashboard / VS Code extension — live session, task, and project state (work-type, status, plan/acceptance progress, command timeline, cost). |
 | **Repo contributors / maintainers** | pnpm/Turbo/Lerna toolchain, package build pipelines, SST deploy (`pnpm deploy:prod`), Playwright / Karma / Mocha test harness. |
 
@@ -97,7 +99,11 @@ Auth-gated consulting / admin:
 ### HTTP APIs
 
 Business / domain APIs (per the boundary rule, all live under `docs/pages/api/**`):
-`account/*`, `auth/*` (login, register, google, session, logout, exchange, impersonate, transfer, cli/authorize, api-keys), `audit/*` (turn, save-lead), `blog/*`, `cdn/*` (contents, folders, move, delete, permissions, export, multipart upload session/part/abort/complete, public path resolver), `chat/session/*`, `clients/*`, `deliverables/*` (incl. `proxy/[...path]`, `render`, `upload-file`), `github/*` (contributions, events, branch, commit), `invoices/*`, `licenses/*` (checkout, checkout-complete, activate/validate/deactivate, create, promo-codes), `products/*` (incl. `public/[slug]`, `feedback/{register,verify}`), `upload/blog-image`, `users/*`, `webhooks/stripe`, `logs`, `openapi`.
+`account/*`, `auth/*` (login, register, google, session, logout, exchange, impersonate, transfer, cli/authorize, api-keys), `audit/*` (turn, save-lead), `blog/*`, `cdn/*` (contents, folders, move, delete, permissions, export, multipart upload session/part/abort/complete, public path resolver), `chat/session/*`, `clients/*`, `deliverables/*` (incl. `proxy/[...path]`, `render`, `upload-file`), `github/*` (contributions, events, branch, commit), `install/*` (see below), `invoices/*`, `licenses/*` (checkout, checkout-complete, activate/validate/deactivate, create, promo-codes), `products/*` (incl. `public/[slug]`, `feedback/{register,verify}`), `upload/blog-image`, `users/*`, `webhooks/stripe`, `logs`, `openapi`.
+
+Product install-script distribution APIs (NEW — under `docs/pages/api/install/**`, fronted by `install.stokd.cloud`):
+- `GET /api/install/` (`docs/pages/api/install/index.ts`) — lists every live product with a valid `githubRepo` + `installPath`; JSON by default, curl-friendly commented-text index when `?f=text` or a `curl`/`wget` user agent. Each entry carries `installUrl` and the full `installCommand`.
+- `GET /api/install/<productId>.sh` (`docs/pages/api/install/[script].ts`) — resolves the product's `githubRepo`/`installPath` (normalized by `docs/src/modules/products/install.ts`) and streams the script from `raw.githubusercontent.com/<repo>/HEAD/<installPath>` (falling back to the GitHub contents API with `GITHUB_TOKEN` for private repos). `text/x-shellscript`, `Cache-Control: public, max-age=300`, CORS `*`; failures return commented plain text (`# message`) so a piped `sh` fails loudly but safely. Live products are public; non-live products require an admin credential (`readOptionalAuthUser`) and otherwise 404 without leaking existence.
 
 Audit-bot lead-gen APIs (NEW — under `docs/pages/api/audit/**`):
 - `POST /api/audit/turn` (`docs/pages/api/audit/turn.ts`) — one conversational turn; `runTurn` loops LLM tool calls server-side (`fetch_company_site`, `generate_report`, `save_lead`).
@@ -142,9 +148,11 @@ Wired into SST API Gateway v2 by `infra/api.ts`:
 
 ### Infrastructure / startup
 
-- `sst.config.ts` → `infra/index.ts` (`createSite`, `createCdnSite`, `createCdnSuiSite`, `createApi`)
+- `sst.config.ts` → `infra/index.ts` (`createSite`, `createCdnSite`, `createCdnSuiSite`, `createApi`, `createInstallSite`)
+- `createInstallSite` (`infra/install-site.ts`) — `sst.aws.Router` (CloudFront) on `install.stokd.cloud` (`getInstallDomainInfo`, `infra/domains.ts`) rewriting `^/(.*)$` → `https://consulting.<domain>/api/install/$1`, so the subdomain shares the consulting origin's auth authority (same pattern as `cdn.stokd.cloud`)
 - `pnpm dev` (Turbo watch graph), `pnpm docs:dev` (port 5199), `pnpm deploy:prod` (SST → AWS profile `stokd-cloud`)
 - `pnpm video-renderer:build-wasm` / `pnpm build:wasm` — Builds `packages/sui-video-renderer/pkg/` consumed by editor as `@stoked-ui/video-renderer-wasm` (file dep)
+- CI npm publish: `.github/workflows/publish-packages.yml` → `scripts/npmRelease.mjs publish` — attempts every selected `@stoked-ui/*` package independently (per-package failures are recorded and summarized, never abort the rest; already-published exact `name@version` is skipped) — see `AX-REPO-PUBLISH-NO-HOL-BLOCKING`
 
 ### Webhooks & system events
 
@@ -165,6 +173,7 @@ All user flows in `.stokd/meta/SC_FLOWS.md` belong to this product. Grouped by d
 - **1.4 Read Blog Index → Post**
 - **1.5 Subscribe to Newsletter / Confirm Subscription**
 - **1.6 Discover Consulting Service Lines** — `consulting.stokd.cloud` origin: `WeightedMain` lottery → service-line `main` pages, converging on the audit bot (§9.3) or contact.
+- **1.7 Install a Product via `curl | sh` (`install.stokd.cloud`)** — `curl -fsSL https://install.stokd.cloud/<productId>.sh | sh`; CloudFront router proxies to `docs/pages/api/install/**`, which streams the product's install script straight from its GitHub repo (`githubRepo` + `installPath` fields, admin-configured via §7.1). The public products API exposes only the derived `installUrl`, never the raw repo fields.
 
 ### Account & authentication
 - **2.1 Email + Password Sign-Up & Sign-In**
@@ -222,8 +231,8 @@ All user flows in `.stokd/meta/SC_FLOWS.md` belong to this product. Grouped by d
 
 ### Developer & contributor
 - **11.1 Bootstrap Local Dev Environment**
-- **11.2 Build & Publish Packages**
-- **11.3 Deploy to AWS via SST**
+- **11.2 Build & Publish Packages** — now centered on the CI pipeline: `.github/workflows/publish-packages.yml` drives `scripts/npmRelease.mjs publish`, attempting every selected package independently (no head-of-line blocking; already-published versions skipped with a log line, failures summarized, job exits non-zero if any failed).
+- **11.3 Deploy to AWS via SST** — now includes `createInstallSite` (`install.stokd.cloud` router) alongside the docs/CDN sites and API.
 - **11.4 Run Tests**
 
 ### CLI / native tooling
@@ -245,7 +254,7 @@ All user flows in `.stokd/meta/SC_FLOWS.md` belong to this product. Grouped by d
 
 ## Modules
 
-All eleven generated per-package module docs in `.stokd/meta/packages/*` support this product, plus the docs-app audit-bot module. The twelfth package, `packages/sui-stokd` (`@stoked-ui/stokd`), is a constituent of this product but **does not yet have a generated `SC_MODULE.md`** (its surface is documented in flow §14 and SC_VIEWS §26). Per-module contribution:
+All eleven generated per-package module docs in `.stokd/meta/packages/*` support this product, plus the docs-app audit-bot and install modules. The twelfth package, `packages/sui-stokd` (`@stoked-ui/stokd`), is a constituent of this product but **still has no generated `SC_MODULE.md`** as of 2026-07-02 — `.stokd/meta/packages/sui-stokd/` contains only `SC_TEST.md`; its surface is documented in flow §14 and SC_VIEWS §26. Per-module contribution:
 
 | Module doc | Contribution to the product |
 |------------|------------------------------|
@@ -266,6 +275,7 @@ Publishable package without a generated module doc:
 
 Docs-app modules (not publishable packages, live under `docs/src/modules/`):
 - **`docs/src/modules/cdn/**`** — server-side CDN mutation helpers + `cdnInvalidation.ts` (`invalidateCdnPaths` → CloudFront `CreateInvalidationCommand` against `CDN_DISTRIBUTION_ID`, best-effort). Drives flow §6.3 alongside §6.1 mutations.
+- **`docs/src/modules/products/install.ts`** (NEW) — shared helpers for the install-script surface: `SUPPORTED_OS_VALUES` (`macos`|`linux`|`windows`), `normalizeGithubRepo` (accepts `owner/repo` or any github.com URL), `normalizeInstallPath` (rejects traversal/absolute paths), `normalizeSupportedOperatingSystems`, `getInstallBaseUrl`. Consumed by `docs/pages/api/install/**` and the products admin/public APIs. Drives flow §1.7.
 - **`docs/src/modules/auditBot/**`** — the consulting lead-gen audit bot. `conversationRunner.ts` (server-side tool loop), `llmClient.ts` (LM Studio / Qwen), `playbooks/` (`ai-readiness`, `cloud-cost`, `security` — only `ai-readiness` mounted), `tools.ts` + `urlSafety.ts` (SSRF-guarded `fetch_company_site`), `reportValidation.ts`, `leadFields.ts`, `auditStore.ts` (Mongo), `notifyTelegram.ts`, `auditMailer.ts` (SES). Web channel UI at `channels/web/components/{AuditBot,AuditBotTrigger,AuditReportView}.tsx`; `channels/{linkedin,voice}` are reserved (empty) stubs. Drives flows §9.3 and §13.5.
 
 ---
@@ -316,6 +326,9 @@ Docs-app modules (not publishable packages, live under `docs/src/modules/`):
 - **Audit bot best-effort posture:** the audit bot (§9.3 / §13.5) is **unauthenticated**, runs tool execution server-side in `conversationRunner.ts`, validates untrusted model report args via `reportValidation.ts` before they reach the UI/mailer, and treats Mongo persistence, SES email, and Telegram notification as best-effort — none may fail a chat turn. Visitor-supplied URL fetches MUST pass `urlSafety.ts` (SSRF guard, see `AX-AUDIT-BOT-URL-SAFETY`).
 - **CDN edge-cache invalidation (§6.3):** CDN write mutations call `invalidateCdnPaths` (`docs/src/modules/cdn/cdnInvalidation.ts`) against `CDN_DISTRIBUTION_ID` (CloudFront control plane, `us-east-1`, wired via `infra/cdn-site.ts`). When the env var is unset (local dev) invalidation is skipped silently; any failure is logged and swallowed so it never blocks the user-facing mutation response.
 - **`CalendarBooking` not yet wired (§9.4):** the `CalendarBooking` component (`packages/sui-common`) exists and is unit-tested but is **not mounted on any docs route** and has **no `/api/calendar/availability` or `/api/calendar/book` backend** under `docs/pages/api/**`. Slot instants are pinned to the business timezone `America/Chicago` via `Intl.DateTimeFormat`. Treat as a component-level flow ready for a host to embed, not a live end-to-end journey.
+- **Install-script distribution (§1.7):** `install.stokd.cloud` is a thin CloudFront proxy onto `/api/install/*` on the consulting origin — the scripts themselves never leave the product's GitHub repo (streamed from `raw.githubusercontent.com/<repo>/HEAD/<installPath>`, or the GitHub contents API with `GITHUB_TOKEN` for private repos). `githubRepo`/`installPath` are normalized (`normalizeGithubRepo`, `normalizeInstallPath` rejects traversal/absolute paths) and are **never exposed** by the public products API — only the derived `installUrl`. Non-live products 404 without an admin credential (no existence leak). Responses cache 300s; failures come back as commented plain text so a piped `sh` fails safely.
+- **Literal dynamic imports only (`docs/pages/**`):** every `next/dynamic` / dynamic `import()` loader must use a literal string specifier — computed template-literal paths make webpack emit a context module that resolves `undefined` in production and crash the client with React #130 (took down `consulting.stokd.cloud` / `sui.stokd.cloud` on 2026-06-12). Runtime page selection uses explicit maps of literal loaders (see `AX-REPO-NO-TEMPLATE-LITERAL-DYNAMIC-IMPORT`).
+- **npm publish is non-blocking per package:** `scripts/npmRelease.mjs publish` (driven by `publish-packages.yml`) attempts every selected package independently — one package's failure (e.g. missing trusted-publisher config) never aborts the rest; exact `name@version` already on the registry is skipped, and the job exits non-zero if any package failed (see `AX-REPO-PUBLISH-NO-HOL-BLOCKING`).
 - **`@stoked-ui/stokd` is host-driven (§14):** the agent-activity components are stateless and ship no routes; all live data (session/task/project view-models), polling, and persistence are the host's responsibility. The package only renders whatever work-type / status / provider model the consumer maps in, themed via `--sui-*` CSS variables.
 - **Editor known issues** (carry through to flows §4.x):
   - `file.media` is a `createSettings`-Proxy — properties set via `Object.assign` don't always propagate through React state updates; detail views fall back to DOM `<video>` element for duration/width/height.
@@ -329,8 +342,9 @@ Docs-app modules (not publishable packages, live under `docs/src/modules/`):
 - **SST v4** stack (`sst.config.ts` → `infra/index.ts`) provisions:
   - `createSite` — CloudFront StaticSite hosting Next.js docs (`stokedui-com`)
   - `createCdnSite` / `createCdnSuiSite` — CloudFront CDN sites for `cdn` / `cdn-sui` admin
+  - `createInstallSite` — CloudFront Router on `install.stokd.cloud` proxying `/*` → consulting `/api/install/*` (cert via `INSTALL_CERT_ARN` or `findExistingCert`; domain binding toggled by `INSTALL_ENABLE_DOMAIN`)
   - `createApi` — API Gateway v2 routing to Lambda handlers (`api/auth/google`, `api/subscribe`, `api/sms`, `api/promos`, plus media API via `packages/sui-media-api/src/lambda.ts`)
-  - TLS / domain bindings (`infra/cert.ts`, `infra/domains.ts`) for `sui.stokd.cloud` and `consulting.stokd.cloud`
+  - TLS / domain bindings (`infra/cert.ts`, `infra/domains.ts`) for `sui.stokd.cloud`, `consulting.stokd.cloud`, and `install.stokd.cloud`
   - Env vars / secrets (`infra/envVars.ts`, `infra/secrets.ts`)
 - Region: `us-east-1`. AWS profile: `stokd-cloud`. Stage: `production` (via `pnpm deploy:prod`).
 
@@ -349,11 +363,14 @@ Repo-global invariants this product depends on. These are candidates for promoti
 - `AX-PROD-SUI-007`: `sui-media-api` MUST run identically as a NestJS Express server locally (port 3001, base path `/v1`) and as an AWS Lambda function via `@codegenie/serverless-express` (`lambda.ts` + `lambda.bootstrap.ts`); behavior MUST NOT diverge across these two runtimes.
 - `AX-PROD-SUI-008`: All persistent business-domain data (products, clients, deliverables, invoices, licenses, users, blog posts, API keys, feedback, chat sessions, audit leads/reports, media metadata) MUST live in MongoDB; the browser-side `LocalDb` (IndexedDB) is reserved for editor project/version/recording state and MUST NOT be treated as a source of truth for business data.
 - `AX-PROD-SUI-009`: Stripe is the sole payment processor for license commerce; `POST /api/webhooks/stripe` is the authoritative reconciliation point for license state changes, and license activate/validate/deactivate flows MUST NOT bypass it.
-- `AX-PROD-SUI-010`: User-facing flows enumerated in `.stokd/meta/SC_FLOWS.md` (§1–§13) constitute the product's contract; any change that alters or removes one of these flows MUST be driven through a governed `stokd task` or `stokd project` with explicit acceptance criteria, never as an incidental edit.
+- `AX-PROD-SUI-010`: User-facing flows enumerated in `.stokd/meta/SC_FLOWS.md` (§1–§14) constitute the product's contract; any change that alters or removes one of these flows MUST be driven through a governed `stokd task` or `stokd project` with explicit acceptance criteria, never as an incidental edit.
 - `AX-PROD-SUI-011`: Git workflows for this product MUST NOT use `git stash`, MUST NOT switch the working-tree branch via `git checkout <branch>`, and MUST NOT use `git reset --hard` or `git restore .` on a dirty tree — branch divergence is handled exclusively via `git worktree add`.
 - `AX-PROD-SUI-012`: The consulting audit bot (`docs/src/modules/auditBot/**`, flows §9.3 / §13.5) MUST loop tool execution server-side, validate untrusted model report args via `reportValidation.ts` before they reach the UI or mailer, fetch visitor-supplied URLs only through the `urlSafety.ts` SSRF guard, and treat Mongo persistence, SES report email, and Telegram notification as best-effort side effects that MUST NOT fail a chat turn.
 - `AX-PROD-SUI-013`: CloudFront edge-cache invalidation after a CDN write (flow §6.3, `docs/src/modules/cdn/cdnInvalidation.ts`) MUST be a best-effort side effect — skipped silently when `CDN_DISTRIBUTION_ID` is unset, and any failure logged and swallowed so it never blocks or fails the user-facing CDN mutation response (upload-complete / delete / move).
 - `AX-PROD-SUI-014`: `@stoked-ui/stokd` (flow §14) MUST remain host-agnostic and stateless — it ships no page routes, holds no live data source, and renders only the session/task/project view-models the host supplies, themed exclusively via `--sui-*` CSS variables + `data-theme`; live data, polling, and persistence MUST live in the host, not in this repo.
+- `AX-PROD-SUI-015`: The install-script distribution surface (flow §1.7) MUST keep `install.stokd.cloud` a thin proxy onto `docs/pages/api/install/**` and stream scripts straight from the product's GitHub repo — `githubRepo`/`installPath` MUST pass the `docs/src/modules/products/install.ts` normalizers (no path traversal, no absolute paths), MUST never be exposed by the public products API (only the derived `installUrl`), and non-live products MUST 404 to non-admin callers without leaking existence. (Promoted as `AX-REPO-INSTALL-SCRIPT-SURFACE`.)
+- `AX-PROD-SUI-016`: The npm publish pipeline (`scripts/npmRelease.mjs publish` via `publish-packages.yml`) MUST attempt every selected package independently — a per-package failure is recorded and summarized, never aborts the remaining packages; an exact `name@version` already on the registry is skipped, not errored; the job exits non-zero if any package failed. (Promoted as `AX-REPO-PUBLISH-NO-HOL-BLOCKING`.)
+- `AX-PROD-SUI-017`: Every `next/dynamic` loader or dynamic `import()` under `docs/pages/**` MUST use a literal string specifier — computed/template-literal paths produce webpack context modules that resolve `undefined` in production and crash the client (React #130); runtime page selection MUST index into an explicit map of literal loaders. (Promoted as `AX-REPO-NO-TEMPLATE-LITERAL-DYNAMIC-IMPORT`.)
 
 ---
 

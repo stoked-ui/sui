@@ -12,13 +12,19 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
+import Tooltip from '@mui/material/Tooltip';
+import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
+import ContentCopyRounded from '@mui/icons-material/ContentCopyRounded';
+import CheckRounded from '@mui/icons-material/CheckRounded';
+import copy from 'clipboard-copy';
 import { BrandingCssVarsProvider, Link } from '@stoked-ui/docs';
 import AppFooter from 'docs/src/layouts/AppFooter';
 import AppHeader from 'docs/src/layouts/AppHeader';
 import Section from 'docs/src/layouts/Section';
 import Head from 'docs/src/modules/components/Head';
 import { getApiUrl } from 'docs/src/modules/utils/getApiUrl';
+import { SUPPORTED_OS_LABELS, type SupportedOs } from 'docs/src/modules/products/install';
 
 interface Feature {
   name: string;
@@ -39,6 +45,50 @@ interface PublicProduct {
   prerelease?: 'alpha' | 'beta' | 'none';
   privacyEnabled?: boolean;
   termsEnabled?: boolean;
+  supportedOperatingSystems?: SupportedOs[];
+  installUrl?: string | null;
+}
+
+function InstallCommand({ installUrl }: { installUrl: string }) {
+  const [copied, setCopied] = React.useState(false);
+  const installCommand = `curl -fsSL ${installUrl} | sh`;
+
+  const handleCopy = () => {
+    copy(installCommand).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  return (
+    <Paper
+      variant="outlined"
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 1,
+        px: 2,
+        py: 1,
+        fontFamily: 'monospace',
+        fontSize: '0.875rem',
+        overflowX: 'auto',
+      }}
+    >
+      <Box component="code" sx={{ whiteSpace: 'nowrap' }}>
+        $ {installCommand}
+      </Box>
+      <Tooltip title={copied ? 'Copied!' : 'Copy to clipboard'}>
+        <IconButton size="small" onClick={handleCopy} aria-label="Copy install command">
+          {copied ? (
+            <CheckRounded fontSize="small" color="success" />
+          ) : (
+            <ContentCopyRounded fontSize="small" />
+          )}
+        </IconButton>
+      </Tooltip>
+    </Paper>
+  );
 }
 
 interface PublicPage {
@@ -124,6 +174,27 @@ export default function PublicProductDetailPage({ productSlug }: { productSlug?:
               <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 640, whiteSpace: 'pre-line' }}>
                 {product.description}
               </Typography>
+
+              {(product.installUrl || (product.supportedOperatingSystems?.length ?? 0) > 0) && (
+                <Box mb={4}>
+                  <Typography variant="h5" fontWeight={700} mb={2}>Install</Typography>
+                  {(product.supportedOperatingSystems?.length ?? 0) > 0 && (
+                    <Stack direction="row" spacing={1} alignItems="center" mb={product.installUrl ? 2 : 0}>
+                      <Typography variant="body2" color="text.secondary">
+                        Supported operating systems:
+                      </Typography>
+                      {product.supportedOperatingSystems!.map((os) => (
+                        <Chip key={os} label={SUPPORTED_OS_LABELS[os] ?? os} size="small" variant="outlined" />
+                      ))}
+                    </Stack>
+                  )}
+                  {product.installUrl && (
+                    <Box maxWidth={640}>
+                      <InstallCommand installUrl={product.installUrl} />
+                    </Box>
+                  )}
+                </Box>
+              )}
 
               {!product.hideProductFeatures && product.features.length > 0 && (
                 <Box mb={4}>

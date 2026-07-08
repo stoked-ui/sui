@@ -69,6 +69,10 @@ export const createSite = async (
         process.env.AUTH_AUTO_DOMAINS ?? DEFAULT_AUTH_AUTO_DOMAINS,
       NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '',
       SES_FROM_EMAIL: process.env.SES_FROM_EMAIL ?? 'noreply@stokd.cloud',
+      // Optional GitHub token: raises the /api/github/* rate limit from 60 to
+      // 5000 req/hr and lets /api/install/* serve scripts from private repos.
+      // Public-repo install scripts work without it.
+      GITHUB_TOKEN: process.env.GITHUB_TOKEN ?? '',
       BLOG_IMAGE_S3_BUCKET: blogImageBucket,
       BLOG_IMAGE_CDN_URL: process.env.BLOG_IMAGE_CDN_URL ?? 'https://cdn.stokd.cloud',
       // CloudFront distribution fronting the CDN bucket. The docs API uses this

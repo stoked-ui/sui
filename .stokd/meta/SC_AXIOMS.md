@@ -1,6 +1,6 @@
 # SC_AXIOMS.md — Repo-Global Invariants
 
-> **Generated:** 2026-05-21 | **Updated:** 2026-06-06 (TIMED REFRESH — re-verified existing axioms against the codebase; appended `AX-REPO-AUDIT-BOT-BEST-EFFORT`, `AX-REPO-WASMLAYER-CONTRACT`, `AX-REPO-CDN-API-CONTRACT`; added candidate blocks for the `.sue` round-trip format and Mongoose ref/registration matching) | **Meta version:** 0.4.0
+> **Generated:** 2026-05-21 | **Updated:** 2026-06-06 (TIMED REFRESH — re-verified existing axioms against the codebase; appended `AX-REPO-AUDIT-BOT-BEST-EFFORT`, `AX-REPO-WASMLAYER-CONTRACT`, `AX-REPO-CDN-API-CONTRACT`; added candidate blocks for the `.sue` round-trip format and Mongoose ref/registration matching) | **Updated:** 2026-07-02 (TIMED REFRESH — re-verified all active axioms; promoted `AX-PROD-SUI-015` as `AX-REPO-INSTALL-SCRIPT-SURFACE` after verifying the normalizers, public-API field stripping, and 404 behavior in code; added candidate blocks for the acyclic dependency graph rooted at `sui-common` and the CalendarBooking client-defined wire contract; note: `AX-REPO-FLOWS-GOVERNED` cites flows §1–§13, SC_FLOWS.md now spans §1–§14 — the axiom's intent covers the full enumerated set) | **Meta version:** 0.6.0
 > **Scope:** Repository-wide invariants for `@stoked-ui/sui`. Module-scoped
 > axioms live in each package's `.axioms.md`. Product-scoped axioms live in
 > `.stokd/meta/SC_PRODUCT_*.md`. Legacy numbered axioms continue to live in
@@ -238,6 +238,39 @@ it can be stated as a binding, satisfiable repo-wide rule. Promote (and fix the
 mismatch) together.
 -->
 
+<!--
+stokd-axiom-candidate
+id: AX-CANDIDATE-REPO-ACYCLIC-DEPS-ROOTED-AT-COMMON
+suggested_targets: .stokd/meta/SC_AXIOMS.md
+notes: (added 2026-07-02, from packages/sui-common/.axioms.md
+AX-CANDIDATE-REPO-ZERO-INTERNAL-DEPS-FOUNDATION) `@stoked-ui/common` is the
+foundation layer and declares zero `@stoked-ui/*` dependencies so every other
+package can depend on it (module-local form: AX-MOD-SUICOMMON-004). The broader
+repo-wide rule — "the dependency graph among publishable `@stoked-ui/*` packages
+stays acyclic, rooted at sui-common" — is NOT yet promoted because the full
+inter-package graph (including sui-stokd, sui-cdn, and the hybrid sui-media
+server subpath) has not been audited for cycles. Promote after a one-time
+`pnpm ls -r --depth 1` graph audit confirms acyclicity and a check command is
+codified.
+-->
+
+<!--
+stokd-axiom-candidate
+id: AX-CANDIDATE-REPO-CALENDAR-CLIENT-CONTRACT
+suggested_targets: .stokd/meta/SC_AXIOMS.md
+notes: (added 2026-07-02, from packages/sui-common/.axioms.md) As of 2026-07-02
+the `docs/pages/api/calendar/**` handlers that `CalendarBooking` calls
+(`GET /api/calendar/availability`, `POST /api/calendar/book`) do not exist —
+the client (`packages/sui-common/src/CalendarBooking/CalendarBooking.tsx`) and
+its mocked-fetch tests are the only definition of the wire shape (flow §9.4,
+"not yet wired"). Candidate invariant: when the server handlers land they MUST
+conform to the existing client shape (`{ slots: string[] }` availability
+response; book payload with contact fields + startTime + durationMinutes +
+invite emails), not vice versa. NOT promoted: it constrains files that do not
+exist yet and cannot be computationally checked until the handlers land.
+Revisit when `docs/pages/api/calendar/**` is implemented.
+-->
+
 ---
 
 ## AX-REPO-PUBLISH-NO-HOL-BLOCKING: The npm Publish Pipeline Attempts Every Selected Package Independently
@@ -272,11 +305,20 @@ CloudFront edge-cache invalidation triggered after a CDN write (flow §6.3, `doc
 - `grep -rnE "tailwind|#[0-9a-fA-F]{3,6}|rgb\(" $(find packages/sui-stokd/src -name '*.tsx')` returns no hits — theme colors live only in `src/theme/tokens.css` via `var(--sui-*)`.
 - `pnpm --filter @stoked-ui/stokd typescript`.
 
+## AX-REPO-INSTALL-SCRIPT-SURFACE: Install-Script Distribution Never Leaks Repo Coordinates And Streams Straight From GitHub
+The install-script distribution surface (flow §1.7) MUST keep `install.stokd.cloud` a thin proxy onto `docs/pages/api/install/**` (`infra/install-site.ts` + `infra/domains.ts`) that streams scripts straight from the product's GitHub repo: every use of a product's `githubRepo`/`installPath` fields MUST pass the `normalizeGithubRepo`/`normalizeInstallPath` guards in `docs/src/modules/products/install.ts` (no path traversal, no absolute paths, no non-GitHub hosts); the public products API MUST never expose the raw `githubRepo`/`installPath` values — only the derived `installUrl` (`docs/pages/api/products/public/[slug].ts` sets both to `undefined`); and non-live products MUST return 404 to non-admin callers without leaking existence. (Promotes `AX-PROD-SUI-015`.)
+
+### Acceptance Checks
+- `grep -n "normalizeGithubRepo\|normalizeInstallPath" "docs/pages/api/install/[script].ts" docs/pages/api/install/index.ts docs/pages/api/products/index.ts` shows every read/write of `githubRepo`/`installPath` routed through the normalizers.
+- `grep -n "githubRepo: undefined" "docs/pages/api/products/public/[slug].ts"` confirms the raw repo coordinates are stripped from the public product response (only `installUrl` is derived and returned).
+- `grep -n "sendPlainError(res, 404" "docs/pages/api/install/[script].ts"` shows unknown products, non-live products for non-admins, and unconfigured install scripts all answered with an indistinguishable 404.
+- manual: `curl -fsSL https://install.stokd.cloud/<live-productId>.sh` returns the script for a live product; the same URL for a non-live product returns 404 to an unauthenticated caller.
+
 ---
 
 ## Cross-References
 
-- Product axioms: `.stokd/meta/SC_PRODUCT_STOKED_UI_SUI.md` (`AX-PROD-SUI-001` … `AX-PROD-SUI-014`)
+- Product axioms: `.stokd/meta/SC_PRODUCT_STOKED_UI_SUI.md` (`AX-PROD-SUI-001` … `AX-PROD-SUI-017`; 015 promoted here as `AX-REPO-INSTALL-SCRIPT-SURFACE`, 016 as `AX-REPO-PUBLISH-NO-HOL-BLOCKING`, 017 as `AX-REPO-NO-TEMPLATE-LITERAL-DYNAMIC-IMPORT`)
 - Module axioms: `packages/*/.axioms.md`
 - Guardrails: `.stokd/meta/SC_CONTEXT.md`, `CLAUDE.md`, `AGENTS.md`
 - Flows / acceptance surface: `.stokd/meta/SC_FLOWS.md`

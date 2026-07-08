@@ -1,12 +1,12 @@
 # SC_TEST: sui-github (`@stoked-ui/github`)
 
-> **Generated:** 2026-06-06 | **Refreshed:** 2026-06-22 (UPGRADE 0.4.0 → 0.6.0 — re-verified against source alongside the SC_MODULE 0.6.0 refresh: `githubApi.ts` pure-helper surface + `DEFAULT_DIFF_LINE_LIMIT = 24` (`:11`), `getGithubEvents.ts` `parseLinkHeader` still file-local (`:12`) / `maxPages = 30` (`:46`) / facets from all events (`:151`–`:153`), `createGithubContributionsHandler` 405/400/404/500/502 mapping + `s-maxage=3600, stale-while-revalidate=86400` (`:48`), and the four co-located fetcher/handler line anchors all confirmed unchanged. `react-json-view` remains a declared-but-dead dep; still **zero src/ coverage**.) | **Meta version:** 0.6.0
+> **Generated:** 2026-06-06 | **Refreshed:** 2026-07-02 (TIMED REFRESH 0.6.0 → 0.6.1 — re-verified every line anchor, LOC count, and stack claim against the working tree: `githubApi.ts` helper surface (`:19`–`:220`), `getGithubEvents.ts` `parseLinkHeader` still file-local (`:12`) / `maxPages = 30` (`:46`) / facets from all events (`:151`–`:152`) / default export (`:174`), all four handler factories + cache headers (`createGithub{Branch,Commit}Handler:20`, `createGithubContributionsHandler:24`, `createGithubEventsHandler:29`), `GithubEvents.tsx` internals (`:65`–`:157`, `:232`, `:381`–`:539`, dispatch `:1357`–`:1370`) all unchanged; `GithubCalendar.tsx` is now 462 LOC (was 464), anchors `buildApiUrl:113` / component `:126` unchanged. Grep guards re-confirmed: no `react-json-view`/`next/dynamic` in `src/`, no `GITHUB_TOKEN` outside `apiHandlers/`, sinon 15.2.0 hoisted at root, root `.mocharc.js` present. Incorporated the new `AX-MOD-GITHUB-009` (handler HTTP contract) into §2 Tier 3 and §8. `react-json-view` remains a declared-but-dead dep (`package.json:64`); still **zero src/ coverage** and no `scripts.test`.) | **Meta version:** 0.6.1
 > **Package:** `packages/sui-github` (`@stoked-ui/github` v0.1.0-alpha.11.3)
 > **Priority:** Medium
 > **Source entry (barrel):** `packages/sui-github/src/index.ts`
 > See `.stokd/meta/packages/sui-github/SC_MODULE.md` for module classification and
 > `packages/sui-github/.axioms.md` for the module invariants this strategy protects
-> (`AX-MOD-GITHUB-001` … `AX-MOD-GITHUB-008`).
+> (`AX-MOD-GITHUB-001` … `AX-MOD-GITHUB-009`).
 >
 > All file paths, line numbers, exports, and test-stack conventions below were
 > verified against the working tree on the refresh date.
@@ -51,7 +51,7 @@ The package splits cleanly into four testable layers behind one barrel:
 | Component fetch helper | `src/components/fetchGithubViewData.ts` | 15 | default `fetchGithubViewData` (`:1`) — `apiUrl` proxy fetch |
 | Contributors list | `src/components/GithubContributorsList.tsx` | 65 | default `GithubContributorsList` (`:24`) |
 | Event feed | `src/GithubEvents/GithubEvents.tsx` | 1,377 | default `GithubEvents`; exported `ErrorDetails` (`:232`); embedded `JsonFallbackView` (`:157`), `processEvents` (`:381`), `filterEvents` (`:502`), `getEventDescription` (`:525`), `getFilteredDate` (`:539`); cache `persistCachedEvents` (`:115`), `updateCachedEventsTimestamp` (`:138`); SSR-safe storage wrappers `getStorageItem` (`:65`), `setStorageItem` (`:74`), `removeStorageItem` (`:87`), `getStorageKeys` (`:95`) |
-| Calendar | `src/GithubCalendar/GithubCalendar.tsx` | 464 | default `GithubCalendar` (`:126`); internal `buildApiUrl` (`:113`) |
+| Calendar | `src/GithubCalendar/GithubCalendar.tsx` | 462 | default `GithubCalendar` (`:126`); internal `buildApiUrl` (`:113`) |
 | Branch view | `src/GithubBranch/GithubBranch.tsx` | 175 | default `GithubBranch` |
 | Commit view | `src/GithubCommit/GithubCommit.tsx` | 171 | default `GithubCommit` |
 | Wire types | `src/types/github.ts` | 196 | `GitHubEvent`, `EventDetails`, `CachedData`, `Github{ChangedFile,DiffLine,Contributor,CommitListItem,CommitStats,CommitData,BranchData,ContributionDay,ContributionsResponse}`, `PullRequestDetails`, `GithubFileHighlight` |
@@ -151,10 +151,15 @@ here cascades into every commit/branch/PR view. Fully deterministic — test by 
 | `parseLinkHeader` (`getGithubEvents.ts:12`) | `null` → `{}`; extracts `next`/`last` URLs; ignores other `rel`; tolerates malformed entries. **Currently file-local** — see §7 to export for direct unit testing. |
 | `fetchGithubViewData` (`fetchGithubViewData.ts:1`) | appends params with `?`/`&` separator depending on existing query; non-ok → throws `errorBody.message` (or `'Failed to fetch GitHub data'` when the body isn't JSON); returns parsed JSON. |
 
-### Tier 3 — Handler factories (the Next.js API seam, `AX-MOD-GITHUB-002` / `-006`)
+### Tier 3 — Handler factories (the Next.js API seam, `AX-MOD-GITHUB-002` / `-006` / `-009`)
 
 All four share the same skeleton: method gate → param validation → delegate → cache header
 → error→status mapping. Test with a **plain mock `req`/`res`** (no Next.js import needed).
+This whole tier is the suite-level enforcement of `AX-MOD-GITHUB-009`: the factories own
+the full HTTP contract (405 + `Allow: GET`, 400 with param names, 502 on upstream failure,
+success `Cache-Control`) so host routes under `docs/pages/api/github/*.ts` stay one-line
+mounts. If a test here fails after a change, the contract moved — that is a governed change,
+not a test to weaken.
 
 | Factory | What to assert |
 |---------|----------------|
@@ -537,3 +542,4 @@ test or check:
 | `AX-MOD-GITHUB-006` (token is server-only) | Guard test / grep: no component reads `process.env.GITHUB_TOKEN`; `fetchGithubResource`/handlers carry it. |
 | `AX-MOD-GITHUB-007` (SSR-unsafe deps behind `next/dynamic`) | Grep assertion: no `react-json-view` / `next/dynamic` in `src/`; `JsonFallbackView` renders SSR-safe. |
 | `AX-MOD-GITHUB-008` (unhandled types → `JsonFallbackView`, never crash) | Phase 4 detail-panel test driving a Fork/ProjectsV2 fixture through the fallback arm. |
+| `AX-MOD-GITHUB-009` (factories own the HTTP contract: GET-only, 400/405/502, `Cache-Control`) | The entire Tier 3 / Phase 3 suite — per factory: 405 + `Allow: GET` on non-GET, 400 naming the missing params, 502 on upstream failure, and the exact success `Cache-Control` value (`s-maxage=3600, swr=86400` contributions; `s-maxage=300, swr=3600` events/commit/branch). The axiom's own grep checks (`status(405)`, `'Allow', 'GET'`, `Cache-Control` present in all four `create*Handler.ts`) remain the computational backstop. |

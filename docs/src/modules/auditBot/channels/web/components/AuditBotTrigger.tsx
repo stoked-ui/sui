@@ -155,7 +155,7 @@ export default function AuditBotTrigger({ variant = 'hero', onOpen }: AuditBotTr
             (theme) => theme.applyDarkStyles({ bgcolor: 'primaryDark.700' }),
           ]}
         >
-          Hi — I&apos;m an AI agent Brian Stoker built. I run a quick, free audit
+          Use run a quick, free audit
           and write you a 1-page report with the 3 best places AI would actually save you
           time. Yours to keep, no pitch required.
         </Box>

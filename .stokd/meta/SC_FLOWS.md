@@ -1,6 +1,6 @@
 # Stoked UI — User Flow Classification
 
-> **Generated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) | **Refreshed:** 2026-06-06 (timed refresh — re-verified API/route topology end-to-end; added §1.6 consulting service-line discovery, cited the `useAllProducts()` → `GET /api/products/public` data source for the product menu/index grid) | **Updated:** 2026-06-22 (upgrade 0.4.0 → 0.6.0 — re-verified route/API topology against current tree; added §6.3 CloudFront cache invalidation as a best-effort CDN-mutation side effect, §9.4 Book-a-Call (`CalendarBooking`, not yet wired), and §14 Agent Activity Visualization (`@stoked-ui/stokd`); fixed root path) | **Meta version:** 0.6.0
+> **Generated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) | **Refreshed:** 2026-06-06 (timed refresh) | **Updated:** 2026-06-22 (upgrade 0.4.0 → 0.6.0 — added §6.3 CDN cache invalidation, §9.4 Book-a-Call (`CalendarBooking`, not yet wired), §14 Agent Activity Visualization (`@stoked-ui/stokd`)) | **Refreshed:** 2026-07-02 (timed refresh — added §1.7 product install-script distribution via `install.stokd.cloud` (`infra/install-site.ts` + `docs/pages/api/install/**`, new `githubRepo`/`installPath`/`supportedOperatingSystems` product fields); rewrote §11.2 around the `publish-packages.yml` → `scripts/npmRelease.mjs` CI publish pipeline; added `createInstallSite` to §11.3; re-verified §9.4 CalendarBooking is still not wired) | **Meta version:** 0.7.0
 > **Repository:** `@stoked-ui/sui`
 > **Root:** `/opt/worktrees/stoked-ui/sui/main`
 
@@ -57,6 +57,7 @@ Flows are grouped by domain:
 - **Views:** §1.2 Products Index, §1.3 Public Product Detail, §2 Showcase
 - **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 - **Note:** Some products use a bespoke marketing page instead of the generic `PublicProductDetailPage`: **Stokd Cloud** renders `StokdCloudProductPage` → `StokdCloudPitch` (`docs/src/modules/products/StokdCloudProductPage.tsx`, `StokdCloudPitch.tsx`, copy in `stokdCloudContent.ts`) at both `/products/stokd-cloud` (`docs/pages/products/stokd-cloud/index.js`) and `/consulting/products/stokd-cloud` (`docs/pages/consulting/products/stokd-cloud.tsx`); **Mac Mixer** uses `MacMixerProductPage` (SC_VIEWS §20). These pages skip the `GET /api/products/public/[slug]` fetch and render static module content.
+- **Note (install):** `GET /api/products/public/[slug]` now also returns `supportedOperatingSystems` and a computed `installUrl` (`getInstallScriptUrl(productId)`, pointing at §1.7's `install.stokd.cloud/<productId>.sh`) when the product has valid `githubRepo` + `installPath` fields; the raw repo/path values are explicitly stripped from the public response (`githubRepo: undefined, installPath: undefined`).
 
 ### 1.3 Read Product Documentation
 
@@ -108,6 +109,22 @@ Flows are grouped by domain:
 - **Views:** §4.2 Consulting Home, §21 Consulting Service-Line Pages, §24.1 Audit Bot Trigger, §23 Company / Contact
 - **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 - **Note:** This is the consulting-origin counterpart to §1.1 (the product-origin home). The same `docs/` Next.js app serves both origins (`siteRouting.ts`); only the audit-bot path (§9.3) is currently transactional — the contact surface (§23) is a static `mailto:` page, not a form submission.
+
+### 1.7 Install a Product via `curl | sh` (`install.stokd.cloud`)
+
+- **Actor:** Developer / operator in a terminal (product install), or admin (script configuration)
+- **Goal:** Install a live product with one command — `curl -fsSL https://install.stokd.cloud/<productId>.sh | sh` — without the script leaving the product's GitHub repo
+- **Entry points:** `curl`/`wget` against `install.stokd.cloud/<productId>.sh`; `install.stokd.cloud/` root index; `installUrl` on the public product detail API (§1.2)
+- **Steps:**
+  1. Infra: `createInstallSite` (`infra/install-site.ts`, wired in `sst.config.ts`) provisions an `sst.aws.Router` (CloudFront) on `install.stokd.cloud` (`getInstallDomainInfo`, `infra/domains.ts`) that rewrites every request `^/(.*)$` → `https://consulting.<domain>/api/install/$1`, so the subdomain shares the consulting origin's auth authority (same pattern as `cdn.stokd.cloud`).
+  2. Script fetch: `GET /api/install/<productId>.sh` (`docs/pages/api/install/[script].ts`) validates the `<name>.sh` pattern, looks up the product in Mongo by `productId`, and resolves its `githubRepo` + `installPath` fields (normalized by `docs/src/modules/products/install.ts` — `normalizeGithubRepo` accepts `owner/repo` or any github.com URL; `normalizeInstallPath` rejects traversal/absolute paths).
+  3. The handler streams the script straight from GitHub: `raw.githubusercontent.com/<repo>/HEAD/<installPath>` first, falling back to the GitHub contents API (`Accept: application/vnd.github.raw+json`) when `GITHUB_TOKEN` is set and the repo is private. Response is `text/x-shellscript` with `Cache-Control: public, max-age=300` and CORS `*`; failures come back as commented plain-text (`# message`) so a piped `sh` fails loudly but safely.
+  4. Auth gate: live products are public; non-live products require an admin credential via `readOptionalAuthUser` (Bearer token, API key, or session — shared with cdn/consulting/sui) and otherwise 404 as "Unknown product" (no existence leak).
+  5. Index: `GET /api/install/` (`docs/pages/api/install/index.ts`) lists every live product with a valid repo+path — JSON by default, or a curl-friendly commented text index when `?f=text` or the user agent starts with `curl`/`wget`; each entry carries `installUrl` and the full `installCommand`.
+  6. Configuration: an admin sets `githubRepo`, `installPath`, and `supportedOperatingSystems` (`macos`|`linux`|`windows`) on the product record via the §7.1 products admin (`POST/PUT /api/products[...]` accept the new fields; schema fields added to `packages/sui-common-api/src/models/product.model.ts`).
+- **Views:** None for the terminal path (curl output); §1.3 Public Product Detail surfaces `installUrl`; §5.2 Products Admin for configuration
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Note:** The public products API never exposes `githubRepo`/`installPath` — only the derived `installUrl` (see §1.2 install note).
 
 ---
 
@@ -439,7 +456,7 @@ Flows are grouped by domain:
   1. List: `ProductsPage` calls `GET /api/products` (`docs/pages/api/products/index.ts`).
   2. Create: dialog → `POST /api/products`.
   3. Detail: `ProductDetailPage` reads `GET /api/products/[id]` (`docs/pages/api/products/[id].ts`); pages list `GET/POST /api/products/[id]/pages` (`docs/pages/api/products/[id]/pages/index.ts`); per-page `PATCH/DELETE /api/products/[id]/pages/[pageId]`.
-  4. Save → `PUT /api/products/[id]`.
+  4. Save → `PUT /api/products/[id]`. The create/update payloads also carry the §1.7 install-script fields (`githubRepo`, `installPath`, `supportedOperatingSystems`) accepted by `docs/pages/api/products/index.ts` / `[id].ts`.
   5. Public copy: `GET /api/products/public/[slug]/privacy` & `/terms` for marketing site rendering.
 - **Views:** §5.2 Products Admin, §1.3 Public Product Detail
 - **Products:** SC_PRODUCT_STOKED_UI_SUI.md
@@ -592,7 +609,7 @@ Flows are grouped by domain:
   4. Submit → `POST /api/calendar/book` (form + `startTime` + `durationMinutes` + `inviteEmails`); UI transitions submitting → success banner (or error).
 - **Views:** §16 `CalendarBooking` (Common package shared chrome)
 - **Products:** SC_PRODUCT_STOKED_UI_SUI.md
-- **Status — NOT yet wired:** As of this refresh the `CalendarBooking` component exists and is unit-tested (`packages/sui-common/src/CalendarBooking/__tests__/CalendarBooking.test.tsx`), but it is **not mounted on any docs page route**, and the `GET /api/calendar/availability` / `POST /api/calendar/book` handlers do **not** exist under `docs/pages/api/**`. This is a component-level flow ready for a host to embed, not a live end-to-end journey. It is the self-hosted counterpart to the Calendly "Book a 30-min call" button in the §9.3 audit-bot email-capture panel.
+- **Status — NOT yet wired (re-verified 2026-07-02):** The `CalendarBooking` component exists and is unit-tested (`packages/sui-common/src/CalendarBooking/__tests__/CalendarBooking.test.tsx`), but it is **not mounted on any docs page route**, and the `GET /api/calendar/availability` / `POST /api/calendar/book` handlers do **not** exist under `docs/pages/api/**`. This is a component-level flow ready for a host to embed, not a live end-to-end journey. It is the self-hosted counterpart to the Calendly "Book a 30-min call" button in the §9.3 audit-bot email-capture panel.
 
 ---
 
@@ -630,15 +647,18 @@ Flows are grouped by domain:
 
 ### 11.2 Build & Publish Packages
 
-- **Actor:** Maintainer
+- **Actor:** Maintainer (locally) or CI (push to `main`)
 - **Goal:** Cut a release of `@stoked-ui/*` packages
-- **Entry points:** Terminal in repo root
-- **Steps:**
+- **Entry points:** Push to `main` touching `packages/**` / `packages-internal/**` / lockfile / `release-plan.json` (triggers `.github/workflows/publish-packages.yml`); or terminal in repo root
+- **Steps (CI, primary):**
+  1. `publish-packages.yml` runs on push to `main` (concurrency-grouped, `cancel-in-progress`): a `validate` matrix job builds/checks, then `node scripts/npmRelease.mjs detect` computes which packages changed, then `node scripts/npmRelease.mjs publish` publishes them to npmjs.com via trusted publishing.
+  2. The publish loop attempts every selected package independently — a per-package failure is recorded and summarized, never aborts the rest, and the job exits non-zero if any failed; an exact `name@version` already on the registry is skipped with a log line (axiom `AX-REPO-PUBLISH-NO-HOL-BLOCKING`).
+- **Steps (manual, legacy):**
   1. `pnpm build:all` builds packages and the docs app.
   2. `pnpm release:version` bumps versions via Lerna independent mode (npmClient pnpm).
   3. `pnpm publish --recursive` publishes (root `release` script chains `build:all` → `release:version` → `deploy:prod`).
   4. Verdaccio dry-runs available for testing.
-- **Views:** Terminal output (no UI)
+- **Views:** Terminal / GitHub Actions job output (no UI)
 - **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
 ### 11.3 Deploy to AWS via SST
@@ -648,7 +668,7 @@ Flows are grouped by domain:
 - **Entry points:** Terminal in repo root
 - **Steps:**
   1. `pnpm deploy:prod` runs `dotenvx run -- sst deploy --stage production` against AWS profile `stokd-cloud` (NOT default — global rule).
-  2. `sst.config.ts` → `infra/index.ts` provisions: `createSite`, `createCdnSite`, `createCdnSuiSite`, `createApi` (CloudFront, API Gateway v2, Lambdas, certs).
+  2. `sst.config.ts` → `infra/index.ts` provisions: `createSite`, `createCdnSite`, `createCdnSuiSite`, `createApi`, and `createInstallSite` (`install.stokd.cloud` router, §1.7) — CloudFront, API Gateway v2, Lambdas, certs. The CDN site is created first so its CloudFront distribution id can be passed to the docs site for §6.3 invalidation.
   3. Lambda handlers `api/auth/google.ts`, `api/subscribe.ts`, `api/sms.ts`, `api/promos.ts` are bundled into the API Gateway.
   4. Media API Lambda: `packages/sui-media-api/src/lambda.ts` packages `@codegenie/serverless-express`.
 - **Views:** Terminal output, post-deploy site (§1.1 Home in production)
@@ -797,6 +817,8 @@ Flows are grouped by domain:
 - **Local dev port:** 5199 for the Next.js docs app; 3001 for the Media API. Never 3000.
 - **WASM dependency:** `EditorEngine` dynamically imports `@stoked-ui/video-renderer-wasm` (file dep on `packages/sui-video-renderer/pkg`); `next.config.mjs` enables `experiments.asyncWebAssembly` and aliases the package. Editor flow §4.x will fall back gracefully if the WASM build is missing.
 - **CDN flow duality:** Same `CdnBrowser` runs in `packages-internal/cdn-sui` (workspace) and embedded inside the docs admin via `apiBaseUrl="/api/cdn"`.
+- **Subdomain proxy pattern:** `install.stokd.cloud` (§1.7) follows the same shape as `cdn.stokd.cloud`'s `/api/*` proxy — a thin CloudFront `sst.aws.Router` that rewrites onto the consulting origin so the consulting API remains the single auth authority; optional auth on these routes goes through `readOptionalAuthUser` (`docs/src/modules/auth/withAuth.ts`).
+- **Non-product tooling:** The untracked root `marketing/` directory is a vendored third-party Claude Code skill suite (`ai-marketing-claude` — `/market audit` etc.) used as a local operator tool; it is not part of the `@stoked-ui/sui` product and defines no user flow here.
 - **Audit bot model:** The §9.3 / §13.5 audit bot is unauthenticated (no `localStorage["auth"]`); it runs against a local LM Studio / Qwen OpenAI-compatible endpoint (`AUDIT_MODEL` / base URL via env), with tool execution looped server-side in `conversationRunner.ts`. Mongo persistence, SES report email, and Telegram notification are all best-effort and never block a chat turn.
 - **Planned — media pairing & poster auto-detection (NOT yet implemented):** A governed project (`.stokd/projects/media-pairing-poster-detection/prd.md`) plans to let the CDN gallery (§6.1) and `MediaCard`/`MediaGallery` (§5.2) collapse video+image basename pairs, use the image as the video's poster, and expose the image's standalone actions via a thumbnail FAB menu. As of this refresh the implementation does **not** exist — there is no `pairMedia` util and no `posterUrl`/`pairedImage`/`posterObject` props in `packages/sui-cdn` or `packages/sui-media`; the live poster path in `MediaCard.tsx` is still server-thumbnail → first-frame canvas extraction. Treat this as planned work, not a current flow.
 
@@ -805,7 +827,7 @@ Flows are grouped by domain:
 ## Cross-References
 
 - View inventory: `.stokd/meta/SC_VIEWS.md`
-- Per-package module docs: `.stokd/meta/packages/<package>/SC_MODULE.md` (one per workspace package: `sui-cdn`, `sui-common`, `sui-common-api`, `sui-docs`, `sui-editor`, `sui-file-explorer`, `sui-github`, `sui-media`, `sui-media-api`, `sui-timeline`, `sui-video-renderer`). The newest package, `sui-stokd` (§14 / SC_VIEWS §26), does not yet have a generated `SC_MODULE.md`.
+- Per-package module docs: `.stokd/meta/packages/<package>/SC_MODULE.md` (one per workspace package: `sui-cdn`, `sui-common`, `sui-common-api`, `sui-docs`, `sui-editor`, `sui-file-explorer`, `sui-github`, `sui-media`, `sui-media-api`, `sui-timeline`, `sui-video-renderer`). `sui-stokd` (§14 / SC_VIEWS §26) has a per-package `SC_TEST.md` but still no generated `SC_MODULE.md`.
 - Codebase overview: `.stokd/meta/SC_OVERVIEW.md`
 - Test inventory: `.stokd/meta/SC_TEST.md` (root) + `.stokd/meta/packages/<package>/SC_TEST.md`
 - Product doc: `.stokd/meta/SC_PRODUCT_STOKED_UI_SUI.md`

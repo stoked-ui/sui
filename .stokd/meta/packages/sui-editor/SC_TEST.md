@@ -1,6 +1,6 @@
 # Testing Strategy: `@stoked-ui/editor`
 
-> **Generated:** 2026-05-21 | **Re-verified against current source:** 2026-06-22 (timed refresh aligned with SC_MODULE 0.6.0 — re-confirmed: `actionMapper.ts` exports only `calculateFitTransform` (L58) + `actionToWasmLayer` (L116) with private `mapBlendMode` (L19); `Controllers` map = `{audio,video,image,compositor}` with `animation` commented out and `WebController` unimported; the `test/utils/editor-view/describeEditor` harness still absent so all three plugin tests + the dead `EditorFile.test.tsx` remain non-runnable; no structural drift) | **Meta version:** 0.6.0
+> **Generated:** 2026-05-21 | **Re-verified against current source:** 2026-07-02 (timed refresh — re-confirmed every load-bearing claim: `actionMapper.ts` exports only `calculateFitTransform` (L58) + `actionToWasmLayer` (L116) with private `mapBlendMode` (L19); `Controllers` map = `{audio,video,image,compositor}` with `animation` commented out and `WebController` unimported; the `test/utils/editor-view/describeEditor` harness still absent so all three plugin tests + the dead `EditorFile.test.tsx` remain non-runnable; still no per-package `test` script; root `.mocharc.js` / `test:unit` glob unchanged; only one commit touched the package since the last refresh (`13c8553b88`, no test-surface changes). Corrected off-by-one `EditorFile.ts` line anchors: `editorFileCache` :22, `updateStore` :161, `fromUrl` :169, `fromLocalFile` :265, `fileCache` :271) | **Meta version:** 0.6.1
 > **Package:** `packages/sui-editor` (`@stoked-ui/editor` v0.1.2)
 > **Priority:** Medium
 > **Source entry:** `packages/sui-editor/src/index.ts`
@@ -30,10 +30,10 @@ These are easy to get wrong; all were confirmed against the current tree.
 1. **`EditorFile.createBlob` / `EditorFile.readBlob` do not exist.** Not on `EditorFile`
    (`src/EditorFile/EditorFile.ts`) and not on its parent `TimelineFile`. The real
    persistence/serialization surface is the **static factories**
-   `EditorFile.fromUrl(url, Ctor)` (`EditorFile.ts:170`) and
-   `EditorFile.fromLocalFile(blob, Ctor)` (`EditorFile.ts:266`), the instance method
-   `updateStore()` (`EditorFile.ts:162`), and the module-level caches
-   `editorFileCache` (`EditorFile.ts:23`) and `EditorFile.fileCache` (`EditorFile.ts:272`).
+   `EditorFile.fromUrl(url, Ctor)` (`EditorFile.ts:169`) and
+   `EditorFile.fromLocalFile(blob, Ctor)` (`EditorFile.ts:265`), the instance method
+   `updateStore()` (`EditorFile.ts:161`), and the module-level caches
+   `editorFileCache` (`EditorFile.ts:22`) and `EditorFile.fileCache` (`EditorFile.ts:271`).
    The existing `EditorFile.test.tsx` references the removed API and is why its body is
    commented out. **Do not "uncomment the blob line" — rewrite the test against
    `fromLocalFile` / `fromUrl` / `updateStore`.**
@@ -267,8 +267,8 @@ lacks or implements partially.
 
 **Module-level shared state must be reset in `beforeEach`** or tests after the first see
 stale data:
-- `editorFileCache` — `src/EditorFile/EditorFile.ts:23`.
-- `EditorFile.fileCache` — `src/EditorFile/EditorFile.ts:272`.
+- `editorFileCache` — `src/EditorFile/EditorFile.ts:22`.
+- `EditorFile.fileCache` — `src/EditorFile/EditorFile.ts:271`.
 - The MIME registry behind `StokedUiEditorApp.getInstance()` (singleton, `StokedUiEditorApp.ts:47`).
 - The `Controllers` map and `TimelineFile.Controllers` static assignment.
 
