@@ -1,6 +1,6 @@
 {
   "name": "@stoked-ui/llm",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Stoked UI LLM agent UI components — host-agnostic React components for LLM agent menus, drawers, and chat surfaces.",
   "author": "Brian Stoker",
   "main": "src/index.ts",
