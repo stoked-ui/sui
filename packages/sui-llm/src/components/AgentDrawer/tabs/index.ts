@@ -7,7 +7,7 @@ import McpTab from './McpTab';
 import ManageTab from './ManageTab';
 import GoalTab from './GoalTab';
 
-export type { ChatTabProps } from './ChatTab';
+export type { ChatTabProps, StagedAttachment } from './ChatTab';
 export type { TalkTabProps } from './TalkTab';
 export type { StudioTabProps } from './StudioTab';
 export type { SessionsTabProps } from './SessionsTab';
