@@ -104,4 +104,119 @@ describe('ChatTab', () => {
     const sendButton = screen.getByTestId('chat-send');
     expect(sendButton).not.toBeDisabled();
   });
+
+  test('renders message attachments (image + file chip)', () => {
+    render(
+      <ChatTab
+        messages={[
+          {
+            id: 'a1',
+            role: 'user',
+            content: 'see files',
+            timestamp: '2024-01-01T00:00:00Z',
+            attachments: [
+              { url: 'https://x/y.png', name: 'y.png', kind: 'image' },
+              { url: 'https://x/doc.pdf', name: 'doc.pdf', kind: 'file' },
+            ],
+          },
+        ]}
+        chatInput=""
+        onChatInputChange={() => {}}
+        onSend={() => {}}
+      />
+    );
+    expect(screen.getByAltText('y.png')).toBeInTheDocument();
+    expect(screen.getByText('doc.pdf')).toBeInTheDocument();
+  });
+
+  test('renders legacy images[] when attachments absent', () => {
+    render(
+      <ChatTab
+        messages={[
+          { id: 'l1', role: 'user', content: '', timestamp: '2024-01-01T00:00:00Z', images: ['data:image/png;base64,AAA'] },
+        ]}
+        chatInput=""
+        onChatInputChange={() => {}}
+        onSend={() => {}}
+      />
+    );
+    expect(screen.getByAltText('image')).toBeInTheDocument();
+  });
+
+  test('copy button calls onCopyMessage override', () => {
+    const onCopyMessage = jest.fn();
+    render(
+      <ChatTab
+        messages={mockMessages}
+        chatInput=""
+        onChatInputChange={() => {}}
+        onSend={() => {}}
+        onCopyMessage={onCopyMessage}
+      />
+    );
+    fireEvent.click(screen.getAllByTestId('chat-copy')[0]);
+    expect(onCopyMessage).toHaveBeenCalledWith(mockMessages[0]);
+  });
+
+  test('attach button + file input call onAttachFiles', () => {
+    const onAttachFiles = jest.fn();
+    render(
+      <ChatTab
+        messages={mockMessages}
+        chatInput=""
+        onChatInputChange={() => {}}
+        onSend={() => {}}
+        onAttachFiles={onAttachFiles}
+      />
+    );
+    expect(screen.getByTestId('chat-attach')).toBeInTheDocument();
+    const file = new File(['x'], 'note.txt', { type: 'text/plain' });
+    fireEvent.change(screen.getByTestId('chat-file-input'), { target: { files: [file] } });
+    expect(onAttachFiles).toHaveBeenCalledTimes(1);
+    expect(onAttachFiles.mock.calls[0][0][0]).toBe(file);
+  });
+
+  test('no attach button when onAttachFiles omitted', () => {
+    render(
+      <ChatTab
+        messages={mockMessages}
+        chatInput=""
+        onChatInputChange={() => {}}
+        onSend={() => {}}
+      />
+    );
+    expect(screen.queryByTestId('chat-attach')).not.toBeInTheDocument();
+  });
+
+  test('staged attachments render with remove control', () => {
+    const onRemoveAttachment = jest.fn();
+    render(
+      <ChatTab
+        messages={mockMessages}
+        chatInput=""
+        onChatInputChange={() => {}}
+        onSend={() => {}}
+        onAttachFiles={() => {}}
+        onRemoveAttachment={onRemoveAttachment}
+        stagedAttachments={[{ url: 'blob:1', name: 'a.txt', type: 'text/plain' }]}
+      />
+    );
+    expect(screen.getByTestId('chat-staged')).toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText('Remove attachment'));
+    expect(onRemoveAttachment).toHaveBeenCalledWith(0);
+  });
+
+  test('send enabled with staged attachment even when input empty', () => {
+    render(
+      <ChatTab
+        messages={mockMessages}
+        chatInput=""
+        onChatInputChange={() => {}}
+        onSend={() => {}}
+        onAttachFiles={() => {}}
+        stagedAttachments={[{ url: 'blob:1', name: 'a.txt', type: 'text/plain' }]}
+      />
+    );
+    expect(screen.getByTestId('chat-send')).not.toBeDisabled();
+  });
 });

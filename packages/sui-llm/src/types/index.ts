@@ -17,6 +17,16 @@ export interface LlmConfig {
 
 export type ChatRole = 'user' | 'assistant' | 'system' | 'agent';
 
+export type ChatAttachmentKind = 'image' | 'audio' | 'video' | 'file';
+
+/** A file attached to a chat message. `url` is a served href (or a data URL for
+ *  optimistic, not-yet-persisted messages); `kind` drives inline rendering. */
+export interface ChatAttachment {
+  url: string;
+  name?: string;
+  kind: ChatAttachmentKind;
+}
+
 export interface ChatMessage {
   id: string;
   role: ChatRole;
@@ -25,6 +35,12 @@ export interface ChatMessage {
   agentId?: string;
   agentName?: string;
   failed?: boolean;
+  /** Attachments of any type; image/audio/video render inline, others as a
+   *  download chip. */
+  attachments?: ChatAttachment[];
+  /** Legacy: bare image urls / data URLs on older messages that predate
+   *  `attachments`. Still rendered when `attachments` is absent. */
+  images?: string[];
 }
 
 export interface ChatSession {
