@@ -45,7 +45,7 @@ jobs:
 
       - name: Deploy production site
         env:
-          ROOT_DOMAIN: sui.stokd.cloud,consulting.stokd.cloud
+          ROOT_DOMAIN: sui.stokd.cloud,stoked-ui.com,consulting.stokd.cloud,stokedconsulting.com
           NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
           NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
         run: |
@@ -63,7 +63,7 @@ jobs:
 
       - name: Seed production product data
         env:
-          ROOT_DOMAIN: sui.stokd.cloud,consulting.stokd.cloud
+          ROOT_DOMAIN: sui.stokd.cloud,stoked-ui.com,consulting.stokd.cloud,stokedconsulting.com
           # seed-products.ts reads MONGODB_URI directly; sst shell does not
           # inject linked secrets as raw env vars, so pass it explicitly.
           MONGODB_URI: ${{ secrets.MONGODB_URI }}

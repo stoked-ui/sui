@@ -50,3 +50,6 @@ spec:
     # CORS Configuration
     CORS_METHODS: "GET,POST,PUT,DELETE,PATCH"
     CORS_CREDENTIALS: "true"
+    # Optional exact additions; owned production origins are built in.
+    ALLOWED_ORIGINS: ""
+    AUTH_AUTO_DOMAINS: "stokd.cloud,sui.stokd.cloud,consulting.stokd.cloud,stoked-ui.com,stokedconsulting.com,brianstoker.com"

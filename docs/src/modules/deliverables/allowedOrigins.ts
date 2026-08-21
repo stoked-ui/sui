@@ -2,6 +2,13 @@ const DEFAULT_DELIVERABLES_CDN_BASE_URL = 'https://cdn.stokd.cloud';
 
 export const LEGACY_DELIVERABLE_ORIGINS = [
   'https://cdn.consulting.stokd.cloud',
+  'https://cdn.stokedconsulting.com',
+  'https://cdn-sui.stokedconsulting.com',
+];
+
+export const REQUIRED_DELIVERABLE_ORIGINS = [
+  DEFAULT_DELIVERABLES_CDN_BASE_URL,
+  ...LEGACY_DELIVERABLE_ORIGINS,
 ];
 
 function resolveCdnBaseUrl() {
@@ -18,7 +25,7 @@ export function isLocalDevOrigin(origin: string) {
 }
 
 export function getAllowedDeliverableOrigins() {
-  const origins = new Set<string>();
+  const origins = new Set<string>(REQUIRED_DELIVERABLE_ORIGINS);
 
   try {
     origins.add(new URL(resolveCdnBaseUrl()).origin);
@@ -39,10 +46,6 @@ export function getAllowedDeliverableOrigins() {
         }
       }
     }
-  }
-
-  for (const legacy of LEGACY_DELIVERABLE_ORIGINS) {
-    origins.add(legacy);
   }
 
   return origins;

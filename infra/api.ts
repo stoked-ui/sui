@@ -1,14 +1,15 @@
 import { mongoDbUri, jwtSecret } from 'infra/secrets'
-import { DomainInfo } from 'infra/domains'
+import { CORS_PRODUCTION_ORIGINS, DomainInfo } from 'infra/domains'
 
 const STOKD_CLOUD_ACCOUNT_ID = '167217327520';
-const DEFAULT_AUTH_AUTO_DOMAINS = 'stokd.cloud,sui.stokd.cloud,consulting.stokd.cloud,brianstoker.com';
+const DEFAULT_AUTH_AUTO_DOMAINS = 'stokd.cloud,sui.stokd.cloud,consulting.stokd.cloud,stoked-ui.com,stokedconsulting.com,brianstoker.com';
 
 export const createApi = (domainInfo: DomainInfo) => {
 
   const api = new sst.aws.ApiGatewayV2("Api", {
     cors: {
-      allowOrigins: ["*"],
+      allowCredentials: true,
+      allowOrigins: [...CORS_PRODUCTION_ORIGINS],
       allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
       allowHeaders: ["Content-Type", "Authorization"],
     },

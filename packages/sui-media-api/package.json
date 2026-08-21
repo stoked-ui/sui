@@ -55,7 +55,7 @@
     "test:cov": "jest --coverage",
     "test:ci": "jest --ci --coverage --maxWorkers=2",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:e2e": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --config ./test/jest-e2e.json",
     "type-check": "tsc --noEmit",
     "typescript": "tsc --noEmit",
     "openapi:export": "nest build && tsx scripts/export-openapi.ts",

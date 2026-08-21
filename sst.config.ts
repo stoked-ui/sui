@@ -16,9 +16,6 @@ export default $config({
     };
   },
   async run() {
-    const { verifyEnvVars } = await import("./infra/envVars");
-    verifyEnvVars(['ROOT_DOMAIN'], true);
-
     const {
       createSite,
       createApi,
@@ -29,11 +26,14 @@ export default $config({
       getCdnDomainInfo,
       getCdnSuiDomainInfo,
       getInstallDomainInfo,
+      resolveRootDomains,
     } = await import('./infra');
-    const domainInfo = getDomainInfo(process.env.ROOT_DOMAIN!, $app.stage);
-    const cdnDomainInfo = getCdnDomainInfo(process.env.ROOT_DOMAIN!, $app.stage);
-    const cdnSuiDomainInfo = getCdnSuiDomainInfo(process.env.ROOT_DOMAIN!, $app.stage);
-    const installDomainInfo = getInstallDomainInfo(process.env.ROOT_DOMAIN!, $app.stage);
+    const rootDomains = resolveRootDomains(process.env.ROOT_DOMAIN, $app.stage);
+    process.env.ROOT_DOMAIN = rootDomains;
+    const domainInfo = getDomainInfo(rootDomains, $app.stage);
+    const cdnDomainInfo = getCdnDomainInfo(rootDomains, $app.stage);
+    const cdnSuiDomainInfo = getCdnSuiDomainInfo(rootDomains, $app.stage);
+    const installDomainInfo = getInstallDomainInfo(rootDomains, $app.stage);
     // Create the CDN site first so its CloudFront distribution id can be passed
     // to the docs site, which invalidates CDN paths when uploads overwrite files.
     const cdn = await createCdnSite(cdnDomainInfo);

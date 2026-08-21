@@ -47,7 +47,7 @@ export interface AuthTokenPayload {
   impersonatedId?: string;
 }
 
-const AUTO_DOMAINS = (process.env.AUTH_AUTO_DOMAINS || 'stokd.cloud,sui.stokd.cloud,consulting.stokd.cloud,brianstoker.com')
+const AUTO_DOMAINS = (process.env.AUTH_AUTO_DOMAINS || 'stokd.cloud,sui.stokd.cloud,consulting.stokd.cloud,stoked-ui.com,stokedconsulting.com,brianstoker.com')
   .split(',')
   .map((d) => d.trim().toLowerCase());
 

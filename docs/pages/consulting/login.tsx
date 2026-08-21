@@ -14,11 +14,7 @@ import { getApiUrl } from 'docs/src/modules/utils/getApiUrl';
 import Head from 'docs/src/modules/components/Head';
 import AppHeader from 'docs/src/layouts/AppHeader';
 import AppFooter from 'docs/src/layouts/AppFooter';
-import {
-  STOKED_CONSULTING_CDN_ORIGIN,
-  STOKED_CONSULTING_ORIGIN,
-  STOKED_UI_ORIGIN,
-} from 'docs/src/modules/utils/siteRouting';
+import { OWNED_PUBLIC_ORIGINS } from 'docs/src/modules/utils/siteRouting';
 
 interface AuthData {
   access_token: string;
@@ -45,9 +41,9 @@ function isAllowedAbsoluteRedirect(target: string) {
 
   try {
     const url = new URL(target);
-    return url.origin === STOKED_UI_ORIGIN
-      || url.origin === STOKED_CONSULTING_ORIGIN
-      || url.origin === STOKED_CONSULTING_CDN_ORIGIN;
+    return OWNED_PUBLIC_ORIGINS.includes(
+      url.origin as (typeof OWNED_PUBLIC_ORIGINS)[number],
+    );
   } catch {
     return false;
   }

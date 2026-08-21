@@ -1,18 +1,12 @@
-import { CdnDomainInfo } from 'infra/domains';
+import { CdnDomainInfo, CORS_PRODUCTION_ORIGINS } from 'infra/domains';
 import { findExistingCert } from 'infra/cert';
+import {
+  createEdgeCorsPreflightInjection,
+  createEdgeCorsResponseInjection,
+} from 'infra/edge-cors';
 
 const API_PROXY_CACHE_POLICY_ID = '4135ea2d-6df8-44a3-9df3-4b5a84be39ad';
 const API_PROXY_ORIGIN_REQUEST_POLICY_ID = 'b689b0a8-53d0-40ab-baf2-68738e2966ac';
-
-const MEDIA_RESPONSE_HEADERS_INJECTION = `
-  event.response.headers['access-control-allow-origin'] = { value: '*' };
-  event.response.headers['access-control-allow-methods'] = { value: 'GET, HEAD, OPTIONS' };
-  event.response.headers['access-control-allow-headers'] = { value: 'Range, Content-Type, Authorization' };
-  event.response.headers['access-control-expose-headers'] = { value: 'Content-Range, Accept-Ranges, Content-Encoding, Content-Length' };
-  event.response.headers['cross-origin-opener-policy'] = { value: 'same-origin-allow-popups' };
-  // Ensure browsers revalidate CORS when Origin changes
-  event.response.headers['vary'] = { value: 'Origin, Access-Control-Request-Headers, Access-Control-Request-Method' };
-`;
 
 export const createCdnSite = async (domainInfo: CdnDomainInfo) => {
   const enableDomain = process.env.CDN_ENABLE_DOMAIN !== '0';
@@ -20,19 +14,22 @@ export const createCdnSite = async (domainInfo: CdnDomainInfo) => {
     ?? process.env.BLOG_IMAGE_S3_BUCKET
     ?? domainInfo.domain;
   const consultingHost = new URL(domainInfo.consultingOrigin).hostname;
-  const uploadOrigins = [
+  const uploadOrigins = [...new Set([
+    ...CORS_PRODUCTION_ORIGINS,
+    domainInfo.consultingOrigin,
+    domainInfo.stokedUiOrigin,
     `https://${domainInfo.domain}`,
     'http://localhost:4173',
     'http://127.0.0.1:4173',
     'http://localhost:6160',
     'http://127.0.0.1:6160',
-  ];
+  ])];
 
   let certArn: string | undefined;
   if ($app.stage === 'production') {
     certArn =
       process.env.CDN_CERT_ARN
-      ?? (await findExistingCert([domainInfo.domain], {
+      ?? (await findExistingCert([domainInfo.domain, ...domainInfo.aliases], {
         appName: $app.name,
         stage: $app.stage,
       }));
@@ -50,23 +47,7 @@ export const createCdnSite = async (domainInfo: CdnDomainInfo) => {
     // Handle CORS preflight for media/video playback (Range requests from cross-origin MediaCards)
     // Must return immediately so browsers can fetch video/audio with crossOrigin="anonymous"
     var method = (event.request.method || 'GET').toUpperCase();
-    if (method === 'OPTIONS') {
-      var origin = event.request.headers.origin ? event.request.headers.origin.value : '*';
-      var reqHeaders = event.request.headers['access-control-request-headers'];
-      var reqMethod = event.request.headers['access-control-request-method'];
-      return {
-        statusCode: 204,
-        statusDescription: 'No Content',
-        headers: {
-          'access-control-allow-origin': { value: '*' },
-          'access-control-allow-methods': { value: 'GET, HEAD, OPTIONS' },
-          'access-control-allow-headers': { value: reqHeaders ? reqHeaders.value : 'Range, Content-Type, Authorization' },
-          'access-control-expose-headers': { value: 'Content-Range, Accept-Ranges, Content-Encoding, Content-Length' },
-          'access-control-max-age': { value: '86400' },
-          'vary': { value: 'Origin, Access-Control-Request-Headers, Access-Control-Request-Method' },
-        },
-      };
-    }
+    ${createEdgeCorsPreflightInjection({ methodVar: 'method', uriVar: 'uri' })}
 
     // Route public directory listing requests onto a path-based API route so
     // the edge path never depends on forwarding injected query strings.
@@ -130,7 +111,7 @@ export const createCdnSite = async (domainInfo: CdnDomainInfo) => {
         injection: viewerRequestInjection,
       },
       viewerResponse: {
-        injection: MEDIA_RESPONSE_HEADERS_INJECTION,
+        injection: createEdgeCorsResponseInjection(),
       },
     },
     transform: {
@@ -155,8 +136,9 @@ export const createCdnSite = async (domainInfo: CdnDomainInfo) => {
       ? {
           domain: {
             name: domainInfo.domain,
+            aliases: domainInfo.aliases,
             ...(certArn ? { cert: certArn } : {}),
-            dns: sst.aws.dns({ zone: domainInfo.primaryZoneId }),
+            dns: sst.aws.dns({ override: true }),
           },
         }
       : {}),
@@ -202,7 +184,7 @@ export const createCdnSuiSite = async (domainInfo: CdnDomainInfo) => {
   if ($app.stage === 'production') {
     certArn =
       process.env.CDN_SUI_CERT_ARN
-      ?? (await findExistingCert([domainInfo.domain], {
+      ?? (await findExistingCert([domainInfo.domain, ...domainInfo.aliases], {
         appName: $app.name,
         stage: $app.stage,
       }));
@@ -220,23 +202,7 @@ export const createCdnSuiSite = async (domainInfo: CdnDomainInfo) => {
     // Handle CORS preflight for media/video playback (Range requests from cross-origin MediaCards)
     // Must return immediately so browsers can fetch video/audio with crossOrigin="anonymous"
     var method = (event.request.method || 'GET').toUpperCase();
-    if (method === 'OPTIONS') {
-      var origin = event.request.headers.origin ? event.request.headers.origin.value : '*';
-      var reqHeaders = event.request.headers['access-control-request-headers'];
-      var reqMethod = event.request.headers['access-control-request-method'];
-      return {
-        statusCode: 204,
-        statusDescription: 'No Content',
-        headers: {
-          'access-control-allow-origin': { value: '*' },
-          'access-control-allow-methods': { value: 'GET, HEAD, OPTIONS' },
-          'access-control-allow-headers': { value: reqHeaders ? reqHeaders.value : 'Range, Content-Type, Authorization' },
-          'access-control-expose-headers': { value: 'Content-Range, Accept-Ranges, Content-Encoding, Content-Length' },
-          'access-control-max-age': { value: '86400' },
-          'vary': { value: 'Origin, Access-Control-Request-Headers, Access-Control-Request-Method' },
-        },
-      };
-    }
+    ${createEdgeCorsPreflightInjection({ methodVar: 'method', uriVar: 'uri' })}
 
     // Route public directory listing requests onto a path-based API route so
     // the edge path never depends on forwarding injected query strings.
@@ -293,7 +259,7 @@ export const createCdnSuiSite = async (domainInfo: CdnDomainInfo) => {
         injection: viewerRequestInjection,
       },
       viewerResponse: {
-        injection: MEDIA_RESPONSE_HEADERS_INJECTION,
+        injection: createEdgeCorsResponseInjection(),
       },
     },
     transform: {
@@ -318,8 +284,9 @@ export const createCdnSuiSite = async (domainInfo: CdnDomainInfo) => {
       ? {
           domain: {
             name: domainInfo.domain,
+            aliases: domainInfo.aliases,
             ...(certArn ? { cert: certArn } : {}),
-            dns: sst.aws.dns({ zone: domainInfo.primaryZoneId }),
+            dns: sst.aws.dns({ override: true }),
           },
         }
       : {}),

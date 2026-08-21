@@ -4,6 +4,10 @@ import {
   getRequestOrigin,
   isAllowedTransferOrigin,
 } from 'docs/src/modules/auth/session';
+import {
+  buildLogoutCascadeUrl,
+  parseLogoutOriginChain,
+} from 'docs/src/modules/auth/logoutOrigins';
 
 function escapeHtml(value: string) {
   return value
@@ -33,25 +37,6 @@ function normalizeReturnTo(currentOrigin: string, rawValue: string | string[] | 
   }
 
   return parsed.toString();
-}
-
-function normalizeNextOrigin(currentOrigin: string, rawValue: string | string[] | undefined) {
-  const value = Array.isArray(rawValue) ? rawValue[0] : rawValue;
-  if (!value) {
-    return null;
-  }
-
-  if (!isAllowedTransferOrigin(value) || value === currentOrigin) {
-    throw new Error('nextOrigin must be a different allowed origin');
-  }
-
-  return value;
-}
-
-function buildNextLogoutUrl(nextOrigin: string, returnTo: string) {
-  const url = new URL('/api/auth/logout', nextOrigin);
-  url.searchParams.set('returnTo', returnTo);
-  return url.toString();
 }
 
 function renderLogoutPage(redirectTo: string) {
@@ -93,9 +78,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const currentOrigin = getRequestOrigin(req);
     const returnTo = normalizeReturnTo(currentOrigin, req.query.returnTo);
-    const nextOrigin = normalizeNextOrigin(currentOrigin, req.query.nextOrigin);
-    const redirectTo = nextOrigin
-      ? buildNextLogoutUrl(nextOrigin, returnTo)
+    const nextOrigins = parseLogoutOriginChain(currentOrigin, req.query.nextOrigins);
+    const redirectTo = nextOrigins.length > 0
+      ? buildLogoutCascadeUrl(nextOrigins[0], returnTo, nextOrigins.slice(1))
       : returnTo;
 
     res.setHeader('Cache-Control', 'no-store');

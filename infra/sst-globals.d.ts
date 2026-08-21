@@ -25,7 +25,7 @@ declare namespace sst {
       constructor(name: string, args?: any);
       readonly arn: string;
     }
-    function dns(args: { zone: string }): any;
+    function dns(args?: { zone?: string; override?: boolean }): any;
   }
   class Secret {
     constructor(name: string, defaultValue?: string);

@@ -1,11 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import * as jwt from 'jsonwebtoken';
 import { type AuthResult, type AuthTokenPayload, verifyToken } from './authStore';
-import {
-  STOKED_CONSULTING_CDN_ORIGIN,
-  STOKED_CONSULTING_ORIGIN,
-  STOKED_UI_ORIGIN,
-} from '../utils/siteRouting';
+
+export {
+  getAllowedTransferOrigins,
+  isAllowedTransferOrigin,
+} from './transferOrigins';
 
 export const AUTH_COOKIE_NAME = 'stoked_auth';
 
@@ -148,32 +148,6 @@ export function clearAuthSession(res: NextApiResponse) {
       secure: isProduction(),
     }),
   );
-}
-
-export function getAllowedTransferOrigins() {
-  const configuredOrigins = (process.env.AUTH_PUBLIC_ORIGINS || '')
-    .split(',')
-    .map((value) => value.trim())
-    .filter(Boolean);
-
-  return new Set([
-    STOKED_UI_ORIGIN,
-    STOKED_CONSULTING_ORIGIN,
-    STOKED_CONSULTING_CDN_ORIGIN,
-    ...configuredOrigins,
-  ]);
-}
-
-export function isAllowedTransferOrigin(origin: string) {
-  if (!origin) {
-    return false;
-  }
-
-  if (/^http:\/\/localhost:\d+$/i.test(origin)) {
-    return true;
-  }
-
-  return getAllowedTransferOrigins().has(origin);
 }
 
 export function signAuthTransferToken(sessionToken: string, targetOrigin: string) {

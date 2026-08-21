@@ -13,6 +13,12 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
+import {
+  CORS_ALLOWED_HEADERS,
+  CORS_METHODS,
+  createCorsOptions,
+  isCorsOriginAllowed,
+} from './cors';
 
 const expressApp = express();
 expressApp.use(cookieParser());
@@ -33,26 +39,7 @@ async function bootstrap() {
       {
         rawBody: true,
         logger: ['error', 'warn', 'debug', 'log', 'verbose'],
-        cors: {
-          origin: true,
-          methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'PATCH', 'DELETE', 'HEAD'],
-          allowedHeaders: [
-            'Authorization',
-            'Content-Type',
-            'Accept',
-            'Origin',
-            'X-Requested-With',
-            'Cookie',
-          ],
-          exposedHeaders: [
-            'Content-Range',
-            'Accept-Ranges',
-            'Content-Encoding',
-            'Content-Length',
-          ],
-          maxAge: 86400,
-          credentials: true,
-        },
+        cors: createCorsOptions(),
       },
     );
 
@@ -97,18 +84,35 @@ export const handler: Handler = async (event: EventType, context: Context) => {
   const method = event.requestContext?.http?.method || event.httpMethod;
 
   if (method === 'OPTIONS' || method === 'HEAD') {
+    const requestHeaders = event.headers || {};
+    const origin = requestHeaders.origin || requestHeaders.Origin;
+
+    if ((method === 'OPTIONS' && !origin) || (origin && !isCorsOriginAllowed(origin))) {
+      return {
+        statusCode: 403,
+        headers: {
+          'Content-Type': 'application/json',
+          Vary: 'Origin',
+        },
+        body: JSON.stringify({ message: 'Origin not allowed by CORS' }),
+      };
+    }
+
+    const headers: Record<string, string> = {
+      'Access-Control-Allow-Methods': CORS_METHODS.join(', '),
+      'Access-Control-Allow-Headers': CORS_ALLOWED_HEADERS.join(', '),
+      'Access-Control-Max-Age': '86400',
+      'Content-Type': 'application/json',
+      Vary: 'Origin',
+    };
+    if (origin) {
+      headers['Access-Control-Allow-Origin'] = origin;
+      headers['Access-Control-Allow-Credentials'] = 'true';
+    }
+
     return {
       statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods':
-          'GET, POST, OPTIONS, PUT, PATCH, DELETE, HEAD',
-        'Access-Control-Allow-Headers':
-          'Authorization, Content-Type, Accept, Origin, X-Requested-With, Cookie',
-        'Access-Control-Allow-Credentials': 'true',
-        'Access-Control-Max-Age': '86400',
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({ ok: true }),
     };
   }

@@ -66,7 +66,9 @@ Common variables:
 ```env
 PORT=3001
 API_PATH_PREFIX=/v1
-ALLOWED_ORIGINS=http://localhost:5199
+# Optional additive origins; owned production origins are always present.
+ALLOWED_ORIGINS=https://media-preview.example.com
+AUTH_AUTO_DOMAINS=stokd.cloud,sui.stokd.cloud,consulting.stokd.cloud,stoked-ui.com,stokedconsulting.com,brianstoker.com
 MONGODB_URI=mongodb://localhost:27017/media
 JWT_SECRET=change-me
 AWS_REGION=us-east-1

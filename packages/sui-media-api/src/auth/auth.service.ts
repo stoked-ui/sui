@@ -57,7 +57,14 @@ export class AuthService {
     if (envDomains) {
       this.autoDomains = envDomains.split(',').map((d) => d.trim().toLowerCase());
     } else {
-      this.autoDomains = ['stokd.cloud', 'sui.stokd.cloud', 'consulting.stokd.cloud', 'brianstoker.com'];
+      this.autoDomains = [
+        'stokd.cloud',
+        'sui.stokd.cloud',
+        'consulting.stokd.cloud',
+        'stoked-ui.com',
+        'stokedconsulting.com',
+        'brianstoker.com',
+      ];
     }
   }
 

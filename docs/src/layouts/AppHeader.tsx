@@ -20,10 +20,12 @@ import SvgScLogo from "docs/src/icons/SvgScLogo"
 import HeaderNavBar from 'docs/src/components/header/HeaderNavBar';
 import HeaderNavDropdown from 'docs/src/components/header/HeaderNavDropdown';
 import {
-  STOKED_CONSULTING_ORIGIN,
-  STOKED_UI_ORIGIN,
   toAbsoluteSitePath,
 } from 'docs/src/modules/utils/siteRouting';
+import {
+  buildLogoutCascadeUrl,
+  getLogoutOriginChain,
+} from 'docs/src/modules/auth/logoutOrigins';
 import ROUTES from 'docs/src/route';
 
 export interface AuthUser {
@@ -154,16 +156,11 @@ export default function AppHeader(props: AppHeaderProps) {
     }
 
     const currentOrigin = window.location.origin;
-    const logoutUrl = new URL('/api/auth/logout', currentOrigin);
-    logoutUrl.searchParams.set('returnTo', `${currentOrigin}/`);
-
-    if (currentOrigin === STOKED_UI_ORIGIN) {
-      logoutUrl.searchParams.set('nextOrigin', STOKED_CONSULTING_ORIGIN);
-    } else if (currentOrigin === STOKED_CONSULTING_ORIGIN) {
-      logoutUrl.searchParams.set('nextOrigin', STOKED_UI_ORIGIN);
-    }
-
-    return logoutUrl.toString();
+    return buildLogoutCascadeUrl(
+      currentOrigin,
+      `${currentOrigin}/`,
+      getLogoutOriginChain(currentOrigin),
+    );
   }, []);
 
   const handleLogout = async () => {

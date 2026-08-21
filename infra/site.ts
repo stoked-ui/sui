@@ -1,4 +1,14 @@
-import { DomainInfo } from 'infra/domains';
+import {
+  AUTH_PRODUCTION_ORIGINS,
+  CONSULTING_PRODUCTION_ROOTS,
+  DomainInfo,
+  PRODUCTION_ROOT_DOMAINS,
+  STOKD_UI_PRODUCTION_ROOTS,
+} from 'infra/domains';
+import {
+  createEdgeCorsPreflightInjection,
+  createEdgeCorsResponseInjection,
+} from 'infra/edge-cors';
 import {
   adminSecret,
   auditBotApiKey,
@@ -13,7 +23,20 @@ import { findExistingCert } from 'infra/cert';
 import { CONSULTING_APP_SEGMENTS } from '../docs/src/modules/utils/siteRouteManifest';
 
 const STOKD_CLOUD_ACCOUNT_ID = '167217327520';
-const DEFAULT_AUTH_AUTO_DOMAINS = 'stokd.cloud,sui.stokd.cloud,consulting.stokd.cloud,brianstoker.com';
+const DEFAULT_AUTH_AUTO_DOMAINS = 'stokd.cloud,sui.stokd.cloud,consulting.stokd.cloud,stoked-ui.com,stokedconsulting.com,brianstoker.com';
+const DEFAULT_AUTH_PUBLIC_ORIGINS = AUTH_PRODUCTION_ORIGINS.join(',');
+const PRODUCT_TO_CONSULTING_HOST = Object.fromEntries(
+  STOKD_UI_PRODUCTION_ROOTS.map((hostname, index) => [
+    hostname,
+    CONSULTING_PRODUCTION_ROOTS[index],
+  ]),
+);
+const CONSULTING_HOSTS = Object.fromEntries(
+  CONSULTING_PRODUCTION_ROOTS.map((hostname) => [hostname, 1]),
+);
+const WWW_REDIRECTS = Object.fromEntries(
+  PRODUCTION_ROOT_DOMAINS.map((hostname) => [`www.${hostname}`, hostname]),
+);
 
 export const createSite = async (
   domainInfo: DomainInfo,
@@ -67,6 +90,8 @@ export const createSite = async (
       NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? '',
       AUTH_AUTO_DOMAINS:
         process.env.AUTH_AUTO_DOMAINS ?? DEFAULT_AUTH_AUTO_DOMAINS,
+      AUTH_PUBLIC_ORIGINS:
+        process.env.AUTH_PUBLIC_ORIGINS ?? DEFAULT_AUTH_PUBLIC_ORIGINS,
       NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '',
       SES_FROM_EMAIL: process.env.SES_FROM_EMAIL ?? 'noreply@stokd.cloud',
       // Optional GitHub token: raises the /api/github/* rate limit from 60 to
@@ -138,7 +163,7 @@ export const createSite = async (
             name: domainInfo.domains[0],
             aliases: domainInfo.domains.slice(1),
             ...(certArn ? { cert: certArn } : {}),
-            dns: sst.aws.dns({ zone: domainInfo.primaryZoneId }),
+            dns: sst.aws.dns({ override: true }),
           },
         }
       : {}),
@@ -149,41 +174,32 @@ export const createSite = async (
         // minified — no comments/indentation inside the template string.
         // Behavior:
         //   1. Answer CORS preflight (OPTIONS) for media/video Range requests.
-        //   2. www.* -> apex 308 redirects for both domains.
-        //   3. consulting.stokd.cloud/* -> internal /consulting/* rewrite
+        //   2. www.* -> its matching apex with a 308.
+        //   3. Either consulting apex -> internal /consulting/* rewrite
         //      (only for consulting app segments, never shared paths).
-        //   4. sui.stokd.cloud/consulting/* -> consulting.stokd.cloud 308.
+        //   4. Product /consulting/* -> matching-family consulting apex 308.
         injection: `
 var m=(event.request.method||'GET').toUpperCase();
-if(m==='OPTIONS'){var rh=event.request.headers['access-control-request-headers'];return{statusCode:204,statusDescription:'No Content',headers:{'access-control-allow-origin':{value:'*'},'access-control-allow-methods':{value:'GET, HEAD, OPTIONS'},'access-control-allow-headers':{value:rh?rh.value:'Range, Content-Type, Authorization'},'access-control-expose-headers':{value:'Content-Range, Accept-Ranges, Content-Encoding, Content-Length'},'access-control-max-age':{value:'86400'},'vary':{value:'Origin, Access-Control-Request-Headers, Access-Control-Request-Method'}}};}
-var host=event.request.headers.host?event.request.headers.host.value:'';
 var uri=event.request.uri;
+${createEdgeCorsPreflightInjection({ methodVar: 'm', uriVar: 'uri' })}
+var host=event.request.headers.host?event.request.headers.host.value.toLowerCase():'';
 var qs=event.request.querystring||{};
 function q(p){var r=[];for(var k in p){if(!Object.prototype.hasOwnProperty.call(p,k))continue;var e=p[k];if(!e)continue;if(e.multiValue&&e.multiValue.length){for(var i=0;i<e.multiValue.length;i++){r.push(encodeURIComponent(k)+'='+encodeURIComponent(e.multiValue[i].value||''));}}else{r.push(encodeURIComponent(k)+'='+encodeURIComponent(e.value||''));}}return r.length?('?'+r.join('&')):'';}
 function rd(loc){return{statusCode:308,statusDescription:'Permanent Redirect',headers:{location:{value:loc}}};}
 function shared(p){return p==='/favicon.ico'||p==='/robots.txt'||p==='/sitemap.xml'||p==='/manifest.json'||p.indexOf('/api/')===0||p.indexOf('/_next/')===0||p.indexOf('/static/')===0||p.indexOf('/images/')===0;}
 var SEGS=${JSON.stringify(CONSULTING_APP_SEGMENTS)};
 function capp(p){var f=(p||'/').replace(/^\\/+/,'').split('/')[0]||'';return SEGS.indexOf(f)>=0;}
-var isC=host==='consulting.stokd.cloud';
-var isP=host==='sui.stokd.cloud'||host==='www.sui.stokd.cloud';
-if(host==='www.consulting.stokd.cloud'){return rd('https://consulting.stokd.cloud'+uri+q(qs));}
-else if(host==='www.sui.stokd.cloud'){return rd('https://sui.stokd.cloud'+uri+q(qs));}
+var P=${JSON.stringify(PRODUCT_TO_CONSULTING_HOST)},C=${JSON.stringify(CONSULTING_HOSTS)},W=${JSON.stringify(WWW_REDIRECTS)};
+var apex=W[host],isC=!!C[host],consult=P[host];
+if(apex){return rd('https://'+apex+uri+q(qs));}
 else if(isC){if(!shared(uri)&&capp(uri)){if(uri==='/'||uri===''){event.request.uri='/consulting/';}else if(uri==='/index.html'){event.request.uri='/consulting/index.html';}else if(uri.indexOf('/consulting/')!==0&&uri!=='/consulting'){event.request.uri='/consulting'+(uri.indexOf('/')===0?uri:'/'+uri);}else if(uri==='/consulting'){event.request.uri='/consulting/';}}}
-else if(isP&&(uri==='/consulting'||uri.indexOf('/consulting/')===0)){return rd('https://consulting.stokd.cloud'+(uri==='/consulting'?'/':(uri.replace(/^\\/consulting/,'')||'/'))+q(qs));}
+else if(consult&&(uri==='/consulting'||uri.indexOf('/consulting/')===0)){return rd('https://'+consult+(uri==='/consulting'?'/':(uri.replace(/^\\/consulting/,'')||'/'))+q(qs));}
 if(isC&&event.request.uri==='/consulting'){event.request.uri='/consulting/';}
 if(isC&&event.request.uri.indexOf('/consulting//')===0){event.request.uri=event.request.uri.replace('/consulting//','/consulting/');}
         `,
       },
       viewerResponse: {
-        injection: `
-          // Keep permissive CORS headers for media playback and downloads.
-          event.response.headers['access-control-allow-origin'] = { value: '*' }; // Allow all origins
-          event.response.headers['access-control-allow-methods'] = { value: 'GET, HEAD, OPTIONS' };
-          event.response.headers['access-control-allow-headers'] = { value: 'Range, Content-Type, Authorization' };
-          event.response.headers['access-control-expose-headers'] = { value: 'Content-Range, Accept-Ranges, Content-Encoding, Content-Length' };
-          event.response.headers['cross-origin-opener-policy'] = { value: 'same-origin-allow-popups' };
-          event.response.headers['vary'] = { value: 'Origin, Access-Control-Request-Headers, Access-Control-Request-Method' };
-        `,
+        injection: createEdgeCorsResponseInjection(),
       },
     },
     invalidation,

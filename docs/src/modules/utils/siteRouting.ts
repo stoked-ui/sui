@@ -7,12 +7,48 @@ import {
 export type PublicSite = 'stoked-ui' | 'consulting';
 
 export const STOKED_UI_ORIGIN = 'https://sui.stokd.cloud';
+export const STOKED_UI_VANITY_ORIGIN = 'https://stoked-ui.com';
 export const STOKED_CONSULTING_ORIGIN = 'https://consulting.stokd.cloud';
+export const STOKED_CONSULTING_VANITY_ORIGIN = 'https://stokedconsulting.com';
 export const STOKED_CONSULTING_CDN_ORIGIN = 'https://cdn.stokd.cloud';
+export const STOKED_UI_CDN_ORIGIN = 'https://cdn-sui.stokd.cloud';
+export const LEGACY_STOKED_CONSULTING_CDN_ORIGIN = 'https://cdn.consulting.stokd.cloud';
+export const STOKED_CONSULTING_VANITY_CDN_ORIGIN = 'https://cdn.stokedconsulting.com';
+export const STOKED_UI_VANITY_CDN_ORIGIN = 'https://cdn-sui.stokedconsulting.com';
+
+export const PUBLIC_SITE_FAMILIES = [
+  {
+    'stoked-ui': STOKED_UI_ORIGIN,
+    consulting: STOKED_CONSULTING_ORIGIN,
+  },
+  {
+    'stoked-ui': STOKED_UI_VANITY_ORIGIN,
+    consulting: STOKED_CONSULTING_VANITY_ORIGIN,
+  },
+] as const;
+
+export const OWNED_PUBLIC_ORIGINS = [
+  STOKED_UI_ORIGIN,
+  'https://www.sui.stokd.cloud',
+  STOKED_UI_VANITY_ORIGIN,
+  'https://www.stoked-ui.com',
+  STOKED_CONSULTING_ORIGIN,
+  'https://www.consulting.stokd.cloud',
+  STOKED_CONSULTING_VANITY_ORIGIN,
+  'https://www.stokedconsulting.com',
+  STOKED_CONSULTING_CDN_ORIGIN,
+  STOKED_UI_CDN_ORIGIN,
+  LEGACY_STOKED_CONSULTING_CDN_ORIGIN,
+  STOKED_CONSULTING_VANITY_CDN_ORIGIN,
+  STOKED_UI_VANITY_CDN_ORIGIN,
+] as const;
 
 const stokedUiProductIds = new Set(STOKED_UI_PRODUCT_IDS);
 const consultingPublicProductIds = new Set(CONSULTING_PUBLIC_PRODUCT_IDS);
 const consultingAppSegments = new Set(CONSULTING_APP_SEGMENTS);
+const ownedPublicHostnames = new Set(
+  OWNED_PUBLIC_ORIGINS.map((origin) => new URL(origin).hostname),
+);
 
 function normalizePath(path: string) {
   if (!path) {return '/';}
@@ -27,22 +63,33 @@ function getRuntimeHostname() {
   return process.env.NODE_ENV === 'production' ? 'sui.stokd.cloud' : 'localhost';
 }
 
+function normalizePublicHostname(hostname: string) {
+  return hostname.toLowerCase().replace(/^www\./, '');
+}
+
+function getSiteFamily(hostname: string) {
+  const normalized = normalizePublicHostname(hostname);
+  return PUBLIC_SITE_FAMILIES.find((family) =>
+    Object.values(family).some((origin) => new URL(origin).hostname === normalized),
+  );
+}
+
 function shouldUseAbsolutePublicDomains() {
   const hostname = getRuntimeHostname();
-  return hostname === 'sui.stokd.cloud'
-    || hostname === 'www.sui.stokd.cloud'
-    || hostname === 'consulting.stokd.cloud'
-    || hostname === 'www.consulting.stokd.cloud'
-    || hostname === 'cdn.stokd.cloud';
+  return Boolean(getSiteFamily(hostname)) || ownedPublicHostnames.has(hostname);
 }
 
 export function buildCdnOrigin(origin: string) {
   const url = new URL(origin);
-  return `${url.protocol}//cdn.stokd.cloud`;
+  const family = getSiteFamily(url.hostname);
+  return family === PUBLIC_SITE_FAMILIES[1]
+    ? STOKED_CONSULTING_VANITY_CDN_ORIGIN
+    : STOKED_CONSULTING_CDN_ORIGIN;
 }
 
-export function originForSite(site: PublicSite) {
-  return site === 'consulting' ? STOKED_CONSULTING_ORIGIN : STOKED_UI_ORIGIN;
+export function originForSite(site: PublicSite, hostname = getRuntimeHostname()) {
+  const family = getSiteFamily(hostname) ?? PUBLIC_SITE_FAMILIES[0];
+  return family[site];
 }
 
 export function inferSiteForProductId(productId?: string): PublicSite {
@@ -113,9 +160,11 @@ export function toAbsoluteSitePath(site: PublicSite, path: string) {
   }
 
   const publicPath = isConsulting ? toConsultingPublicPath(normalized) : normalized;
-  const siteOrigin = originForSite(site);
+  const runtimeHostname = getRuntimeHostname();
+  const siteOrigin = originForSite(site, runtimeHostname);
+  const targetHostname = new URL(siteOrigin).hostname;
   
-  if (typeof window !== 'undefined' && window.location.origin.toLowerCase() === siteOrigin.toLowerCase()) {
+  if (normalizePublicHostname(runtimeHostname) === targetHostname) {
     return publicPath;
   }
 
