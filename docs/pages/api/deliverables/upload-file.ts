@@ -10,6 +10,7 @@ import {
 } from 'docs/src/modules/deliverables/cdnStorage';
 import { prepareDeliverableHtmlForStorage } from 'docs/src/modules/deliverables/htmlSnapshot';
 import { writeLocalDeliverableFile } from 'docs/src/modules/deliverables/localFiles';
+import { resolveUploadRequest } from 'docs/src/modules/deliverables/uploadRequest';
 import { invalidateCdnPaths } from 'docs/src/modules/cdn/cdnInvalidation';
 
 export const config = {
@@ -24,13 +25,6 @@ const MAX_FILE_BYTES = 100 * 1024 * 1024;
 const MAX_REQUEST_BYTES = 150 * 1024 * 1024;
 
 class PayloadTooLargeError extends Error {}
-
-function getSingleValue(value: string | string[] | undefined) {
-  if (Array.isArray(value)) {
-    return value[0];
-  }
-  return value;
-}
 
 async function readRequestBody(req: NextApiRequest, maxBytes: number) {
   return new Promise<Buffer>((resolve, reject) => {
@@ -74,38 +68,13 @@ async function readRequestBody(req: NextApiRequest, maxBytes: number) {
 }
 
 async function parseUploadRequest(req: NextApiRequest) {
-  const requestContentType = getSingleValue(req.headers['content-type']) || '';
-  const normalizedRequestContentType = requestContentType.split(';')[0]?.trim().toLowerCase();
   const rawBody = await readRequestBody(req, MAX_REQUEST_BYTES);
 
-  if (normalizedRequestContentType === 'application/json') {
-    const body = JSON.parse(rawBody.toString('utf8')) as {
-      clientId?: string;
-      clientSlug?: string;
-      bundleId?: string;
-      filePath?: string;
-      contentType?: string;
-      file?: string;
-    };
-
-    return {
-      clientId: body.clientId,
-      clientSlug: body.clientSlug,
-      bundleId: body.bundleId,
-      filePath: body.filePath,
-      contentType: body.contentType,
-      buffer: typeof body.file === 'string' ? Buffer.from(body.file, 'base64') : Buffer.alloc(0),
-    };
-  }
-
-  return {
-    clientId: getSingleValue(req.query.clientId),
-    clientSlug: getSingleValue(req.query.clientSlug),
-    bundleId: getSingleValue(req.query.bundleId),
-    filePath: getSingleValue(req.query.filePath),
-    contentType: normalizedRequestContentType || 'application/octet-stream',
-    buffer: rawBody,
-  };
+  return resolveUploadRequest({
+    contentType: req.headers['content-type'],
+    query: req.query,
+    rawBody,
+  });
 }
 
 function slugifyClientName(name: string) {
