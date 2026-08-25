@@ -139,3 +139,87 @@ describe('unified CDN domain configuration', () => {
     ).to.be.greaterThan(1);
   });
 });
+
+describe('production host manifest contract', () => {
+  it('requires a deterministic durable PRODUCTION_HOST_MANIFEST driving AWS alias/certificate/DNS validation', () => {
+    // Contract: must export PRODUCTION_HOST_MANIFEST from infra/domains.ts
+    const manifest = domainConfig.PRODUCTION_HOST_MANIFEST;
+
+    // The manifest must exist and be an object
+    expect(manifest).to.be.an('object');
+
+    // SUI/consulting distribution groups
+    expect(manifest).to.have.property('suiConsultingDistribution');
+    const suiConsulting = manifest.suiConsultingDistribution;
+
+    expect(suiConsulting).to.have.property('canonicalRoots');
+    expect(suiConsulting.canonicalRoots).to.deep.equal(['sui.stokd.cloud', 'consulting.stokd.cloud']);
+
+    expect(suiConsulting).to.have.property('vanityRoots');
+    expect(suiConsulting.vanityRoots).to.deep.equal(['stoked-ui.com', 'stokedconsulting.com']);
+
+    expect(suiConsulting).to.have.property('requiredHosts');
+    expect(suiConsulting.requiredHosts).to.deep.equal([
+      // Canonical hosts
+      'sui.stokd.cloud',
+      'www.sui.stokd.cloud',
+      'consulting.stokd.cloud',
+      'www.consulting.stokd.cloud',
+      // Vanity hosts
+      'stoked-ui.com',
+      'www.stoked-ui.com',
+      'stokedconsulting.com',
+      'www.stokedconsulting.com',
+    ]);
+
+    // Brian distribution groups
+    expect(manifest).to.have.property('brianDistribution');
+    const brianDist = manifest.brianDistribution;
+
+    expect(brianDist).to.have.property('canonicalRoots');
+    expect(brianDist.canonicalRoots).to.deep.equal(['brian.stokd.cloud']);
+
+    expect(brianDist).to.have.property('vanityRoots');
+    expect(brianDist.vanityRoots).to.deep.equal(['brianstoker.com']);
+
+    expect(brianDist).to.have.property('requiredHosts');
+    expect(brianDist.requiredHosts).to.deep.equal([
+      // Canonical hosts
+      'brian.stokd.cloud',
+      'www.brian.stokd.cloud',
+      // Vanity hosts
+      'brianstoker.com',
+      'www.brianstoker.com',
+    ]);
+
+    // CDN distribution groups
+    expect(manifest).to.have.property('cdnDistribution');
+    const cdnDist = manifest.cdnDistribution;
+
+    expect(cdnDist).to.have.property('canonicalRoots');
+    expect(cdnDist.canonicalRoots).to.deep.equal(['cdn.stokd.cloud']);
+
+    expect(cdnDist).to.have.property('vanityRoots');
+    expect(cdnDist.vanityRoots).to.deep.equal(['cdn.stokedconsulting.com']);
+
+    expect(cdnDist).to.have.property('requiredHosts');
+    expect(cdnDist.requiredHosts).to.deep.equal([
+      // Canonical hosts
+      'cdn.stokd.cloud',
+      // Vanity hosts
+      'cdn.stokedconsulting.com',
+    ]);
+
+    // Manifest must be deterministic and explicit for AWS infrastructure
+    expect(manifest).to.have.property('zoneMap');
+    expect(manifest.zoneMap).to.be.an('object');
+
+    // Zone validation for each root domain - deep equal to the four exact zone IDs
+    expect(manifest.zoneMap).to.deep.equal({
+      'stokd.cloud': 'Z0974146XEXJDMNXU573',
+      'stoked-ui.com': 'Z09790842EOZDB68FABYC',
+      'stokedconsulting.com': 'Z07577592PUM0SSTBY40Y',
+      'brianstoker.com': 'Z0756608HJN0R288QOFI',
+    });
+  });
+});
