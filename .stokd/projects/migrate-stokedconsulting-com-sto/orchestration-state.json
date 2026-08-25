@@ -1,0 +1,216 @@
+{
+  "slug": "migrate-stokedconsulting-com-sto",
+  "title": "Migrate stokedconsulting.com,",
+  "status": "integrated",
+  "created_at": "2026-08-25T18:08:51.667799+00:00",
+  "storage_mode": "database",
+  "error_message": null,
+  "progress_log": [
+    "integration complete at 2026-08-25T18:08:57.627289+00:00"
+  ],
+  "review_mode": "phase",
+  "phases": [
+    {
+      "phase_number": 1,
+      "purpose": "",
+      "status": "completed",
+      "title": "Establish the governed host manifest and axiom (RED → GREEN)",
+      "work_items": [
+        {
+          "acceptance_criteria": "The new host-manifest test exists in infra/domains.test.ts, is executed before implementation, and is observed FAILING for the right reason (the manifest is absent). The RED outcome is recorded.",
+          "acceptance_tests": "Test-1.1.a: Unit — the host-manifest test proves the canonical-to-vanity mapping and certificate/distribution routing for stoked-ui.com, stokedconsulting.com, brianstoker.com, and cdn.stokedconsulting.com, and fails before the manifest is implemented.",
+          "components": [
+            "infra/domains.test.ts",
+            "package.json"
+          ],
+          "flows": [],
+          "hash": "91fdb37ef0bfc11b3eaa1a41c6f09b3ae00c3c81",
+          "hash_short": null,
+          "implementation_details": "Add a test to infra/domains.test.ts that asserts a durable canonical-to-vanity host manifest and certificate/distribution routing for all four domains: stoked-ui.com and stokedconsulting.com map to the SUI/consulting distribution, brianstoker.com maps to the Brian distribution, and cdn.stokedconsulting.com maps to the CDN distribution; each vanity host shares its canonical distribution and covering certificate. Run the test before any implementation exists and record the RED outcome.",
+          "status": "completed",
+          "title": "Add failing host-manifest routing test (RED)",
+          "verification_commands": "pnpm test infra/domains.test.ts",
+          "views": []
+        },
+        {
+          "acceptance_criteria": "The test added in 1.1 passes (GREEN) without being weakened, skipped, or rewritten; existing infra domain tests continue to pass.",
+          "acceptance_tests": "Test-1.1.a: Unit — the same host-manifest test now passes against the implemented manifest.",
+          "components": [
+            "infra/domains.ts",
+            "infra/domains.test.ts"
+          ],
+          "flows": [],
+          "hash": "369b720d9718209e28962938c7f582ac9f48e6bd",
+          "hash_short": null,
+          "implementation_details": "Implement the single durable manifest in infra/domains.ts mapping stoked-ui.com and stokedconsulting.com to the SUI/consulting distribution, brianstoker.com to the Brian distribution, and cdn.stokedconsulting.com to the CDN distribution, with each vanity host sharing its canonical distribution and covering certificate. Rerun the same test from 1.1 and record GREEN. Run the existing infra domain tests to confirm no regressions.",
+          "status": "completed",
+          "title": "Implement the host manifest in infra/domains.ts (GREEN)",
+          "verification_commands": "pnpm test infra/domains.test.ts",
+          "views": []
+        },
+        {
+          "acceptance_criteria": "infra/.axioms.md contains AX-INFRA-HOST-MANIFEST-ROUTING with Why, How to apply, and at least one executable Acceptance Check; axiom validation passes.",
+          "acceptance_tests": "Test-1.1.a: Unit — the host-manifest test referenced by the axiom's first Acceptance Check passes for every canonical/vanity mapping.",
+          "components": [
+            "infra/.axioms.md",
+            "infra/domains.ts",
+            "infra/domains.test.ts"
+          ],
+          "flows": [],
+          "hash": "9d637982076c00c3a134fdab761146792d9e2659",
+          "hash_short": null,
+          "implementation_details": "Add the new axiom AX-INFRA-HOST-MANIFEST-ROUTING to infra/.axioms.md with its Why (canonical stokd.cloud hosts and vanity domains must not drift onto duplicate distributions, certificates, or DNS targets that create outage and cost risk), How to apply (maintain one manifest mapping stoked-ui.com and stokedconsulting.com to the SUI/consulting distribution, brianstoker.com to the Brian distribution, and cdn.stokedconsulting.com to the CDN distribution; each vanity host must share its canonical distribution and covering certificate; preserve unrelated mail and verification DNS records), and executable Acceptance Checks (the infra host-manifest test passes for every canonical/vanity mapping; AWS assertions confirm each required alias, issued covering certificate, and authoritative Route53 target; HTTPS routing checks and CDN object-manifest integrity checks pass).",
+          "status": "completed",
+          "title": "Add AX-INFRA-HOST-MANIFEST-ROUTING to infra/.axioms.md",
+          "verification_commands": "pnpm test infra/domains.test.ts",
+          "views": []
+        }
+      ]
+    },
+    {
+      "phase_number": 2,
+      "purpose": "",
+      "status": "completed",
+      "title": "Cut over vanity domains in stokd-cloud and migrate legacy CDN data",
+      "work_items": [
+        {
+          "acceptance_criteria": "AWS assertions confirm the stokd-cloud account ID, each required CloudFront alias, an issued covering certificate per vanity host, and authoritative Route53 records targeting the correct distribution; unrelated mail and verification records are intact.",
+          "acceptance_tests": "Test-1.1.a: Unit — the host-manifest test continues to pass for every canonical/vanity mapping backing the cutover.",
+          "components": [
+            "infra/domains.ts",
+            "AWS Route53, ACM, CloudFront, S3, SST state in profiles stokd-cloud and stoked",
+            "GitHub deployment secret ROOT_DOMAIN",
+            "/opt/worktrees/brian-stoker/v2.brianstoker.com/main"
+          ],
+          "flows": [],
+          "hash": "ee0749f7060595a7471be73ab2ba2af4db235019",
+          "hash_short": null,
+          "implementation_details": "In the stokd-cloud profile, ensure the SUI/consulting distribution owns the stoked-ui.com and stokedconsulting.com vanity aliases, the Brian distribution owns brianstoker.com, and the CDN distribution owns cdn.stokedconsulting.com, each backed by an issued covering ACM certificate. Point the authoritative Route53 hosted zones at those distributions while preserving unrelated mail and verification DNS records. Update the GitHub deployment secret ROOT_DOMAIN as required by the cutover.",
+          "status": "completed",
+          "title": "Attach vanity aliases, certificates, and authoritative Route53 targets in stokd-cloud",
+          "verification_commands": "pnpm test infra/domains.test.ts",
+          "views": []
+        },
+        {
+          "acceptance_criteria": "The versioned backup contains exactly 177 source objects totaling 1,382,325,911 bytes; the source and backup key/size/ETag manifests match exactly.",
+          "acceptance_tests": "Test-1.1.a: Unit — the CDN object-manifest integrity check named by the axiom's third Acceptance Check proves the backup holds exactly 177 objects totaling 1,382,325,911 bytes.",
+          "components": [
+            "AWS Route53, ACM, CloudFront, S3, SST state in profiles stokd-cloud and stoked"
+          ],
+          "flows": [],
+          "hash": "7e771c81f8941c82e5b84c184963f6d9b981893c",
+          "hash_short": null,
+          "implementation_details": "Create a versioned backup of the legacy CDN bucket containing exactly the 177 source objects. Produce key/size/ETag manifests for source and backup and compare them to prove the backup is complete and byte-exact.",
+          "status": "completed",
+          "title": "Back up legacy CDN data to a versioned backup",
+          "verification_commands": "pnpm test infra/domains.test.ts",
+          "views": []
+        },
+        {
+          "acceptance_criteria": "147 missing objects are present in cdn.stokd.cloud; the 7 divergent destination objects are unchanged (original ETag/size preserved) and their source versions remain retrievable from the backup; manifest comparison shows no unintended overwrites.",
+          "acceptance_tests": "Test-1.1.a: Unit — the CDN object-manifest integrity check proves missing-only migration of 147 objects and preservation of the 7 divergent destination objects.",
+          "components": [
+            "AWS Route53, ACM, CloudFront, S3, SST state in profiles stokd-cloud and stoked"
+          ],
+          "flows": [],
+          "hash": "a98ffbf75ea35ab48b4742ed1e7c557add74cd9b",
+          "hash_short": null,
+          "implementation_details": "Copy the 147 objects missing from cdn.stokd.cloud out of the legacy source. Do not overwrite the 7 destination objects that diverge from source; leave them in place and confirm they remain recoverable from the versioned backup. Re-compare source, backup, and destination key/size/ETag manifests after the copy.",
+          "status": "completed",
+          "title": "Copy missing-only objects to cdn.stokd.cloud, preserving divergent destination objects",
+          "verification_commands": "pnpm test infra/domains.test.ts",
+          "views": []
+        },
+        {
+          "acceptance_criteria": "HTTPS routing checks pass for all four domains and each response carries the expected site signature; expected routing matches the manifest.",
+          "acceptance_tests": "Test-1.1.a: Unit — the HTTPS routing check named by the axiom's third Acceptance Check passes for all four domains.",
+          "components": [
+            "infra/domains.ts",
+            "AWS Route53, ACM, CloudFront, S3, SST state in profiles stokd-cloud and stoked"
+          ],
+          "flows": [],
+          "hash": "e40184f0e13f80a44eba452bddbee5b65a7184d8",
+          "hash_short": null,
+          "implementation_details": "Assert public TLS/HTTP responses and expected routing for stokedconsulting.com, stoked-ui.com, brianstoker.com, and cdn.stokedconsulting.com, checking that each returns the expected site signature from its stokd-cloud distribution.",
+          "status": "completed",
+          "title": "Verify production cutover over public HTTPS",
+          "verification_commands": "pnpm test infra/domains.test.ts",
+          "views": []
+        }
+      ]
+    },
+    {
+      "phase_number": 3,
+      "purpose": "",
+      "status": "completed",
+      "title": "Remove legacy resources from the stoked account and land the project",
+      "work_items": [
+        {
+          "acceptance_criteria": "AWS assertions confirm the four legacy distributions and their SST-managed application resources are absent from the stoked account, and the account ID asserted is stoked.",
+          "acceptance_tests": "Test-1.1.a: Unit — the AWS assertions named by the axiom's second Acceptance Check confirm no required alias or authoritative Route53 target still resolves to a removed legacy distribution.",
+          "components": [
+            "AWS Route53, ACM, CloudFront, S3, SST state in profiles stokd-cloud and stoked"
+          ],
+          "flows": [],
+          "hash": "442290052be5bdb6a020a82c1c0ef57ceeafd207",
+          "hash_short": null,
+          "implementation_details": "In the stoked profile, remove exactly the four requested legacy CloudFront distributions and the SST-managed application resources backing them. Touch nothing outside the enumerated set.",
+          "status": "completed",
+          "title": "Remove the four legacy CloudFront distributions and their SST-managed application resources",
+          "verification_commands": "pnpm test infra/domains.test.ts",
+          "views": []
+        },
+        {
+          "acceptance_criteria": "The legacy data buckets are absent from the stoked account and the versioned backup still contains exactly 177 objects totaling 1,382,325,911 bytes after deletion.",
+          "acceptance_tests": "Test-1.1.a: Unit — the CDN object-manifest integrity check still proves the 177-object / 1,382,325,911-byte backup after bucket removal.",
+          "components": [
+            "AWS Route53, ACM, CloudFront, S3, SST state in profiles stokd-cloud and stoked"
+          ],
+          "flows": [],
+          "hash": "518358608571cbf0bfff138aeb05f3141698dd53",
+          "hash_short": null,
+          "implementation_details": "After the Phase 2 backup is verified byte-exact, remove the legacy data buckets from the stoked account. Re-assert backup integrity immediately before deletion.",
+          "status": "completed",
+          "title": "Remove legacy data buckets after verified backup",
+          "verification_commands": "pnpm test infra/domains.test.ts",
+          "views": []
+        },
+        {
+          "acceptance_criteria": "The three duplicate non-authoritative hosted zones are absent from the stoked account; authoritative Route53 targets from 2.1 still resolve correctly and unrelated mail/verification records are intact.",
+          "acceptance_tests": "Test-1.1.a: Unit — the AWS assertions confirm each authoritative Route53 target still resolves after the duplicate zones are removed.",
+          "components": [
+            "AWS Route53, ACM, CloudFront, S3, SST state in profiles stokd-cloud and stoked"
+          ],
+          "flows": [],
+          "hash": "5b2a8e49a95ed0153ec1f5c30c9a9ab0ebeecf85",
+          "hash_short": null,
+          "implementation_details": "Delete the three duplicate, non-authoritative Route53 hosted zones from the stoked account, first confirming they are not the authoritative zones for any of the four domains and preserving unrelated mail and verification DNS records held elsewhere.",
+          "status": "completed",
+          "title": "Remove the three duplicate non-authoritative hosted zones",
+          "verification_commands": "pnpm test infra/domains.test.ts",
+          "views": []
+        },
+        {
+          "acceptance_criteria": "Relevant tests and AWS/DNS/data-integrity assertions exit 0; git status is clean, git log shows the changes, and the upstream is in sync; stokd project complete and stokd integrate both run successfully.",
+          "acceptance_tests": "Test-1.1.a: Unit — the host-manifest test passes in the final committed state, proving the manifest survived the full cutover.",
+          "components": [
+            "infra/domains.ts",
+            "infra/domains.test.ts",
+            "infra/.axioms.md",
+            "package.json"
+          ],
+          "flows": [],
+          "hash": "3ccf8d6cd7780e9159910b382e4a10a5ab4d1e44",
+          "hash_short": null,
+          "implementation_details": "Run the relevant repository validation and confirm it exits 0. Commit and push all repository changes, verifying git status is clean and the branch tracks its upstream. Then run stokd project complete and stokd integrate.",
+          "status": "completed",
+          "title": "Commit, push, complete, and integrate the governed project",
+          "verification_commands": "pnpm test infra/domains.test.ts",
+          "views": []
+        }
+      ]
+    }
+  ],
+  "project_id": "aad04219-a1fc-49bc-bd73-22db60166eca",
+  "hash_short": "2778ba1"
+}
