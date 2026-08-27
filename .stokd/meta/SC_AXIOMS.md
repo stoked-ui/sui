@@ -324,3 +324,17 @@ The install-script distribution surface (flow §1.7) MUST keep `install.stokd.cl
 - Flows / acceptance surface: `.stokd/meta/SC_FLOWS.md`
 - Test inventory: `.stokd/meta/SC_TEST.md`
 - Legacy global axioms (numbered): `~/.stokd/SC_AXIOMS.md`
+
+## AX-REPO-EONE-SOLUTIONS-CLONE: eOne Solutions Deliverable Keeps Reconstructable Vite Source
+
+### Why
+The published deliverable is generated HTML and hashed assets; it cannot serve as the maintainable source of truth. Losing the Vite source makes safe client-specific iteration and deterministic rebuilds impossible.
+
+### How to Apply
+Keep `/Users/stoked/work/deliverables/eone-solutions` as an independent Vite project derived from the known Xferall template; keep its project name and `outDir` client-specific; never replace the source tree with browser-saved or generated HTML. Generated output remains a build artifact under `eone-solutions-platform-engineering-2026-q1`.
+
+### Acceptance Checks
+- `node /Users/stoked/work/deliverables/eone-solutions/tests/project-copy.test.mjs` exits 0.
+- `npm run build --prefix /Users/stoked/work/deliverables/eone-solutions` exits 0.
+- `test -f /Users/stoked/work/deliverables/eone-solutions/eone-solutions-platform-engineering-2026-q1/index.html` exits 0.
+- manual: the Xferall source manifest is unchanged and the eone-solutions tree contains no symlinks back to it.
