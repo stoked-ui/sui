@@ -43,6 +43,15 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      # Workspace links point at each package's gitignored `build/` directory
+      # (e.g. `@stoked-ui/common` -> `link:../packages/sui-common/build`). Those
+      # targets do not exist on a fresh checkout, and the docs build resolves
+      # `@stoked-ui/*` through node_modules rather than aliasing to source, so
+      # skipping this step silently falls back to whatever stale registry copy
+      # happens to be installed and ships a broken client bundle.
+      - name: Build workspace packages
+        run: pnpm build:ci
+
       - name: Deploy production site
         env:
           ROOT_DOMAIN: sui.stokd.cloud,stoked-ui.com,consulting.stokd.cloud,stokedconsulting.com
