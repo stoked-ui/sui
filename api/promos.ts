@@ -1,19 +1,23 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import type { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 
 export interface PromoContent {
   headerLabel: string;
   title: string;
   subtitle: string;
-  /** Fully-qualified HTTPS URL to a promo image, or omit for no image. */
-  imageUrl?: string;
+  /** Fully-qualified HTTPS URL to promo media, or omit for no media. */
+  promoMedia?: string;
   ctaLabel: string;
   ctaUrl: string;
 }
 
+type PromoContentSource = Omit<PromoContent, "promoMedia"> & {
+  imageUrl?: string;
+};
+
 type PromoDocument = {
   live?: boolean;
   productId?: string;
-  promo?: Partial<PromoContent> | null;
+  promo?: Partial<PromoContentSource> | null;
 };
 
 type PromoEntry = {
@@ -23,12 +27,14 @@ type PromoEntry = {
 
 const DEFAULT_HEADER_LABEL = "Also from Stoked Consulting";
 const PROMO_ROTATION_MS = 1000 * 60 * 60;
+export const PROMO_CACHE_CONTROL = "public, max-age=3600, stale-while-revalidate=86400";
+export const RANDOM_PROMO_CACHE_CONTROL = "no-store";
 
 function readString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
-export function normalizePromoContent(input: Partial<PromoContent> | null | undefined): PromoContent | null {
+export function normalizePromoContent(input: Partial<PromoContentSource> | null | undefined): PromoContent | null {
   if (!input || typeof input !== "object") {
     return null;
   }
@@ -36,7 +42,7 @@ export function normalizePromoContent(input: Partial<PromoContent> | null | unde
   const headerLabel = readString(input.headerLabel) || DEFAULT_HEADER_LABEL;
   const title = readString(input.title);
   const subtitle = readString(input.subtitle);
-  const imageUrl = readString(input.imageUrl);
+  const promoMedia = readString(input.promoMedia) || readString(input.imageUrl);
   const ctaLabel = readString(input.ctaLabel);
   const ctaUrl = readString(input.ctaUrl);
 
@@ -48,7 +54,7 @@ export function normalizePromoContent(input: Partial<PromoContent> | null | unde
     headerLabel,
     title,
     subtitle,
-    ...(imageUrl ? { imageUrl } : {}),
+    ...(promoMedia ? { promoMedia } : {}),
     ctaLabel,
     ctaUrl,
   };
@@ -83,12 +89,33 @@ export function selectPromoForRequest(entries: PromoEntry[], requestedId?: strin
   return sortedPool[index]?.promo ?? null;
 }
 
-function json(statusCode: number, body: unknown): APIGatewayProxyResult {
+export function isRandomPromoRequest(pathId?: string): boolean {
+  return readString(pathId).toLowerCase() === "random";
+}
+
+export function resolvePromoRequest(event: APIGatewayProxyEvent): {
+  requestedId?: string;
+  cacheControl: string;
+} {
+  if (isRandomPromoRequest(event.pathParameters?.id)) {
+    return {
+      requestedId: readString(event.queryStringParameters?.f) || undefined,
+      cacheControl: RANDOM_PROMO_CACHE_CONTROL,
+    };
+  }
+
+  return {
+    requestedId: readString(event.pathParameters?.id) || undefined,
+    cacheControl: PROMO_CACHE_CONTROL,
+  };
+}
+
+function json(statusCode: number, body: unknown, cacheControl = PROMO_CACHE_CONTROL): APIGatewayProxyResult {
   return {
     statusCode,
     headers: {
       "Content-Type": "application/json",
-      "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
+      "Cache-Control": cacheControl,
       "Access-Control-Allow-Origin": "*",
     },
     body: JSON.stringify(body),
@@ -119,13 +146,14 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
       return result;
     }, []);
 
-    const promo = selectPromoForRequest(entries, event.pathParameters?.id);
+    const { requestedId, cacheControl } = resolvePromoRequest(event);
+    const promo = selectPromoForRequest(entries, requestedId);
 
     if (!promo) {
-      return json(404, { message: "Promo not found" });
+      return json(404, { message: "Promo not found" }, cacheControl);
     }
 
-    return json(200, promo);
+    return json(200, promo, cacheControl);
   } catch (error) {
     console.error("Failed to load promos", error);
     return json(500, { message: "Failed to load promos" });

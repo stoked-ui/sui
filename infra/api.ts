@@ -91,6 +91,7 @@ export const createApi = (domainInfo: DomainInfo) => {
   api.route("GET /verify", verifyFunction.arn);
   api.route("POST /sms", sendSms.arn);
   api.route("ANY /api/auth/google", googleAuthFunction.arn);
+  api.route("GET /api/promos/random", promosFunction.arn);
   api.route("GET /api/promos/{id}", promosFunction.arn);
 
   return api;
