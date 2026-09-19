@@ -13,7 +13,7 @@ export const createSite = async (domainInfo: DomainInfo) => {
   const blogImageBucket = process.env.BLOG_IMAGE_S3_BUCKET ?? 'cdn.stokedconsulting.com';
   const enableDomain = process.env.SITE_ENABLE_DOMAIN !== '0';
   const openNextVersion = '3.6.6';
-  const buildCommand = `npx --yes @opennextjs/aws@${openNextVersion} build && pnpm prune-lambda`;
+  const buildCommand = `node ./scripts/buildOpenNext.js ${openNextVersion}`;
 
   // Reuse an external ACM cert if one already covers our domains (avoids duplicate
   // validation CNAME errors). If SST already manages the cert for this stack, keep
