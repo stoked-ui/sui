@@ -83,3 +83,4 @@ docs/.open-next/
 docs/.local_deliverables/
 packages-internal/cdn/dist/
 packages-internal/cdn-sui/dist/
+.selfactor
