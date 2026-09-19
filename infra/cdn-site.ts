@@ -72,6 +72,10 @@ export const createCdnSite = async (domainInfo: CdnDomainInfo) => {
             setUrlOrigin(${JSON.stringify(consultingHost)});
             return event.request;
           }
+
+          if (event.request.uri !== '/' && event.request.uri.endsWith('/')) {
+            event.request.uri = '/index.html';
+          }
         `,
       },
       viewerResponse: {

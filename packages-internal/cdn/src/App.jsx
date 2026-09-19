@@ -1,5 +1,5 @@
 import React, { startTransition, useDeferredValue, useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   beginDesktopDownload,
   buildExportUrl,
@@ -253,9 +253,56 @@ const permissionRoleOptions = [
   'stokd member',
 ];
 
+function prefixFromPathname(pathname) {
+  let normalized = (pathname || '/')
+    .trim()
+    .replace(/\/+/g, '/');
+
+  try {
+    normalized = decodeURIComponent(normalized);
+  } catch {
+    // Keep the raw pathname if the browser URL is partially encoded.
+  }
+
+  if (normalized === '/' || normalized === '') {
+    return '';
+  }
+
+  const segments = normalized.replace(/^\/+/, '').split('/').filter(Boolean);
+  const lastSegment = segments[segments.length - 1] || '';
+
+  if (!segments.length || lastSegment.includes('.')) {
+    return '';
+  }
+
+  return `${segments.join('/')}/`;
+}
+
+function prefixToPathname(prefix) {
+  const normalized = prefix
+    .trim()
+    .replace(/\/+/g, '/')
+    .replace(/^\/+/, '')
+    .replace(/(.+[^/])$/, '$1/');
+
+  if (!normalized) {
+    return '/';
+  }
+
+  const segments = normalized
+    .split('/')
+    .filter(Boolean)
+    .map((segment) => encodeURIComponent(segment));
+
+  return `/${segments.join('/')}/`;
+}
+
 export default function App() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const prefix = searchParams.get('prefix') || '';
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const queryPrefix = searchParams.get('prefix') || '';
+  const prefix = queryPrefix || prefixFromPathname(location.pathname);
   const [query, setQuery] = useState('');
   const [reloadToken, setReloadToken] = useState(0);
   const [operationError, setOperationError] = useState('');
@@ -269,6 +316,19 @@ export default function App() {
   const authOrigin = getAuthOrigin();
   const canManage = auth.status === 'authenticated' && auth.user.role === 'admin';
   const shouldLogout = shouldForceLogout(auth.status, error);
+
+  useEffect(() => {
+    if (!queryPrefix) {
+      return;
+    }
+
+    const nextPathname = prefixToPathname(queryPrefix);
+    if (location.pathname === nextPathname && !location.search) {
+      return;
+    }
+
+    navigate(nextPathname, { replace: true });
+  }, [location.pathname, location.search, navigate, queryPrefix]);
 
   useEffect(() => {
     document.title = prefix ? `${prefix} | ${cdnName}` : cdnName;
@@ -296,11 +356,7 @@ export default function App() {
   function openPrefix(nextPrefix) {
     setPermissionEditor(null);
     startTransition(() => {
-      if (nextPrefix) {
-        setSearchParams({ prefix: nextPrefix });
-      } else {
-        setSearchParams({});
-      }
+      navigate(prefixToPathname(nextPrefix));
     });
   }
 
