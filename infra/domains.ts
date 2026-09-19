@@ -1,12 +1,53 @@
 
+export const PRODUCTION_HOST_MANIFEST = {
+  suiConsultingDistribution: {
+    canonicalRoots: ['sui.stokd.cloud', 'consulting.stokd.cloud'] as const,
+    vanityRoots: ['stoked-ui.com', 'stokedconsulting.com'] as const,
+    requiredHosts: [
+      'sui.stokd.cloud',
+      'www.sui.stokd.cloud',
+      'consulting.stokd.cloud',
+      'www.consulting.stokd.cloud',
+      'stoked-ui.com',
+      'www.stoked-ui.com',
+      'stokedconsulting.com',
+      'www.stokedconsulting.com',
+    ] as const,
+  },
+  brianDistribution: {
+    canonicalRoots: ['brian.stokd.cloud'] as const,
+    vanityRoots: ['brianstoker.com'] as const,
+    requiredHosts: [
+      'brian.stokd.cloud',
+      'www.brian.stokd.cloud',
+      'brianstoker.com',
+      'www.brianstoker.com',
+    ] as const,
+  },
+  cdnDistribution: {
+    canonicalRoots: ['cdn.stokd.cloud'] as const,
+    vanityRoots: ['cdn.stokedconsulting.com'] as const,
+    requiredHosts: [
+      'cdn.stokd.cloud',
+      'cdn.stokedconsulting.com',
+    ] as const,
+  },
+  zoneMap: {
+    'stokd.cloud': 'Z0974146XEXJDMNXU573',
+    'stoked-ui.com': 'Z09790842EOZDB68FABYC',
+    'stokedconsulting.com': 'Z07577592PUM0SSTBY40Y',
+    'brianstoker.com': 'Z0756608HJN0R288QOFI',
+  } as const,
+} as const;
+
 export const STOKD_UI_PRODUCTION_ROOTS = [
-  'sui.stokd.cloud',
-  'stoked-ui.com',
+  PRODUCTION_HOST_MANIFEST.suiConsultingDistribution.canonicalRoots[0],
+  PRODUCTION_HOST_MANIFEST.suiConsultingDistribution.vanityRoots[0],
 ] as const;
 
 export const CONSULTING_PRODUCTION_ROOTS = [
-  'consulting.stokd.cloud',
-  'stokedconsulting.com',
+  PRODUCTION_HOST_MANIFEST.suiConsultingDistribution.canonicalRoots[1],
+  PRODUCTION_HOST_MANIFEST.suiConsultingDistribution.vanityRoots[1],
 ] as const;
 
 export const PRODUCTION_ROOT_DOMAINS = [
@@ -39,15 +80,17 @@ export const CORS_PRODUCTION_ORIGINS = [
 ] as const;
 
 export const HOSTED_ZONE_IDS = {
-  'stokd.cloud': 'Z0974146XEXJDMNXU573',
-  'stoked-ui.com': 'Z09790842EOZDB68FABYC',
-  'stokedconsulting.com': 'Z07577592PUM0SSTBY40Y',
+  'stokd.cloud': PRODUCTION_HOST_MANIFEST.zoneMap['stokd.cloud'],
+  'stoked-ui.com': PRODUCTION_HOST_MANIFEST.zoneMap['stoked-ui.com'],
+  'stokedconsulting.com': PRODUCTION_HOST_MANIFEST.zoneMap['stokedconsulting.com'],
+  'brianstoker.com': PRODUCTION_HOST_MANIFEST.zoneMap['brianstoker.com'],
 } as const;
 
 const ZONE_IDS: Record<string, string> = {
   ...HOSTED_ZONE_IDS,
   'sui.stokd.cloud': HOSTED_ZONE_IDS['stokd.cloud'],
   'consulting.stokd.cloud': HOSTED_ZONE_IDS['stokd.cloud'],
+  'brian.stokd.cloud': HOSTED_ZONE_IDS['stokd.cloud'],
 };
 
 export const getDomains = (rootDomain: string, stage: string) => {
@@ -80,8 +123,7 @@ function getRootDomainParts(rootDomains: string) {
 
 export const getDomainInfo = (rootDomains: string, stage: string): DomainInfo => {
   const rootDomainParts = getRootDomainParts(rootDomains);
-  let domains:any = rootDomainParts.map((domain) => getDomains(domain, stage)).flat();
-  domains = domains.flat(Infinity);
+  const domains = rootDomainParts.flatMap((domain) => getDomains(domain, stage));
   const appName = `${domains[0].replace(/\./g, '-')}`;
   const parts = domains[0].split('.');
   parts.pop();
