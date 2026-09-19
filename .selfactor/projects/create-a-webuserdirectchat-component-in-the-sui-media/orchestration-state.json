@@ -1,0 +1,108 @@
+{
+  "slug": "create-a-webuserdirectchat-component-in-the-sui-media",
+  "title": "Create a WebUserDirectChat component in the sui-media pac...",
+  "status": "active",
+  "created_at": "2026-03-07T16:48:16.343167+00:00",
+  "storage_mode": "database",
+  "error_message": null,
+  "progress_log": [
+    "[2026-03-07T16:56:54.466170+00:00] Project created; PRD written to prd.md; phases extracted"
+  ],
+  "phases": [
+    {
+      "phase_number": 1,
+      "title": "Foundation & UI Development",
+      "work_items": [
+        {
+          "acceptance_criteria": "Form renders with name, email, and message inputs. Header text matches exactly. Component accepts provider prop. Unit tests confirm presence in DOM.",
+          "dependencies": [],
+          "implementation_details": "Create the basic React component with name, email, and message fields using React and TypeScript. Implement a form with the required header: 'In order for us to put you in touch with our team we need:'. Component should accept a 'provider' prop defaulting to 'whats-app'.",
+          "item_number": "1.1",
+          "title": "WebUserDirectChat Scaffold"
+        },
+        {
+          "acceptance_criteria": "Validation errors shown for empty fields or malformed emails. Submit button is disabled or triggers validation before API call.",
+          "dependencies": [
+            "1.1"
+          ],
+          "implementation_details": "Implement validation for required fields and email format using standard regex and non-empty string checks. Prevent submission if validation fails.",
+          "item_number": "1.2",
+          "title": "Client-side Validation"
+        }
+      ]
+    },
+    {
+      "phase_number": 2,
+      "title": "API & Provider Integration",
+      "work_items": [
+        {
+          "acceptance_criteria": "API accepts valid POST requests and returns 400 for missing or invalid data. Integration tests validate the request schema.",
+          "dependencies": [
+            "1.1"
+          ],
+          "implementation_details": "Create a backend endpoint at /api/chat/send that receives POST data { name, email, message, provider } and performs basic schema validation.",
+          "item_number": "2.1",
+          "title": "Next.js API Route"
+        },
+        {
+          "acceptance_criteria": "Messages are forwarded to WhatsApp Business API successfully. Backend handles provider errors gracefully without crashing.",
+          "dependencies": [
+            "2.1"
+          ],
+          "implementation_details": "Integrate with the WhatsApp Business API using environment variables for credentials. Implement error handling for timeouts and authentication failures.",
+          "item_number": "2.2",
+          "title": "WhatsApp Provider Implementation"
+        }
+      ]
+    },
+    {
+      "phase_number": 3,
+      "title": "Frontend-Backend Integration",
+      "work_items": [
+        {
+          "acceptance_criteria": "Submitting the form sends data to the API. Loading state is visible while the request is in flight.",
+          "dependencies": [
+            "1.2",
+            "2.1"
+          ],
+          "implementation_details": "Connect the React component to the /api/chat/send endpoint using fetch. Implement a loading state during the network request.",
+          "item_number": "3.1",
+          "title": "Form Submission Hook"
+        },
+        {
+          "acceptance_criteria": "Success message displayed on 200 OK. Error message displayed on API failure.",
+          "dependencies": [
+            "3.1"
+          ],
+          "implementation_details": "Update the UI based on the API response to show either a success message or an error message to the user.",
+          "item_number": "3.2",
+          "title": "Submission Feedback"
+        }
+      ]
+    },
+    {
+      "phase_number": 4,
+      "title": "Polish & Verification",
+      "work_items": [
+        {
+          "acceptance_criteria": "Component matches design system patterns and is responsive. pnpm run build completes without errors.",
+          "dependencies": [
+            "3.2"
+          ],
+          "implementation_details": "Apply CSS/SCSS or styled-components following stoked-ui design patterns. Ensure the component is fully responsive for mobile and desktop.",
+          "item_number": "4.1",
+          "title": "Styling & Responsiveness"
+        },
+        {
+          "acceptance_criteria": "Component is accessible via package export. README contains clear usage instructions and API documentation.",
+          "dependencies": [
+            "4.1"
+          ],
+          "implementation_details": "Export the component from the sui-media package index and add README documentation including prop definitions and usage examples.",
+          "item_number": "4.2",
+          "title": "Export & Documentation"
+        }
+      ]
+    }
+  ]
+}
