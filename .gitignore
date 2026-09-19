@@ -67,13 +67,13 @@ claudedocs/
 Cargo.lock
 
 # Stokd metadata is kept, runtime/session artifacts are not
-.stokd-sessions/
-.stokd/.heartbeat-ts
-.stokd/cache/
-.stokd/sessions/
-**/.stokd/.heartbeat-ts
-**/.stokd/cache/
-**/.stokd/sessions/
+.selfactor-sessions/
+.selfactor/.heartbeat-ts
+.selfactor/cache/
+.selfactor/sessions/
+**/.selfactor/.heartbeat-ts
+**/.selfactor/cache/
+**/.selfactor/sessions/
 
 # Local build/output artifacts
 docs/.open-next/
