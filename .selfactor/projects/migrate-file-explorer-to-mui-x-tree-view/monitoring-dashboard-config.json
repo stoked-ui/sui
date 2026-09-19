@@ -1,0 +1,652 @@
+{
+  "dashboard": {
+    "name": "MUI X File Explorer Migration - Rollout Monitoring",
+    "description": "Comprehensive monitoring dashboard for phased rollout of MUI X FileExplorer migration",
+    "refreshInterval": "15s",
+    "timezone": "UTC",
+    "panels": [
+      {
+        "id": "rollout-status",
+        "title": "Rollout Status",
+        "type": "status",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "width": 12,
+          "height": 2
+        },
+        "metrics": [
+          {
+            "name": "Current Phase",
+            "key": "rollout.phase",
+            "displayFormat": "text",
+            "values": ["internal", "beta", "canary", "gradual", "full", "rolled-back"]
+          },
+          {
+            "name": "Traffic Percentage",
+            "key": "rollout.trafficPercentage",
+            "displayFormat": "percentage",
+            "range": [0, 100]
+          },
+          {
+            "name": "Feature Flag Enabled",
+            "key": "rollout.enabled",
+            "displayFormat": "boolean"
+          },
+          {
+            "name": "Emergency Disabled",
+            "key": "rollout.emergencyDisabled",
+            "displayFormat": "boolean",
+            "alertColor": "#ff6b6b"
+          },
+          {
+            "name": "Last Updated",
+            "key": "rollout.lastUpdated",
+            "displayFormat": "timestamp"
+          }
+        ]
+      },
+      {
+        "id": "error-rate",
+        "title": "Error Rate Comparison",
+        "type": "graph",
+        "position": {
+          "x": 0,
+          "y": 2,
+          "width": 6,
+          "height": 3
+        },
+        "metrics": [
+          {
+            "name": "Error Rate - Original",
+            "key": "fileexplorer.errors.original",
+            "displayFormat": "percentage",
+            "color": "#4c72b0",
+            "alias": "Original (baseline)"
+          },
+          {
+            "name": "Error Rate - MUI X",
+            "key": "fileexplorer.errors.muix",
+            "displayFormat": "percentage",
+            "color": "#dd8452",
+            "alias": "MUI X (current)"
+          }
+        ],
+        "alertRules": [
+          {
+            "condition": "muix > baseline * 1.05",
+            "severity": "warning",
+            "message": "Error rate increase >5% from baseline"
+          },
+          {
+            "condition": "muix > baseline * 1.2",
+            "severity": "critical",
+            "message": "Error rate increase >20% from baseline - ROLLBACK TRIGGER"
+          }
+        ],
+        "yAxis": {
+          "min": 0,
+          "max": null,
+          "unit": "%"
+        }
+      },
+      {
+        "id": "render-performance",
+        "title": "Render Performance (P95 Render Time)",
+        "type": "graph",
+        "position": {
+          "x": 6,
+          "y": 2,
+          "width": 6,
+          "height": 3
+        },
+        "metrics": [
+          {
+            "name": "P95 Render Time - Original",
+            "key": "fileexplorer.performance.p95.original",
+            "displayFormat": "duration",
+            "color": "#4c72b0",
+            "alias": "Original (baseline)"
+          },
+          {
+            "name": "P95 Render Time - MUI X",
+            "key": "fileexplorer.performance.p95.muix",
+            "displayFormat": "duration",
+            "color": "#dd8452",
+            "alias": "MUI X (current)"
+          }
+        ],
+        "alertRules": [
+          {
+            "condition": "muix > baseline * 1.1",
+            "severity": "warning",
+            "message": "P95 render time increase >10% from baseline"
+          },
+          {
+            "condition": "muix > baseline * 1.2",
+            "severity": "critical",
+            "message": "P95 render time increase >20% from baseline - ROLLBACK TRIGGER"
+          }
+        ],
+        "yAxis": {
+          "min": 0,
+          "unit": "ms"
+        }
+      },
+      {
+        "id": "percentile-breakdown",
+        "title": "Performance Percentiles",
+        "type": "table",
+        "position": {
+          "x": 0,
+          "y": 5,
+          "width": 6,
+          "height": 3
+        },
+        "columns": [
+          {
+            "name": "Percentile",
+            "key": "percentile",
+            "displayFormat": "text"
+          },
+          {
+            "name": "Original (ms)",
+            "key": "original_ms",
+            "displayFormat": "number"
+          },
+          {
+            "name": "MUI X (ms)",
+            "key": "muix_ms",
+            "displayFormat": "number"
+          },
+          {
+            "name": "Delta",
+            "key": "delta_percent",
+            "displayFormat": "percentage"
+          }
+        ],
+        "rows": [
+          {
+            "percentile": "P50",
+            "original_ms": "key:fileexplorer.performance.p50.original",
+            "muix_ms": "key:fileexplorer.performance.p50.muix",
+            "delta_percent": "key:fileexplorer.performance.p50.delta"
+          },
+          {
+            "percentile": "P95",
+            "original_ms": "key:fileexplorer.performance.p95.original",
+            "muix_ms": "key:fileexplorer.performance.p95.muix",
+            "delta_percent": "key:fileexplorer.performance.p95.delta"
+          },
+          {
+            "percentile": "P99",
+            "original_ms": "key:fileexplorer.performance.p99.original",
+            "muix_ms": "key:fileexplorer.performance.p99.muix",
+            "delta_percent": "key:fileexplorer.performance.p99.delta"
+          }
+        ]
+      },
+      {
+        "id": "memory-usage",
+        "title": "Memory Usage Peak",
+        "type": "graph",
+        "position": {
+          "x": 6,
+          "y": 5,
+          "width": 6,
+          "height": 3
+        },
+        "metrics": [
+          {
+            "name": "Peak Memory - Original",
+            "key": "fileexplorer.memory.peak.original",
+            "displayFormat": "bytes",
+            "color": "#4c72b0"
+          },
+          {
+            "name": "Peak Memory - MUI X",
+            "key": "fileexplorer.memory.peak.muix",
+            "displayFormat": "bytes",
+            "color": "#dd8452"
+          }
+        ],
+        "alertRules": [
+          {
+            "condition": "muix > baseline * 1.1",
+            "severity": "warning",
+            "message": "Memory usage increase >10% from baseline"
+          }
+        ],
+        "yAxis": {
+          "min": 0,
+          "unit": "MB"
+        }
+      },
+      {
+        "id": "user-engagement",
+        "title": "Feature Usage Metrics",
+        "type": "table",
+        "position": {
+          "x": 0,
+          "y": 8,
+          "width": 12,
+          "height": 3
+        },
+        "columns": [
+          {
+            "name": "Feature",
+            "key": "feature",
+            "displayFormat": "text"
+          },
+          {
+            "name": "Original Usage %",
+            "key": "original_usage",
+            "displayFormat": "percentage"
+          },
+          {
+            "name": "MUI X Usage %",
+            "key": "muix_usage",
+            "displayFormat": "percentage"
+          },
+          {
+            "name": "Usage Delta",
+            "key": "usage_delta",
+            "displayFormat": "percentage"
+          },
+          {
+            "name": "Status",
+            "key": "status",
+            "displayFormat": "badge"
+          }
+        ],
+        "rows": [
+          {
+            "feature": "File Expansion",
+            "original_usage": "key:engagement.features.expansion.original",
+            "muix_usage": "key:engagement.features.expansion.muix",
+            "usage_delta": "key:engagement.features.expansion.delta",
+            "status": "key:engagement.features.expansion.status"
+          },
+          {
+            "feature": "File Selection",
+            "original_usage": "key:engagement.features.selection.original",
+            "muix_usage": "key:engagement.features.selection.muix",
+            "usage_delta": "key:engagement.features.selection.delta",
+            "status": "key:engagement.features.selection.status"
+          },
+          {
+            "feature": "Drag & Drop",
+            "original_usage": "key:engagement.features.dragdrop.original",
+            "muix_usage": "key:engagement.features.dragdrop.muix",
+            "usage_delta": "key:engagement.features.dragdrop.delta",
+            "status": "key:engagement.features.dragdrop.status"
+          },
+          {
+            "feature": "Grid View",
+            "original_usage": "key:engagement.features.grid.original",
+            "muix_usage": "key:engagement.features.grid.muix",
+            "usage_delta": "key:engagement.features.grid.delta",
+            "status": "key:engagement.features.grid.status"
+          },
+          {
+            "feature": "Search/Filter",
+            "original_usage": "key:engagement.features.search.original",
+            "muix_usage": "key:engagement.features.search.muix",
+            "usage_delta": "key:engagement.features.search.delta",
+            "status": "key:engagement.features.search.status"
+          },
+          {
+            "feature": "Keyboard Nav",
+            "original_usage": "key:engagement.features.keyboard.original",
+            "muix_usage": "key:engagement.features.keyboard.muix",
+            "usage_delta": "key:engagement.features.keyboard.delta",
+            "status": "key:engagement.features.keyboard.status"
+          }
+        ]
+      },
+      {
+        "id": "user-abandonment",
+        "title": "User Abandonment Rate",
+        "type": "graph",
+        "position": {
+          "x": 0,
+          "y": 11,
+          "width": 6,
+          "height": 3
+        },
+        "metrics": [
+          {
+            "name": "Abandonment - Original",
+            "key": "engagement.abandonment.original",
+            "displayFormat": "percentage",
+            "color": "#4c72b0"
+          },
+          {
+            "name": "Abandonment - MUI X",
+            "key": "engagement.abandonment.muix",
+            "displayFormat": "percentage",
+            "color": "#dd8452"
+          }
+        ],
+        "alertRules": [
+          {
+            "condition": "muix > baseline * 1.15",
+            "severity": "warning",
+            "message": "Abandonment rate increase >15% from baseline"
+          }
+        ],
+        "description": "Percentage of sessions where FileExplorer was closed without interaction",
+        "yAxis": {
+          "min": 0,
+          "max": 100,
+          "unit": "%"
+        }
+      },
+      {
+        "id": "accessibility-metrics",
+        "title": "Accessibility Metrics",
+        "type": "table",
+        "position": {
+          "x": 6,
+          "y": 11,
+          "width": 6,
+          "height": 3
+        },
+        "columns": [
+          {
+            "name": "Metric",
+            "key": "metric",
+            "displayFormat": "text"
+          },
+          {
+            "name": "Baseline",
+            "key": "baseline",
+            "displayFormat": "text"
+          },
+          {
+            "name": "Current",
+            "key": "current",
+            "displayFormat": "text"
+          },
+          {
+            "name": "Status",
+            "key": "status",
+            "displayFormat": "badge"
+          }
+        ],
+        "rows": [
+          {
+            "metric": "ARIA Attributes Valid",
+            "baseline": "key:accessibility.aria.baseline",
+            "current": "key:accessibility.aria.current",
+            "status": "key:accessibility.aria.status"
+          },
+          {
+            "metric": "Keyboard Navigation",
+            "baseline": "key:accessibility.keyboard.baseline",
+            "current": "key:accessibility.keyboard.current",
+            "status": "key:accessibility.keyboard.status"
+          },
+          {
+            "metric": "Screen Reader Sessions",
+            "baseline": "key:accessibility.screenreader.baseline",
+            "current": "key:accessibility.screenreader.current",
+            "status": "key:accessibility.screenreader.status"
+          },
+          {
+            "metric": "WCAG 2.1 AA Score",
+            "baseline": "key:accessibility.wcag.baseline",
+            "current": "key:accessibility.wcag.current",
+            "status": "key:accessibility.wcag.status"
+          }
+        ]
+      },
+      {
+        "id": "traffic-distribution",
+        "title": "User Traffic Distribution",
+        "type": "donut",
+        "position": {
+          "x": 0,
+          "y": 14,
+          "width": 6,
+          "height": 3
+        },
+        "metrics": [
+          {
+            "name": "Using Original",
+            "key": "traffic.original.count",
+            "color": "#4c72b0"
+          },
+          {
+            "name": "Using MUI X",
+            "key": "traffic.muix.count",
+            "color": "#dd8452"
+          }
+        ],
+        "displayLegend": true,
+        "displayPercentages": true
+      },
+      {
+        "id": "error-breakdown",
+        "title": "Error Types Breakdown",
+        "type": "bar",
+        "position": {
+          "x": 6,
+          "y": 14,
+          "width": 6,
+          "height": 3
+        },
+        "metrics": [
+          {
+            "name": "JavaScript Errors",
+            "key": "errors.javascript",
+            "color": "#d62728"
+          },
+          {
+            "name": "React Errors",
+            "key": "errors.react",
+            "color": "#ff7f0e"
+          },
+          {
+            "name": "Network Errors",
+            "key": "errors.network",
+            "color": "#ffbb78"
+          },
+          {
+            "name": "Rendering Errors",
+            "key": "errors.rendering",
+            "color": "#2ca02c"
+          }
+        ],
+        "yAxis": {
+          "min": 0,
+          "unit": "count"
+        }
+      },
+      {
+        "id": "rollback-triggers",
+        "title": "Rollback Triggers Status",
+        "type": "status",
+        "position": {
+          "x": 0,
+          "y": 17,
+          "width": 12,
+          "height": 2
+        },
+        "triggers": [
+          {
+            "name": "Error Rate Spike (>5%)",
+            "key": "trigger.error_spike",
+            "threshold": 0.05,
+            "condition": "muix_error_rate - original_error_rate",
+            "status": "key:trigger.error_spike.status"
+          },
+          {
+            "name": "Performance Regression (>20%)",
+            "key": "trigger.performance",
+            "threshold": 0.2,
+            "condition": "muix_p95 - original_p95",
+            "status": "key:trigger.performance.status"
+          },
+          {
+            "name": "Critical Bug (P0)",
+            "key": "trigger.p0_bug",
+            "condition": "p0_bugs_count > 0",
+            "status": "key:trigger.p0_bug.status"
+          },
+          {
+            "name": "Multiple P1 Issues (≥3 in 24h)",
+            "key": "trigger.p1_bugs",
+            "threshold": 3,
+            "condition": "p1_bugs_count_24h",
+            "status": "key:trigger.p1_bugs.status"
+          },
+          {
+            "name": "Accessibility Failure",
+            "key": "trigger.accessibility",
+            "condition": "wcag_violations > baseline",
+            "status": "key:trigger.accessibility.status"
+          }
+        ]
+      },
+      {
+        "id": "alerts-log",
+        "title": "Recent Alerts",
+        "type": "log",
+        "position": {
+          "x": 0,
+          "y": 19,
+          "width": 12,
+          "height": 3
+        },
+        "columns": [
+          {
+            "name": "Time",
+            "key": "timestamp",
+            "displayFormat": "timestamp"
+          },
+          {
+            "name": "Severity",
+            "key": "severity",
+            "displayFormat": "badge"
+          },
+          {
+            "name": "Alert",
+            "key": "message",
+            "displayFormat": "text"
+          },
+          {
+            "name": "Value",
+            "key": "value",
+            "displayFormat": "number"
+          },
+          {
+            "name": "Threshold",
+            "key": "threshold",
+            "displayFormat": "number"
+          },
+          {
+            "name": "Action",
+            "key": "action",
+            "displayFormat": "badge"
+          }
+        ],
+        "logLevels": ["critical", "warning"],
+        "limit": 20,
+        "sortBy": "timestamp",
+        "sortOrder": "descending"
+      }
+    ],
+    "alertingRules": {
+      "global": [
+        {
+          "id": "error_spike",
+          "name": "Error Rate Spike Detected",
+          "condition": "(muix_error_rate - original_error_rate) > 0.05",
+          "severity": "critical",
+          "notificationChannels": ["slack", "email", "pagerduty"],
+          "message": "Error rate increased >5% from baseline. Current: {muix_error_rate}% vs Baseline: {original_error_rate}%",
+          "action": "INVESTIGATE_IMMEDIATELY",
+          "escalation": "immediately"
+        },
+        {
+          "id": "performance_regression",
+          "name": "Performance Regression Detected",
+          "condition": "(muix_p95 - original_p95) / original_p95 > 0.2",
+          "severity": "critical",
+          "notificationChannels": ["slack", "email", "pagerduty"],
+          "message": "P95 render time increased >20% from baseline. Current: {muix_p95}ms vs Baseline: {original_p95}ms",
+          "action": "CONSIDER_ROLLBACK",
+          "escalation": "within_1_hour"
+        },
+        {
+          "id": "p0_bug_reported",
+          "name": "P0 Bug Reported",
+          "condition": "p0_bug_count > 0",
+          "severity": "critical",
+          "notificationChannels": ["slack", "pagerduty"],
+          "message": "P0 severity bug reported: {bug_title}. User affected: {affected_user_count}",
+          "action": "IMMEDIATE_ESCALATION",
+          "escalation": "immediately"
+        },
+        {
+          "id": "multiple_p1_bugs",
+          "name": "Multiple P1 Issues",
+          "condition": "p1_bugs_count_24h >= 3",
+          "severity": "critical",
+          "notificationChannels": ["slack", "email"],
+          "message": "Multiple P1 issues detected in 24 hours: {p1_bugs_count_24h} issues",
+          "action": "PAUSE_ROLLOUT",
+          "escalation": "within_4_hours"
+        },
+        {
+          "id": "accessibility_failure",
+          "name": "Accessibility Failure Detected",
+          "condition": "wcag_violations > baseline",
+          "severity": "warning",
+          "notificationChannels": ["slack", "email"],
+          "message": "WCAG violations detected in production: {violation_count} violations",
+          "action": "ESCALATE_TO_A11Y_TEAM",
+          "escalation": "within_2_hours"
+        },
+        {
+          "id": "abandonment_spike",
+          "name": "User Abandonment Spike",
+          "condition": "(muix_abandonment - original_abandonment) > 0.15",
+          "severity": "warning",
+          "notificationChannels": ["slack"],
+          "message": "User abandonment increased >15% from baseline",
+          "action": "INVESTIGATE",
+          "escalation": "within_4_hours"
+        }
+      ]
+    },
+    "annotations": [
+      {
+        "event": "Phase 1 Start",
+        "description": "Internal rollout begins (dev/staging)",
+        "stage": "planning"
+      },
+      {
+        "event": "Phase 2 Start",
+        "description": "Beta rollout begins (5-10% production traffic)",
+        "stage": "execution"
+      },
+      {
+        "event": "Phase 3 Start",
+        "description": "Canary rollout begins (25% production traffic)",
+        "stage": "execution"
+      },
+      {
+        "event": "Phase 4 Start",
+        "description": "Gradual rollout begins (50% production traffic)",
+        "stage": "execution"
+      },
+      {
+        "event": "Phase 5 Start",
+        "description": "Full rollout begins (100% production traffic)",
+        "stage": "completion"
+      }
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "project_number": 11,
+  "slug": "complete-rust-wasm-video-renderer",
+  "merge_only": true,
+  "started_at": "2026-02-19T05:40:00Z",
+  "current_phase": "complete",
+  "phases_completed": ["preflight", "validation", "sync", "integration", "cleanup"],
+  "worktree_path": "/Users/stoked/work/stoked-ui-project-11",
+  "branch": "project/11",
+  "ahead_of_main": 26,
+  "behind_main": 0,
+  "conflicts_resolved": [],
+  "conflict_log": [],
+  "validation_results": { "skipped": true, "reason": "--merge flag" },
+  "pr_number": 268,
+  "pr_url": "https://github.com/stoked-ui/sui/pull/268",
+  "merge_commit": "417824abcaf01c02bfa7d84362efc2fc42990894",
+  "completed_at": "2026-02-19T07:03:00Z"
+}
