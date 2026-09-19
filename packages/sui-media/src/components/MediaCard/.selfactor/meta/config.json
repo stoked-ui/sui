@@ -1,0 +1,13 @@
+{
+  "lastUpdate": 1778749952489,
+  "lastValidate": 1778749952489,
+  "metaVersion": "0.3.0",
+  "packages": [],
+  "products": [
+    {
+      "description": "MediaCard repository",
+      "name": "MediaCard",
+      "packages": []
+    }
+  ]
+}
