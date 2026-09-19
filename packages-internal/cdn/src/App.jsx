@@ -1,5 +1,5 @@
 import React, { startTransition, useDeferredValue, useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   beginDesktopDownload,
   buildExportUrl,
@@ -12,7 +12,14 @@ import {
   updatePermissions,
   uploadFile,
 } from './lib/cdnApi';
-import { buildCrumbs, formatBytes, formatTimestamp, getContents, getFileKind } from './lib/contents';
+import {
+  buildCrumbs,
+  buildPrefixHref,
+  formatBytes,
+  formatTimestamp,
+  getContents,
+  getFileKind,
+} from './lib/contents';
 import {
   authSessionEndpoint,
   buildAuthLoginUrl,
@@ -253,9 +260,19 @@ const permissionRoleOptions = [
   'stokd member',
 ];
 
+function prefixFromPathname(pathname) {
+  if (!pathname || pathname === '/' || pathname === '/index.html' || !pathname.endsWith('/')) {
+    return '';
+  }
+
+  return pathname.replace(/^\/+/, '');
+}
+
 export default function App() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const prefix = searchParams.get('prefix') || '';
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const prefix = searchParams.get('prefix') || prefixFromPathname(location.pathname);
   const [query, setQuery] = useState('');
   const [reloadToken, setReloadToken] = useState(0);
   const [operationError, setOperationError] = useState('');
@@ -296,11 +313,7 @@ export default function App() {
   function openPrefix(nextPrefix) {
     setPermissionEditor(null);
     startTransition(() => {
-      if (nextPrefix) {
-        setSearchParams({ prefix: nextPrefix });
-      } else {
-        setSearchParams({});
-      }
+      navigate(buildPrefixHref(nextPrefix));
     });
   }
 

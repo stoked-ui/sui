@@ -17,11 +17,21 @@ function buildPublicUrl(path) {
   return new URL(path, `${publicBaseUrl.replace(/\/$/, '')}/`).toString();
 }
 
+export function buildPrefixHref(rawPrefix) {
+  const prefix = normalizePrefix(rawPrefix);
+
+  if (!prefix) {
+    return '/';
+  }
+
+  return `/${prefix.split('/').filter(Boolean).map(encodeURIComponent).join('/')}/`;
+}
+
 function formatFolder(path, prefix) {
   return {
     name: splitName(path, prefix),
     path,
-    url: `/?prefix=${encodeURIComponent(path)}`,
+    url: buildPrefixHref(path),
   };
 }
 
@@ -75,7 +85,7 @@ function normalizeJson(payload, prefix) {
   return {
     folders: (payload?.folders || []).map((folder) => ({
       ...folder,
-      url: folder.url || `/?prefix=${encodeURIComponent(folder.path)}`,
+      url: folder.url || buildPrefixHref(folder.path),
     })),
     objects: (payload?.objects || []).map((object) => ({
       ...object,
@@ -217,7 +227,7 @@ export function buildCrumbs(prefix) {
     return {
       label: segment,
       path,
-      href: `/?prefix=${encodeURIComponent(path)}`,
+      href: buildPrefixHref(path),
     };
   });
 }
