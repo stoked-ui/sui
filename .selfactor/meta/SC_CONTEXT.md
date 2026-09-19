@@ -1,0 +1,35 @@
+<!-- stokd-version: 0.1.8 -->
+# SC_CONTEXT.md
+
+This is the canonical Stokd context for this scope. Legacy model-specific files are stubs or migration sources.
+
+## Migrated from `AGENTS.md`
+
+# Agent Guardrails
+
+## Media API Scope (Critical)
+
+- `packages/sui-media-api` is for **media component APIs only**.
+- Do **not** add new business/domain routes to `sui-media-api` (examples: products, clients, licenses, invoices, users, non-media auth flows).
+- Business/domain API routes belong in the Docs Next.js API layer under `docs/pages/api/*`.
+- If a new endpoint is requested and it is not strictly media-related, implement it in `docs/pages/api/*`, not `packages/sui-media-api`.
+
+## Local Development
+
+- The main documentation site runs on **localhost:5199** by default (e.g., `pnpm docs:dev`).
+- API requests to the local environment should target this port.
+
+## Migrated from `CLAUDE.md`
+
+# Project Guardrails
+
+## Media API Boundary
+
+- `packages/sui-media-api` is reserved for media-component endpoints only.
+- Do not add non-media business routes there (including products, clients, licenses, invoices, users, or other app-domain APIs).
+- Implement non-media APIs in the Docs Next.js API surface under `docs/pages/api/*`.
+
+## Local Development
+
+- The main documentation site runs on **localhost:5199** by default.
+- Use `pnpm docs:dev` to start the local server.

@@ -1,0 +1,56 @@
+{
+  "projectTitle": "Product Management System — Square Pricing, Promos & Enhanced Fields",
+  "slug": "product-mgmt-square-pricing",
+  "createdAt": "2026-02-28T00:00:00Z",
+  "project_owner": "stokedconsulting",
+  "stages": {
+    "stage0": { "status": "skipped", "reason": "Short problem description" },
+    "stage0_5": { "status": "skipped", "reason": "Not a PRD file" },
+    "stage1": { "status": "completed" },
+    "stage1_5": { "status": "completed" },
+    "stage3": { "status": "completed" },
+    "stage3_5": { "status": "completed" },
+    "stage4": { "status": "completed" },
+    "stage5": { "status": "completed" }
+  },
+  "storageMode": "github",
+  "githubProjectNumber": 100,
+  "githubProjectUrl": "https://github.com/orgs/stokedconsulting/projects/100",
+  "masterIssues": {
+    "phase1": 344,
+    "phase2": 345,
+    "phase3": 346,
+    "phase4": 347
+  },
+  "workItemIssues": {
+    "1.1": 348, "1.2": 349, "1.3": 350, "1.4": 351, "1.5": 352,
+    "2.1": 353, "2.2": 354, "2.3": 355, "2.4": 356,
+    "3.1": 357, "3.2": 358, "3.3": 359, "3.4": 360,
+    "4.1": 361, "4.2": 362, "4.3": 363, "4.4": 364, "4.5": 365, "4.6": 366, "4.7": 367
+  },
+  "toolchain_validated": {
+    "verified_at": "2026-02-28T17:50:00Z",
+    "tools": {
+      "node": { "version": "v24.13.0", "status": "ok" },
+      "pnpm": { "version": "10.5.1", "status": "ok" },
+      "typescript": { "version": "5.4.5", "status": "ok" },
+      "git": { "version": "2.50.1", "status": "ok" }
+    }
+  },
+  "build_config": {
+    "build_commands": {
+      "primary": "cd /opt/worktrees/stoked-ui/stoked-ui-main-project-100 && pnpm build",
+      "additional": []
+    },
+    "test_commands": {
+      "unit": "cd /opt/worktrees/stoked-ui/stoked-ui-main-project-100 && pnpm test:unit",
+      "integration": ""
+    },
+    "expected_artifacts": [],
+    "toolchain_requirements": [
+      { "tool": "node", "check": "node --version" },
+      { "tool": "pnpm", "check": "pnpm --version" },
+      { "tool": "tsc", "check": "npx tsc --version" }
+    ]
+  }
+}
