@@ -1,7 +1,0 @@
-src/
-tests/
-examples/
-tsconfig.json
-*.test.ts
-*.spec.ts
-.gitignore
