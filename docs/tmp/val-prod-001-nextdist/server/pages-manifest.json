@@ -1,0 +1,11 @@
+{
+  "/_app": "pages/_app.js",
+  "/_error": "pages/_error.js",
+  "/_document": "pages/_document.js",
+  "/products/focus-capture": "pages/products/focus-capture.js",
+  "/api/products/public": "pages/api/products/public.js",
+  "/products/flux": "pages/products/flux.js",
+  "/api/auth/session": "pages/api/auth/session.js",
+  "/consulting/products/focus-capture": "pages/consulting/products/focus-capture.js",
+  "/consulting/products/flux": "pages/consulting/products/flux.js"
+}
