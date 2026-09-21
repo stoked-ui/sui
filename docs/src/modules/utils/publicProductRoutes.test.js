@@ -51,4 +51,16 @@ describe('public product routes', () => {
     expect(catchAll).to.include('PublicProductDetailPage');
     expect(catchAll).to.not.match(/admin\/products|router\.replace/);
   });
+
+  it('serves sgit, gdock, and status from public pages', () => {
+    ['sgit', 'gdock', 'status'].forEach((productId) => {
+      const publicPage = readRepoFile(`docs/pages/products/${productId}/index.tsx`);
+      const consultingPage = readRepoFile(`docs/pages/consulting/products/${productId}.tsx`);
+      expect(publicPage).to.include('ConsultingOssProductPage');
+      expect(consultingPage).to.include('ConsultingOssProductPage');
+      expect(publicPage).to.include(`productId="${productId}"`);
+      expect(consultingPage).to.not.match(/admin\/products|router\.replace/);
+      expect(publicPage).to.not.match(/admin\/products|router\.replace/);
+    });
+  });
 });

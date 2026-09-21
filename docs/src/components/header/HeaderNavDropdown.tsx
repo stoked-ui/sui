@@ -56,7 +56,22 @@ const UList = styled('ul')({
   listStyleType: 'none',
   padding: 0,
   margin: 0,
+  display: 'block',
 });
+
+function OpenSourceMark({ openSource }: { openSource?: boolean }) {
+  if (!openSource) {
+    return null;
+  }
+  return (
+    <Chip
+      size="small"
+      label="Open source"
+      variant="outlined"
+      sx={{ height: 20, fontWeight: 700 }}
+    />
+  );
+}
 
 const CONSULTING_ITEMS: Array<{ name: string; description: string; href: string }> = [
   {
@@ -244,17 +259,19 @@ export default function HeaderNavDropdown({ auth, managedProducts = [] }: Header
                     )}
                   </Box>
                   <Collapse in={productsOpen}>
-                    <UList>
+                    <UList data-product-menu="products" data-columns="1">
                       {allProducts.live.map((item) => (
                         <li key={item.id}>
                           <Anchor
                             href={item.url(isAdmin ? 'admin' : 'product')}
                             as={Link}
                             noLinkStyle
+                            prefetch={false}
                             sx={{ flexDirection: 'column', alignItems: 'initial' }}
                           >
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                               {item.name}
+                              <OpenSourceMark openSource={item.data.openSource} />
                             </Box>
                             <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-line' }}>
                               {item.description}
@@ -440,19 +457,19 @@ export default function HeaderNavDropdown({ auth, managedProducts = [] }: Header
                     />
                   </Anchor>
                   <Collapse in={productsOpen}>
-                    <UList>
+                    <UList data-product-menu="products" data-columns="1">
                       {allProducts.live.map((item) => (
                         <li key={item.id}>
                           <Anchor
                             href={item.url('product')}
                             as={Link}
                             noLinkStyle
+                            prefetch={false}
                             sx={{ flexDirection: 'column', alignItems: 'initial' }}
                           >
-                            <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                {item.name}
-                              </Box>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                              {item.name}
+                              <OpenSourceMark openSource={item.data.openSource} />
                             </Box>
                             <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-line' }}>
                               {item.description}

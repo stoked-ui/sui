@@ -15,6 +15,7 @@
 import { MongoClient } from 'mongodb';
 import * as fs from 'fs';
 import * as path from 'path';
+import { CONSULTING_OSS_PRODUCTS } from '../src/modules/products/consultingOssProducts';
 
 const LOCAL_MONGODB_URI = 'mongodb://localhost:27017/stoked-media';
 
@@ -214,6 +215,19 @@ For privacy requests or questions, contact Stoked Consulting through consulting.
     ],
     slugOrder: ['overview', 'vscode-extension', 'state-api', 'review-commands', 'roadmap'],
   },
+  ...CONSULTING_OSS_PRODUCTS.map((entry) => ({
+    productId: entry.id,
+    name: entry.name,
+    fullName: entry.fullName,
+    description: entry.description,
+    icon: entry.icon,
+    url: `/products/${entry.id}`,
+    live: true,
+    managed: true,
+    hideProductFeatures: true,
+    features: [{ name: 'Overview', description: entry.description, id: 'overview' }],
+    slugOrder: ['overview'],
+  })),
 ];
 
 function printUsage() {

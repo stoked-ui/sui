@@ -42,6 +42,18 @@ describe('getProductInfoFromUrl', () => {
       productCategoryId: 'core',
       productId: 'mac-mixer',
     });
+    expect(getProductInfoFromUrl('/products/sgit/')).to.deep.equal({
+      productCategoryId: 'core',
+      productId: 'sgit',
+    });
+    expect(getProductInfoFromUrl('/products/gdock/')).to.deep.equal({
+      productCategoryId: 'core',
+      productId: 'gdock',
+    });
+    expect(getProductInfoFromUrl('/consulting/products/status/')).to.deep.equal({
+      productCategoryId: 'core',
+      productId: 'status',
+    });
   });
 
   it('keeps legacy short product routes identifiable', () => {

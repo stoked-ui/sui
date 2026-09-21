@@ -45,6 +45,7 @@ import {
 
 import TimelineShowcase from "./components/home/TimelineShowcase";
 import EditorShowcase from './components/home/EditorShowcase';
+import { CONSULTING_OSS_PRODUCTS } from './modules/products/consultingOssProducts';
 
 type RouteType = 'product' | 'doc';
 const routeTypes: RouteType[] = ['product', 'doc'];
@@ -73,6 +74,7 @@ export type TProduct = {
   site?: PublicSite;
   hideProductFeatures?: boolean;
   prerelease?: 'alpha' | 'beta' | 'none';
+  openSource?: boolean;
   live?: boolean;
   showcaseType: React.ComponentType;
   showcaseContent?: any;
@@ -161,13 +163,16 @@ export class Product {
     const resolvedLinkType = linkType ?? (type === 'docs' ? 'doc' : 'product');
     const product = type === 'products';
     const showFeatures = resolvedLinkType !== 'admin' && !(product && this.data.hideProductFeatures);
+    const featureChips = showFeatures ? this.features.filter((feature) => feature.name) : [];
     return (
       <Box
         key={this.id}
         component="li"
         role="none"
         sx={(theme) => ({
-          p: 2, pr: 3,
+          p: product ? 1.75 : 2,
+          pr: product ? 2 : 3,
+          minWidth: 0,
           '&:hover': {
             backgroundColor: 'grey.50',
           },
@@ -181,58 +186,76 @@ export class Product {
         <Box
           component={Link}
           href={this.url(resolvedLinkType)}
+          prefetch={false}
           sx={[
             {
               width: '100%',
               display: 'flex',
-              alignItems: 'center',
-              gap: 2,
+              alignItems: 'flex-start',
+              gap: 1.5,
+              minWidth: 0,
             },
             ...(Array.isArray(sx) ? sx : [sx]),
           ]}
         >
           {this.icon}
-          <Box sx={{ flexGrow: 1 }}>
-            <Typography color="text.primary" variant="body2" fontWeight="700">
-              {this.name}
-            </Typography>
-            <Typography color="text.secondary" variant="body2" sx={{ whiteSpace: 'pre-line' }}>
+          <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+              <Typography color="text.primary" variant="body2" fontWeight="700">
+                {this.name}
+              </Typography>
+              {this.data.openSource ? (
+                <Chip
+                  label="Open source"
+                  size="small"
+                  variant="outlined"
+                  sx={{ height: 20, fontWeight: 700 }}
+                />
+              ) : null}
+            </Box>
+            <Typography color="text.secondary" variant="body2" sx={{ whiteSpace: 'pre-line', mt: 0.25 }}>
               {this.description}
             </Typography>
           </Box>
         </Box>
-        <Stack
-          direction={{ xs: 'column', sm: 'row' }}
-          alignItems="flex-start"
-          spacing={1}
-          sx={{
-            ml: '36px',
-            pl: 2,
-            pt: 1.5,
-            position: 'relative',
-            '& > .MuiChip-root': {
-              position: 'initial',
-              '&:hover': {
-                '& .product-description': {
-                  opacity: 1,
+        {featureChips.length > 0 ? (
+          <Stack
+            direction="row"
+            alignItems="flex-start"
+            spacing={1}
+            sx={{
+              ml: '36px',
+              pl: 1.5,
+              pt: 1.25,
+              position: 'relative',
+              flexWrap: 'wrap',
+              maxWidth: '100%',
+              '& > .MuiChip-root': {
+                position: 'initial',
+                mb: 0.5,
+                '&:hover': {
+                  '& .product-description': {
+                    opacity: 1,
+                  },
                 },
               },
-            },
-          }}
-        >
-          {showFeatures && this.features.filter(f => f.name).map((feature) => (
-            <Chip
-              key={feature.name}
-              color={currentProductId === this.id ? 'primary' : undefined}
-              variant={currentProductId === this.id ? 'filled' : 'outlined'}
-              component={Link}
-              href={this.url(type === 'docs' ? 'doc' : 'product', feature.id, feature.productId)}
-              label={feature.name}
-              clickable
-              size="small"
-            />
-          ))}
-        </Stack>
+            }}
+          >
+            {featureChips.map((feature) => (
+              <Chip
+                key={feature.name}
+                color={currentProductId === this.id ? 'primary' : undefined}
+                variant={currentProductId === this.id ? 'filled' : 'outlined'}
+                component={Link}
+                href={this.url(type === 'docs' ? 'doc' : 'product', feature.id, feature.productId)}
+                prefetch={false}
+                label={feature.name}
+                clickable
+                size="small"
+              />
+            ))}
+          </Stack>
+        ) : null}
       </Box>
     );
   }
@@ -526,7 +549,7 @@ function SwipeableProducts(props: ProductSwipeableProps) {
   return swipeableProducts;
 }
 
-function ProductMenu(props: ProductMenuProps) {
+export function ProductMenu(props: ProductMenuProps) {
   const menu = React.useMemo(() => {
     const {
       type,
@@ -542,6 +565,7 @@ function ProductMenu(props: ProductMenuProps) {
     if (!type) {
       return null;
     }
+    const twoColumn = type === 'products';
     return <li
       onMouseEnter={setSubMenuOpenUndebounce?.(type)}
       onFocus={setSubMenuOpenUndebounce?.(type)}
@@ -593,9 +617,10 @@ function ProductMenu(props: ProductMenuProps) {
               variant="outlined"
               sx={(theme) => ({
                 mt: 1,
-                minWidth: 320,
-                maxWidth: 360,
-                overflow: 'hidden',
+                minWidth: twoColumn ? { xs: 280, md: 640 } : 320,
+                maxWidth: twoColumn ? { xs: 'calc(100vw - 32px)', md: 760 } : 360,
+                width: twoColumn ? { md: 720 } : undefined,
+                overflow: twoColumn ? 'visible' : 'hidden',
                 borderColor: 'grey.200',
                 bgcolor: 'background.paper',
                 boxShadow: `0px 4px 16px ${alpha(theme.palette.grey[200], 0.8)}`,
@@ -603,23 +628,45 @@ function ProductMenu(props: ProductMenuProps) {
                   margin: 0,
                   padding: 0,
                   listStyle: 'none',
+                  ...(twoColumn && {
+                    display: 'grid',
+                    gridTemplateColumns: 'minmax(0, 1fr)',
+                    [theme.breakpoints.up('md')]: {
+                      gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
+                      backgroundImage: `linear-gradient(${theme.palette.divider}, ${theme.palette.divider})`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'center top',
+                      backgroundSize: '1px 100%',
+                    },
+                  }),
                 },
-                '& li:not(:last-of-type)': {
-                  borderBottom: '1px solid',
-                  borderColor: theme.palette.divider,
-                },
+                ...(!twoColumn && {
+                  '& li:not(:last-of-type)': {
+                    borderBottom: '1px solid',
+                    borderColor: theme.palette.divider,
+                  },
+                }),
                 '& a': { textDecoration: 'none' },
                 ...theme.applyDarkStyles({
                   borderColor: 'primaryDark.700',
                   bgcolor: 'primaryDark.900',
                   boxShadow: `0px 4px 16px ${alpha(theme.palette.common.black, 0.8)}`,
-                  '& li:not(:last-of-type)': {
-                    borderColor: 'primaryDark.700',
-                  },
+                  ...(!twoColumn && {
+                    '& li:not(:last-of-type)': {
+                      borderColor: 'primaryDark.700',
+                    },
+                  }),
+                  ...(twoColumn && {
+                    '& ul': {
+                      [theme.breakpoints.up('md')]: {
+                        backgroundImage: `linear-gradient(${theme.palette.primaryDark[700]}, ${theme.palette.primaryDark[700]})`,
+                      },
+                    },
+                  }),
                 }),
               })}
             >
-              <ul>
+              <ul data-product-menu={type} data-columns={twoColumn ? '2' : '1'}>
                 {products.map((product: Product) => {
                   return product.menuItem(type, props);
                 })}
@@ -1287,15 +1334,36 @@ const stokdCloudData: TProduct = {
 };
 const stokdCloud = new Product(stokdCloudData);
 
+const consultingOssProducts = CONSULTING_OSS_PRODUCTS.map((entry) => new Product({
+  id: entry.id,
+  name: entry.name,
+  fullName: entry.fullName,
+  description: entry.description,
+  icon: entry.icon,
+  url: `/products/${entry.id}`,
+  site: 'consulting',
+  hideProductFeatures: true,
+  live: true,
+  openSource: true,
+  showcaseType: AdvancedShowcase,
+  features: [{
+    name: 'Overview',
+    description: entry.description,
+    id: 'overview',
+  }],
+}));
+
 const PRODUCTS: Products = new Products([fileExplorer, media, timeline, videoEditor]);
 const ALL_PRODUCTS: Products = new Products([sui]);
 const CONSULTING: Products = new Products([consultingFrontEnd, consultingBackEnd, consultingFullStack, consultingDevops, consultingAi]);
 // Stoked UI plus the rebranded consulting products, so nav labels stay correct
 // before the public products API responds. Other consulting products still come from the API.
-const PUBLIC_FALLBACK_PRODUCTS: Products = new Products([sui, macMixer, stokdCloud]);
+const PUBLIC_FALLBACK_PRODUCTS: Products = new Products([
+  sui, macMixer, stokdCloud, ...consultingOssProducts,
+]);
 const ALL_PACKAGES: Products = new Products([
   fileExplorer, media, common, mediaApi, mediaSelector, timeline, videoEditor, flux, focusCapture,
-  macMixer, alwaysListening, stokdCloud,
+  macMixer, alwaysListening, stokdCloud, ...consultingOssProducts,
   consultingFrontEnd, consultingBackEnd, consultingFullStack, consultingDevops, consultingAi
 ]);
 
@@ -1318,6 +1386,7 @@ const CONSULTING_ENRICHMENT = new Map<string, TProduct>([
   [alwaysListening.id, alwaysListening.data],
   [stokdCloud.id, stokdCloud.data],
   ['stokd-cloud', stokdCloud.data],
+  ...consultingOssProducts.map((product): [string, TProduct] => [product.id, product.data]),
 ]);
 
 export type MenuProps = {
@@ -1356,6 +1425,7 @@ function useAllProducts(): Products {
               ? product.features
               : (fallback?.features || []),
             hideProductFeatures: fallback?.hideProductFeatures ?? product.hideProductFeatures ?? false,
+            openSource: fallback?.openSource,
             live: true,
             showcaseType: fallback?.showcaseType || AdvancedShowcase,
           };

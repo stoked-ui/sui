@@ -35,6 +35,9 @@ export type MuiProductId =
   | 'always-listening'
   | 'stokd-cloud'
   | 'selfactor'
+  | 'sgit'
+  | 'gdock'
+  | 'status'
   | 'versions';
 
 type MuiProductCategoryId = 'toolpad' | 'null' | 'core' | 'x';

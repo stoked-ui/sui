@@ -17,6 +17,9 @@ const CONSULTING_PUBLIC_PRODUCT_IDS = [
   'always-listening',
   'selfactor',
   'stokd-cloud',
+  'sgit',
+  'gdock',
+  'status',
 ];
 
 const CONSULTING_ROUTE_MANIFEST = [
