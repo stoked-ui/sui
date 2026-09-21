@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { OAuth2Client } from 'google-auth-library';
 import { loginWithGooglePayload } from 'docs/src/modules/auth/authStore';
+import { readGoogleClientId } from 'docs/src/modules/auth/googleClientId';
 import { setAuthSession } from 'docs/src/modules/auth/session';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -13,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ message: 'Token is required' });
   }
 
-  const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+  const clientId = readGoogleClientId();
   if (!clientId) {
     return res.status(500).json({ message: 'Google login is not configured' });
   }

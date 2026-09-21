@@ -7,7 +7,7 @@ import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
-import { GoogleLogin } from '@react-oauth/google';
+import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { useRouter } from 'next/router';
 import { BrandingCssVarsProvider } from '@stoked-ui/docs';
 import { getApiUrl } from 'docs/src/modules/utils/getApiUrl';
@@ -108,7 +108,13 @@ function navigateAfterAuth(router: ReturnType<typeof useRouter>, target: string)
   navigateToTarget(router, buildPostAuthTarget(target));
 }
 
-function LoginForm({ onLogin }: { onLogin: (data: AuthData) => void }) {
+function LoginForm({
+  onLogin,
+  googleClientId,
+}: {
+  onLogin: (data: AuthData) => void;
+  googleClientId: string;
+}) {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [loading, setLoading] = React.useState(false);
@@ -166,8 +172,6 @@ function LoginForm({ onLogin }: { onLogin: (data: AuthData) => void }) {
     }
   };
 
-  const showGoogleLogin = Boolean(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
-
   return (
     <Box
       sx={{
@@ -189,6 +193,24 @@ function LoginForm({ onLogin }: { onLogin: (data: AuthData) => void }) {
             {error}
           </Alert>
         )}
+        {googleClientId ? (
+          <GoogleOAuthProvider clientId={googleClientId}>
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => setError('Google sign-in failed')}
+              />
+            </Box>
+          </GoogleOAuthProvider>
+        ) : (
+          <Alert severity="error">
+            Google sign-in is unavailable because this site has no Google client id configured.
+            Use email and password below.
+          </Alert>
+        )}
+        <Divider sx={{ my: 2 }}>
+          <Typography variant="caption" color="text.secondary">or</Typography>
+        </Divider>
         <Box
           component="form"
           onSubmit={handleSubmit}
@@ -224,25 +246,16 @@ function LoginForm({ onLogin }: { onLogin: (data: AuthData) => void }) {
             {loading ? 'Signing in...' : 'Sign In'}
           </Button>
         </Box>
-        {showGoogleLogin && (
-          <React.Fragment>
-            <Divider sx={{ my: 2 }}>
-              <Typography variant="caption" color="text.secondary">or</Typography>
-            </Divider>
-            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={() => setError('Google sign-in failed')}
-              />
-            </Box>
-          </React.Fragment>
-        )}
       </Paper>
     </Box>
   );
 }
 
-export default function ConsultingLoginPage() {
+export default function ConsultingLoginPage({
+  googleClientId = '',
+}: {
+  googleClientId?: string;
+}) {
   const router = useRouter();
   const [auth, setAuth] = React.useState<AuthData | null>(null);
   const [loading, setLoading] = React.useState(true);
@@ -327,7 +340,7 @@ export default function ConsultingLoginPage() {
       <Head title="Login - Stoked Consulting" description="Sign in to the consulting portal" />
       <AppHeader />
       <main id="main-content">
-        <LoginForm onLogin={handleLogin} />
+        <LoginForm onLogin={handleLogin} googleClientId={googleClientId} />
       </main>
       <Divider />
       <AppFooter />

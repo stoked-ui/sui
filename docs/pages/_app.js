@@ -24,7 +24,7 @@ import createEmotionCache from 'docs/src/createEmotionCache';
 import findActivePage from 'docs/src/modules/utils/findActivePage';
 import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
 import getProductInfoFromUrl from 'docs/src/modules/utils/getProductInfoFromUrl';
-import { GoogleOAuthProvider } from '@react-oauth/google';
+import { readGoogleClientId, rememberGoogleClientId } from 'docs/src/modules/auth/googleClientId';
 import { DocsProvider as DocsProviderStoked } from '@stoked-ui/docs/DocsProvider';
 import allPages from '../data/pages';
 import fluxPages from '../data/fluxPages';
@@ -254,6 +254,7 @@ const productMap = {
 
 function AppWrapper(props) {
   const { children, emotionCache, pageProps } = props;
+  rememberGoogleClientId(pageProps.googleClientId);
 
   const router = useRouter();
   // TODO move productId & productCategoryId resolution to page layout.
@@ -312,8 +313,6 @@ function AppWrapper(props) {
     ];
   }
 
-  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-
   const content = (
     <React.Fragment>
       <NextHead>
@@ -354,10 +353,6 @@ function AppWrapper(props) {
       </DocsProviderStoked>
     </React.Fragment>
   );
-
-  if (googleClientId) {
-    return <GoogleOAuthProvider clientId={googleClientId}>{content}</GoogleOAuthProvider>;
-  }
 
   return content;
 }
@@ -401,6 +396,7 @@ MyApp.getInitialProps = async ({ ctx, Component }) => {
       translations,
       ...pageProps,
       themeMode,
+      googleClientId: readGoogleClientId(),
     },
   };
 };
