@@ -245,14 +245,14 @@ function Pillars() {
       <Container>
         <Stack spacing={1.5} sx={{ maxWidth: 820, mx: 'auto', mb: 5, textAlign: 'center' }}>
           <Typography variant="overline" color="primary.main" fontWeight={800}>
-            Why Stokd
+            Why Selfactor
           </Typography>
           <Typography variant="h3" component="h2" fontWeight={900}>
             The two things that make an engineer trustworthy — now given to your agents
           </Typography>
           <Typography color="text.secondary">
             A senior engineer knows what must never break, and remembers why every line is there.
-            Out of the box, a frontier model has neither. Stokd checks both into your repository.
+            Out of the box, a frontier model has neither. Selfactor checks both into your repository.
           </Typography>
         </Stack>
         <Grid container spacing={3}>
@@ -297,10 +297,10 @@ function Comparison() {
             Before & after
           </Typography>
           <Typography variant="h3" component="h2" fontWeight={900}>
-            What Stokd adds on top of your coding agent
+            What Selfactor adds on top of your coding agent
           </Typography>
           <Typography color="text.secondary">
-            Claude Code, Codex, Gemini, and Grok are excellent at writing code in the moment. Stokd
+            Claude Code, Codex, Gemini, and Grok are excellent at writing code in the moment. Selfactor
             is the layer that makes them trustworthy on a codebase you have to keep running for
             years.
           </Typography>
@@ -347,7 +347,7 @@ function Comparison() {
           ))}
         </Paper>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 2, textAlign: 'center' }}>
-          Stokd orchestrates the agents you already use — it doesn&apos;t replace them.
+          Selfactor orchestrates the agents you already use — it doesn&apos;t replace them.
         </Typography>
       </Container>
     </Box>
@@ -404,7 +404,7 @@ function Trust() {
             </Typography>
             <Typography color="text.secondary">
               Turning a frontier model loose on your repo only works if it can&apos;t surprise you.
-              Stokd makes every run bounded, reviewable, and reversible — so you steer the calls
+              Selfactor makes every run bounded, reviewable, and reversible — so you steer the calls
               that matter and skip the babysitting.
             </Typography>
           </Grid>
@@ -580,8 +580,8 @@ function FinalCta() {
             </Stack>
             <Typography color="text.secondary">
               Sign in with GitHub, connect a repository, and dispatch your first task — with the
-              spec gate, TDD enforcement, and live observability on from the very first run. Stokd
-              Cloud is in alpha; early adopters shape the roadmap.
+              spec gate, TDD enforcement, and live observability on from the very first run. Selfactor
+              is in alpha; early adopters shape the roadmap.
             </Typography>
           </div>
           <Button href={STOKD_CLOUD_APP_URL} variant="contained" size="large">
@@ -594,7 +594,7 @@ function FinalCta() {
 }
 
 /**
- * The full Stokd Cloud sales pitch, header/footer-free so it can be embedded
+ * The full Selfactor sales pitch, header/footer-free so it can be embedded
  * and rendered standalone (including in tests).
  */
 export default function StokdCloudPitch() {

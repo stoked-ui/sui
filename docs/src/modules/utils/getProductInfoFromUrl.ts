@@ -31,8 +31,10 @@ export type MuiProductId =
   | 'flux'
   | 'focus-capture'
   | 'mac-mixer'
+  | 'stokd-mixer'
   | 'always-listening'
   | 'stokd-cloud'
+  | 'selfactor'
   | 'versions';
 
 type MuiProductCategoryId = 'toolpad' | 'null' | 'core' | 'x';

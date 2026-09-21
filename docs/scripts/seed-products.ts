@@ -32,6 +32,8 @@ interface ProductPage {
 
 interface ProductConfig {
   productId: string;
+  /** Markdown directory under docs/data when it differs from productId. */
+  docsProductId?: string;
   name: string;
   fullName: string;
   description: string;
@@ -53,6 +55,15 @@ interface ProductConfig {
   };
   features: Array<{ name: string; description: string; id: string }>;
   slugOrder: string[];
+}
+
+const LEGACY_PRODUCT_IDS: Record<string, string> = {
+  'mac-mixer': 'stokd-mixer',
+  'stokd-cloud': 'selfactor',
+};
+
+function resolveSeedProductId(productId: string) {
+  return LEGACY_PRODUCT_IDS[productId] ?? productId;
 }
 
 const products: ProductConfig[] = [
@@ -95,12 +106,13 @@ const products: ProductConfig[] = [
     slugOrder: ['overview', 'download', 'installation', 'source-settings', 'roadmap'],
   },
   {
-    productId: 'mac-mixer',
-    name: 'Mac Mixer',
-    fullName: 'Mac Mixer',
+    productId: 'stokd-mixer',
+    docsProductId: 'mac-mixer',
+    name: 'Stokd Mixer',
+    fullName: 'Stokd Mixer',
     description: 'Per-application audio routing for macOS with app-level and device-level volume control',
     icon: 'product-advanced',
-    url: '/mac-mixer',
+    url: '/products/stokd-mixer',
     live: true,
     managed: true,
     hideProductFeatures: true,
@@ -112,15 +124,15 @@ const products: ProductConfig[] = [
     maxActivations: 3,
     privacyPolicy: {
       enabled: true,
-      content: `# Mac Mixer Privacy Policy
+      content: `# Stokd Mixer Privacy Policy
 
 **Last updated: May 4, 2026**
 
-Mac Mixer is a macOS menu-bar utility from Stoked Consulting. This policy explains what information is processed when you use Mac Mixer, buy a direct license, or activate the app.
+Stokd Mixer is a macOS menu-bar utility from Stoked Consulting. This policy explains what information is processed when you use Stokd Mixer, buy a direct license, or activate the app.
 
 ## Audio and routing data
 
-Mac Mixer processes audio locally on your Mac. Audio content is not uploaded, recorded, analyzed, or transmitted to Stoked Consulting.
+Stokd Mixer processes audio locally on your Mac. Audio content is not uploaded, recorded, analyzed, or transmitted to Stoked Consulting.
 
 Route assignments, device names, enabled devices, and volume settings are stored locally at \`~/Library/Application Support/MacMixer/config.yaml\`. This configuration is not sent to Stoked Consulting by the app.
 
@@ -139,11 +151,11 @@ If you use the Mac App Store build, purchase and subscription management are han
 
 ## Local storage
 
-Mac Mixer stores trial state, license keys, entitlement cache data, and related validation data in Keychain and UserDefaults. Debug logs may be written to \`~/Library/Logs/MacMixer.log\`.
+Stokd Mixer stores trial state, license keys, entitlement cache data, and related validation data in Keychain and UserDefaults. Debug logs may be written to \`~/Library/Logs/MacMixer.log\`.
 
 ## Network use
 
-Mac Mixer network calls are limited to checkout, license activation, license validation, license deactivation, and optional product-promo content. The app does not include audio analytics.
+Stokd Mixer network calls are limited to checkout, license activation, license validation, license deactivation, and optional product-promo content. The app does not include audio analytics.
 
 ## Data sharing
 
@@ -154,7 +166,7 @@ Stoked Consulting does not sell personal information. Direct-license billing dat
 For privacy requests or questions, contact Stoked Consulting through consulting.stokd.cloud.`,
     },
     features: [
-      { name: 'Overview', description: 'What Mac Mixer does, requirements, and current alpha scope', id: 'overview' },
+      { name: 'Overview', description: 'What Stokd Mixer does, requirements, and current alpha scope', id: 'overview' },
       { name: 'Routing and Volumes', description: 'Move apps between output devices and control route levels', id: 'app-volumes' },
       { name: 'Installation', description: 'HAL plug-in install, first launch, and release-channel notes', id: 'installation' },
       { name: 'Configuration', description: 'YAML persistence and the runtime driver sync contract', id: 'configuration' },
@@ -183,12 +195,13 @@ For privacy requests or questions, contact Stoked Consulting through consulting.
     slugOrder: ['overview', 'voice-modes', 'preferences', 'roadmap'],
   },
   {
-    productId: 'stokd-cloud',
-    name: 'Stokd Cloud',
-    fullName: 'Stokd Cloud',
+    productId: 'selfactor',
+    docsProductId: 'stokd-cloud',
+    name: 'Selfactor',
+    fullName: 'Selfactor',
     description: 'AI-powered project orchestration with VSCode extension, NestJS API, and MCP server',
     icon: 'product-toolpad',
-    url: '/stokd-cloud',
+    url: '/products/selfactor',
     live: true,
     managed: true,
     hideProductFeatures: true,
@@ -266,9 +279,10 @@ function selectProducts(productIds: string[]) {
     return products;
   }
 
+  const requestedIds = [...new Set(productIds.map((productId) => resolveSeedProductId(productId)))];
   const productMap = new Map(products.map((product): [string, ProductConfig] => [product.productId, product]));
-  const selected = productIds.map((productId) => productMap.get(productId));
-  const missing = productIds.filter((productId) => !productMap.has(productId));
+  const selected = requestedIds.map((productId) => productMap.get(productId));
+  const missing = requestedIds.filter((productId) => !productMap.has(productId));
 
   if (missing.length > 0) {
     throw new Error(`Unknown productId(s): ${missing.join(', ')}`);
@@ -305,8 +319,8 @@ function parseFrontMatter(raw: string): { title: string; content: string } {
   };
 }
 
-function readProductPages(productId: string, slugOrder: string[]): ProductPage[] {
-  const docsDir = path.resolve(__dirname, `../data/${productId}/docs`);
+function readProductPages(productId: string, slugOrder: string[], docsProductId = productId): ProductPage[] {
+  const docsDir = path.resolve(__dirname, `../data/${docsProductId}/docs`);
   const pages: ProductPage[] = [];
 
   if (!fs.existsSync(docsDir)) {
@@ -347,7 +361,7 @@ async function seed() {
   if (options.dryRun) {
     let totalPages = 0;
     selectedProducts.forEach((config) => {
-      const pages = readProductPages(config.productId, config.slugOrder);
+      const pages = readProductPages(config.productId, config.slugOrder, config.docsProductId);
       totalPages += pages.length;
       console.log(`${config.productId}: ${pages.length} page(s), live=${config.live}`);
     });
@@ -371,7 +385,23 @@ async function seed() {
     let totalPages = 0;
 
     for (const config of selectedProducts) {
-      const { productId, slugOrder, ...productData } = config;
+      const { productId, slugOrder, docsProductId, ...productData } = config;
+      const legacyId = Object.keys(LEGACY_PRODUCT_IDS).find((key) => LEGACY_PRODUCT_IDS[key] === productId);
+
+      if (legacyId) {
+        const current = await db.collection('products').findOne({ productId });
+        const legacy = await db.collection('products').findOne({ productId: legacyId });
+        if (legacy && !current) {
+          await db.collection('products').updateOne({ _id: legacy._id }, { $set: { productId } });
+          console.log(`Renamed productId ${legacyId} -> ${productId}`);
+        } else if (legacy && current && String(legacy._id) !== String(current._id)) {
+          await db.collection('products').updateOne(
+            { _id: legacy._id },
+            { $set: { live: false, updatedAt: now } },
+          );
+          console.log(`Unpublished legacy productId ${legacyId}; canonical ${productId} already exists`);
+        }
+      }
 
       // Upsert product
       const productResult = await db.collection('products').updateOne(
@@ -390,7 +420,7 @@ async function seed() {
       );
 
       // Upsert doc pages
-      const pages = readProductPages(productId, slugOrder);
+      const pages = readProductPages(productId, slugOrder, docsProductId);
       for (const page of pages) {
         const pageResult = await db.collection('product_pages').updateOne(
           { productId: productMongoId, slug: page.slug },

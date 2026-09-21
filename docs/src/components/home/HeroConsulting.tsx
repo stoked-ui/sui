@@ -1,46 +1,11 @@
 import * as React from 'react';
-import dynamic from 'next/dynamic';
-import { useTheme } from '@mui/material/styles';
-import Box, { BoxProps } from '@mui/material/Box';
+import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import Stack from '@mui/material/Stack';
-import useMediaQuery from '@mui/material/useMediaQuery';
 import GradientText from 'docs/src/components/typography/GradientText';
-// import GetStartedButtons from 'docs/src/components/home/GetStartedButtons';
 import HeroContainer from 'docs/src/layouts/HeroContainer';
-
-function createLoading(sx: BoxProps['sx']) {
-  return function Loading() {
-    return (
-      <Box
-        sx={[
-          (theme) => ({
-            borderRadius: 1,
-            bgcolor: 'grey.100',
-            ...theme.applyDarkStyles({
-              bgcolor: 'primaryDark.800',
-            }),
-          }),
-          ...(Array.isArray(sx) ? sx : [sx]),
-        ]}
-      />
-    );
-  };
-}
-
-const ConsultingDocumentBrowser = dynamic(() => import('../showcase/ConsultingDocumentBrowserCard'), {
-  ssr: false,
-  loading: createLoading({ width: '100%', height: 340 }),
-});
-
-const MediaCardGrid = dynamic(() => import('../showcase/MediaCardGridCard'), {
-  ssr: false,
-  loading: createLoading({ width: 360, height: 280 }),
-});
+import ConsultingHeroStill from 'docs/src/components/home/ConsultingHeroStill';
 
 export default function Hero() {
-  const globalTheme = useTheme();
-  const isMdUp = useMediaQuery(globalTheme.breakpoints.up('md'));
   return (
     <HeroContainer
       linearGradient
@@ -56,18 +21,12 @@ export default function Hero() {
         </Box>
       }
       rightSx={{
-        p: 4,
-        ml: 2,
-        minWidth: 2000,
-        overflow: 'hidden', // the components in the Hero section are mostly illustrative, even though they're interactive. That's why scrolling is disabled.
-        '& > div': {
-          width: 760,
-          display: 'inline-flex',
-          verticalAlign: 'top',
-          '&:nth-of-type(2)': {
-            width: { xl: 400 },
-          },
-        },
+        p: { xs: 2, md: 3 },
+        ml: { md: 2 },
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
         '&& *': {
           fontFamily: ['"IBM Plex Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'].join(
             ',',
@@ -75,14 +34,7 @@ export default function Hero() {
         },
       }}
       right={
-        <React.Fragment>
-          {isMdUp && (
-            <Stack spacing={3} useFlexGap sx={{ '& > .MuiPaper-root': { maxWidth: 'none' } }}>
-              <ConsultingDocumentBrowser id={'consulting-document-browser'} sx={{ width: '100%' }} />
-              <MediaCardGrid id={'media-card-grid'} sx={{ width: 360 }} />
-            </Stack>
-          )}
-        </React.Fragment>
+        <ConsultingHeroStill discipline="full-stack" />
       }
     />
   );

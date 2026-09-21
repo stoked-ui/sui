@@ -78,7 +78,7 @@ const docs = [
   {
     title: 'Overview',
     href: '/products/mac-mixer/docs/overview/',
-    description: 'What Mac Mixer does, requirements, and current alpha scope.',
+    description: 'What Stokd Mixer does, requirements, and current alpha scope.',
   },
   {
     title: 'Routing and volumes',
@@ -191,7 +191,7 @@ function ProductPreview() {
             sx={{ width: 28, height: 28, objectFit: 'contain' }}
           />
           <Typography variant="body2" fontWeight={800}>
-            Mac Mixer
+            Stokd Mixer
           </Typography>
         </Stack>
         <Chip label="3 active routes" size="small" color="success" variant="outlined" />
@@ -263,8 +263,8 @@ export default function MacMixerProductPage() {
   return (
     <BrandingCssVarsProvider>
       <Head
-        title="Mac Mixer - Per-app audio routing for macOS"
-        description="Mac Mixer routes each Mac app to the output device you choose, with independent app volume and local CoreAudio processing."
+        title="Stokd Mixer - Per-app audio routing for macOS"
+        description="Stokd Mixer routes each Mac app to the output device you choose, with independent app volume and local CoreAudio processing."
         card="/static/mac-mixer/mac-mixer-logo-cropped.png"
       />
       <NoSsr>
@@ -315,7 +315,7 @@ export default function MacMixerProductPage() {
                   textShadow: '0 2px 28px rgba(0,0,0,0.52)',
                 }}
               >
-                Mac Mixer
+                Stokd Mixer
               </Typography>
               <Typography
                 variant="h4"
@@ -380,13 +380,13 @@ export default function MacMixerProductPage() {
                   A virtual output device backed by a native menu-bar router.
                 </Typography>
                 <Typography color="text.secondary">
-                  Mac Mixer installs a CoreAudio HAL plug-in that appears as the system output device. The companion app reads its loopback buses and forwards each app stream to the physical output selected in the popover.
+                  Stokd Mixer installs a CoreAudio HAL plug-in that appears as the system output device. The companion app reads its loopback buses and forwards each app stream to the physical output selected in the popover.
                 </Typography>
               </Grid>
               <Grid item xs={12} md={7}>
                 <Grid container spacing={2}>
                   {[
-                    ['Virtual device', 'Mac Mixer becomes the default output so app audio can be captured and separated.'],
+                    ['Virtual device', 'Stokd Mixer becomes the default output so app audio can be captured and separated.'],
                     ['Eight output routes', 'The current driver exposes eight loopback buses for simultaneous physical output destinations.'],
                     ['YAML persistence', 'Routes, custom device names, enabled outputs, and volume settings are stored in Application Support.'],
                     ['Licensing ready', 'The direct alpha supports a Stripe license path and local trial state.'],

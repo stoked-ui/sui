@@ -10,8 +10,8 @@ export default function StokdCloudProductPage() {
   return (
     <BrandingCssVarsProvider>
       <Head
-        title="Stokd Cloud - Coding agents that remember why your code exists"
-        description="Stokd gives coding agents a version-controlled spec of what must never break — plus the decision history behind every file — so any model ships features without quietly regressing the rest."
+        title="Selfactor - Coding agents that remember why your code exists"
+        description="Selfactor gives coding agents a version-controlled spec of what must never break — plus the decision history behind every file — so any model ships features without quietly regressing the rest."
       />
       <AppHeader />
       <main id="main-content">

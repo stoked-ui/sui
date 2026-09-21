@@ -19,6 +19,8 @@ describe('stokdCloudContent — value proposition coverage', () => {
       /remember.*why your code exists/i,
     );
     expect(stokdCloudHero.subheading).to.match(/spec/i);
+    expect(stokdCloudHero.subheading).to.contain('Selfactor');
+    expect(stokdCloudHero.subheading).to.not.contain('Stokd Cloud');
     expect(stokdCloudHero.badge).to.match(/Claude/i);
     expect(stokdCloudHero.badge).to.match(/Codex/i);
     expect(stokdCloudHero.badge).to.match(/Gemini/i);
@@ -46,7 +48,7 @@ describe('stokdCloudContent — value proposition coverage', () => {
     expect(trustText).to.match(/approve|you steer|in control/i);
   });
 
-  it('contrasts a raw coding agent with the same agent on Stokd', () => {
+  it('contrasts a raw coding agent with the same agent on Selfactor', () => {
     expect(stokdCloudComparisonRows.length).to.be.at.least(6);
     stokdCloudComparisonRows.forEach((row) => {
       expect(row.raw).to.be.a('string').that.is.not.empty;
@@ -103,5 +105,7 @@ describe('<StokdCloudPitch />', () => {
     expect(markup).to.contain(STOKD_CLOUD_APP_URL);
     // Docs links
     expect(markup).to.contain('/products/stokd-cloud/docs/overview/');
+    expect(markup).to.contain('Selfactor');
+    expect(markup).to.not.contain('Stokd Cloud');
   });
 });

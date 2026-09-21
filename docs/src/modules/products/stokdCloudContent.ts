@@ -1,5 +1,5 @@
 /**
- * Marketing content for the Stokd Cloud product page.
+ * Marketing content for the Selfactor product page.
  *
  * Sourced from the canonical landing messaging in the stokd-cloud web app
  * (apps/web — landing.* i18n keys), adapted for the consulting product page.
@@ -22,7 +22,7 @@ export const stokdCloudHero: StokdCloudHero = {
   headlinePart1: 'Coding agents that remember',
   headlinePart2: 'why your code exists',
   subheading:
-    'Coding agents re-read your repo cold every session and forget why anything was built. Stokd gives them a version-controlled spec of what must never break — plus the decision history behind every file — so any model ships features without quietly regressing the rest.',
+    'Coding agents re-read your repo cold every session and forget why anything was built. Selfactor gives them a version-controlled spec of what must never break — plus the decision history behind every file — so any model ships features without quietly regressing the rest.',
   stats: [
     { label: 'Models, one context', value: 'Claude · Codex · Gemini · Grok' },
     { label: 'Spec enforced', value: 'Every single run' },
@@ -54,7 +54,7 @@ export const stokdCloudPillars: StokdCloudPillar[] = [
     tag: 'Decision history',
     title: 'Turn “git blame” into “git why”',
     description:
-      'Stokd records the prompts, interactive sessions, and outcomes that produced each change, and ties them to the files they touched. Anyone — a teammate or an agent — can open a file and see not just the diff, but the full reasoning behind it: what was asked, what the model decided, and what trade-offs were made.',
+      'Selfactor records the prompts, interactive sessions, and outcomes that produced each change, and ties them to the files they touched. Anyone — a teammate or an agent — can open a file and see not just the diff, but the full reasoning behind it: what was asked, what the model decided, and what trade-offs were made.',
     points: [
       'Every prompt, session, and decision linked to the files it changed',
       'The institutional memory a new agent inherits instantly',
@@ -109,7 +109,7 @@ export const stokdCloudTrustItems: StokdCloudTrustItem[] = [
   {
     title: 'You approve the calls that matter',
     description:
-      'During long runs, Stokd surfaces the key forks — the decisions an agent should not make alone — as notifications you can act on from any surface. You keep your hands on the wheel without sitting in the driver\'s seat the whole time.',
+      'During long runs, Selfactor surfaces the key forks — the decisions an agent should not make alone — as notifications you can act on from any surface. You keep your hands on the wheel without sitting in the driver\'s seat the whole time.',
   },
 ];
 
@@ -120,7 +120,7 @@ export interface StokdCloudComparisonRow {
 
 export const stokdCloudComparisonTitles = {
   raw: 'A raw coding agent, out of the box',
-  stokd: 'The same agent, on Stokd',
+  stokd: 'The same agent, on Selfactor',
 };
 
 export const stokdCloudComparisonRows: StokdCloudComparisonRow[] = [
@@ -183,7 +183,7 @@ export const stokdCloudFeatures: StokdCloudFeature[] = [
   {
     title: 'Autonomous tech-debt resolution',
     description:
-      'The back-burner backlog — test-quality improvement, linting, documentation, dead-code removal — is exactly what frontier models handle well with minimal supervision. Stokd runs it so it actually gets done.',
+      'The back-burner backlog — test-quality improvement, linting, documentation, dead-code removal — is exactly what frontier models handle well with minimal supervision. Selfactor runs it so it actually gets done.',
   },
   {
     title: 'Real-time observability',

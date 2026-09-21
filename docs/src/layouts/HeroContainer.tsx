@@ -53,6 +53,7 @@ export default function HeroContainer(props: HeroContainerProps) {
   const renderRightWrapper = (sx?: BoxProps['sx']) => (
     <Box
       ref={frame}
+      data-hero-pane="right"
       aria-hidden={disableTabExclusion ? undefined : 'true'}
       sx={[
         (theme) => ({
@@ -86,6 +87,15 @@ export default function HeroContainer(props: HeroContainerProps) {
           }),
         ...(Array.isArray(sx) ? sx : [sx]),
         ...(Array.isArray(rightSx) ? rightSx : [rightSx]),
+        // Caller minWidth (including the legacy 2000px showcase) must not
+        // expand this pane past the column. The left copy owns its width.
+        {
+          minWidth: '0px',
+          maxWidth: '100%',
+          width: '100%',
+          alignSelf: 'stretch',
+          boxSizing: 'border-box',
+        },
       ]}
     >
       {right}
@@ -108,11 +118,13 @@ export default function HeroContainer(props: HeroContainerProps) {
               xs={12}
               md={7}
               lg={6}
+              data-hero-column="left"
               sx={{
-                minWidth: '40%',
+                minWidth: { xs: 0, md: 280 },
+                flexShrink: { md: 0 },
                 display: { xs: 'flex', md: 'block' },
                 minHeight: { xs: 500, sm: 700, md: 'initial' },
-                m: 'auto',
+                m: 0,
                 '& > *': {
                   m: { xs: 'auto', md: 'initial' },
                 },
@@ -120,7 +132,14 @@ export default function HeroContainer(props: HeroContainerProps) {
             >
               {left}
             </Grid>
-            <Grid item xs={12} md={5} lg={6} sx={{ maxHeight: '100%' }}>
+            <Grid
+              item
+              xs={12}
+              md={5}
+              lg={6}
+              data-hero-column="right"
+              sx={{ maxHeight: '100%', minWidth: 0, overflow: 'hidden' }}
+            >
               {renderRightWrapper({
                 height: {
                   xs: 'initial',
@@ -148,15 +167,41 @@ export default function HeroContainer(props: HeroContainerProps) {
           transition: '0.3s',
         }}
       >
-        <Grid container alignItems="center" wrap="nowrap" sx={{ height: '100%', mx: 'auto'}}>
-          <Grid item md={7} lg={6} sx={{ m: 'auto', width: '30vw'  }}>
+        <Grid container alignItems="center" wrap="nowrap" sx={{ height: '100%', mx: 'auto', minWidth: 0 }}>
+          <Grid
+            item
+            md={7}
+            lg={6}
+            data-hero-column="left"
+            sx={{
+              m: 0,
+              minWidth: 0,
+              flexShrink: { xs: 1, md: 0 },
+              flexGrow: 0,
+              flexBasis: { xs: '100%', md: '48%' },
+              width: { xs: '100%', md: '48%' },
+              maxWidth: { xs: '100%', md: 640 },
+              position: 'relative',
+              zIndex: 1,
+            }}
+          >
             {left}
           </Grid>
           <Grid
             item
             md={5}
             lg={6}
-            sx={{ maxHeight: '100%', display: { xs: 'none', md: 'initial' }, width: '100vw'}}
+            data-hero-column="right"
+            sx={{
+              maxHeight: '100%',
+              display: { xs: 'none', md: 'flex' },
+              minWidth: 0,
+              flex: '1 1 0%',
+              width: 'auto',
+              maxWidth: { md: '52%' },
+              overflow: 'hidden',
+              alignItems: 'center',
+            }}
           >
             {renderRightWrapper()}
           </Grid>

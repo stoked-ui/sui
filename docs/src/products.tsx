@@ -1187,19 +1187,19 @@ const focusCaptureData: TProduct = {
 const focusCapture = new Product(focusCaptureData);
 
 const macMixerData: TProduct = {
-  id: 'mac-mixer',
-  name: "Mac Mixer",
-  fullName: "Mac Mixer",
+  id: 'stokd-mixer',
+  name: "Stokd Mixer",
+  fullName: "Stokd Mixer",
   description: "Per-application audio routing for macOS with app-level and device-level volume control",
   icon: "product-advanced",
-  url: "/products/mac-mixer",
+  url: "/products/stokd-mixer",
   site: 'consulting',
   hideProductFeatures: true,
-  live: false,
+  live: true,
   showcaseType: AdvancedShowcase,
   features: [{
     name: 'Overview',
-    description: 'What Mac Mixer does, requirements, and current alpha scope',
+    description: 'What Stokd Mixer does, requirements, and current alpha scope',
     id: 'overview',
   }, {
     name: 'Routing and Volumes',
@@ -1257,15 +1257,15 @@ const alwaysListeningData: TProduct = {
 const alwaysListening = new Product(alwaysListeningData);
 
 const stokdCloudData: TProduct = {
-  id: 'stokd-cloud',
-  name: "Stokd Cloud",
-  fullName: "Stokd Cloud",
+  id: 'selfactor',
+  name: "Selfactor",
+  fullName: "Selfactor",
   description: "AI project orchestration for teams.\nVS Code, state API, and MCP in one loop.",
   icon: "product-toolpad",
-  url: "/products/stokd-cloud",
+  url: "/products/selfactor",
   site: 'consulting',
   hideProductFeatures: true,
-  live: false,
+  live: true,
   showcaseType: AdvancedShowcase,
   features: [{
     name: 'Overview',
@@ -1290,22 +1290,34 @@ const stokdCloud = new Product(stokdCloudData);
 const PRODUCTS: Products = new Products([fileExplorer, media, timeline, videoEditor]);
 const ALL_PRODUCTS: Products = new Products([sui]);
 const CONSULTING: Products = new Products([consultingFrontEnd, consultingBackEnd, consultingFullStack, consultingDevops, consultingAi]);
-// Only stoked-ui shown by default — consulting products come exclusively from the API
-const PUBLIC_FALLBACK_PRODUCTS: Products = new Products([sui]);
+// Stoked UI plus the rebranded consulting products, so nav labels stay correct
+// before the public products API responds. Other consulting products still come from the API.
+const PUBLIC_FALLBACK_PRODUCTS: Products = new Products([sui, macMixer, stokdCloud]);
 const ALL_PACKAGES: Products = new Products([
   fileExplorer, media, common, mediaApi, mediaSelector, timeline, videoEditor, flux, focusCapture,
   macMixer, alwaysListening, stokdCloud,
   consultingFrontEnd, consultingBackEnd, consultingFullStack, consultingDevops, consultingAi
 ]);
 
-// Enrichment metadata for API-sourced consulting products (showcase types, icons, etc.)
-// Not shown in the nav/footer until the API confirms the product exists.
+// Enrichment metadata for API-sourced consulting products (showcase types, icons, etc.).
+// Legacy ids alias onto the canonical Selfactor and Stokd Mixer entries.
+const LEGACY_PUBLIC_PRODUCT_IDS: Record<string, string> = {
+  'mac-mixer': 'stokd-mixer',
+  'stokd-cloud': 'selfactor',
+};
+
+function canonicalPublicProductId(productId: string) {
+  return LEGACY_PUBLIC_PRODUCT_IDS[productId] ?? productId;
+}
+
 const CONSULTING_ENRICHMENT = new Map<string, TProduct>([
   [flux.id, flux.data],
   [focusCapture.id, focusCapture.data],
   [macMixer.id, macMixer.data],
+  ['mac-mixer', macMixer.data],
   [alwaysListening.id, alwaysListening.data],
   [stokdCloud.id, stokdCloud.data],
+  ['stokd-cloud', stokdCloud.data],
 ]);
 
 export type MenuProps = {
@@ -1329,15 +1341,16 @@ function useAllProducts(): Products {
           ...CONSULTING_ENRICHMENT,
         ]);
         const apiEntries = data.map((product: any) => {
-          const fallback = fallbackById.get(product.productId);
+          const canonicalId = canonicalPublicProductId(product.productId);
+          const fallback = fallbackById.get(canonicalId) ?? fallbackById.get(product.productId);
           const entry: TProduct = {
             ...fallback,
-            id: product.productId,
+            id: canonicalId,
             name: fallback?.name || product.name,
             fullName: fallback?.fullName || product.name,
             description: fallback?.description || product.description,
             icon: fallback?.icon || product.icon || 'product-core',
-            url: normalizePublicProductUrl(product.productId, fallback?.url || product.url),
+            url: normalizePublicProductUrl(canonicalId, fallback?.url || product.url),
             site: fallback?.site || inferSiteForProductId(product.productId),
             features: Array.isArray(product.features) && product.features.length > 0
               ? product.features

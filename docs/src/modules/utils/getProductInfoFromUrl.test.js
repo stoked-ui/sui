@@ -26,6 +26,22 @@ describe('getProductInfoFromUrl', () => {
       productCategoryId: 'core',
       productId: 'focus-capture',
     });
+    expect(getProductInfoFromUrl('/products/selfactor/')).to.deep.equal({
+      productCategoryId: 'core',
+      productId: 'selfactor',
+    });
+    expect(getProductInfoFromUrl('/products/stokd-cloud/')).to.deep.equal({
+      productCategoryId: 'core',
+      productId: 'stokd-cloud',
+    });
+    expect(getProductInfoFromUrl('/products/stokd-mixer/')).to.deep.equal({
+      productCategoryId: 'core',
+      productId: 'stokd-mixer',
+    });
+    expect(getProductInfoFromUrl('/consulting/products/mac-mixer/')).to.deep.equal({
+      productCategoryId: 'core',
+      productId: 'mac-mixer',
+    });
   });
 
   it('keeps legacy short product routes identifiable', () => {

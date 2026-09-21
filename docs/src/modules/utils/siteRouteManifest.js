@@ -12,8 +12,10 @@ const STOKED_UI_PRODUCT_IDS = [
 const CONSULTING_PUBLIC_PRODUCT_IDS = [
   'flux',
   'focus-capture',
+  'stokd-mixer',
   'mac-mixer',
   'always-listening',
+  'selfactor',
   'stokd-cloud',
 ];
 
@@ -153,6 +155,38 @@ const NEXT_ROUTE_REDIRECTS = [
   {
     source: `/:product(${legacyProductMatcher})/:rest*`,
     destination: '/products/:product/:rest*',
+  },
+  {
+    source: '/products/mac-mixer',
+    destination: '/products/stokd-mixer',
+  },
+  {
+    source: '/products/mac-mixer/',
+    destination: '/products/stokd-mixer/',
+  },
+  {
+    source: '/consulting/products/mac-mixer',
+    destination: '/consulting/products/stokd-mixer',
+  },
+  {
+    source: '/consulting/products/mac-mixer/',
+    destination: '/consulting/products/stokd-mixer/',
+  },
+  {
+    source: '/products/stokd-cloud',
+    destination: '/products/selfactor',
+  },
+  {
+    source: '/products/stokd-cloud/',
+    destination: '/products/selfactor/',
+  },
+  {
+    source: '/consulting/products/stokd-cloud',
+    destination: '/consulting/products/selfactor',
+  },
+  {
+    source: '/consulting/products/stokd-cloud/',
+    destination: '/consulting/products/selfactor/',
   },
 ];
 

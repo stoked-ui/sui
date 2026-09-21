@@ -3,7 +3,7 @@ import type { MuiPage } from '../src/MuiPage';
 const macMixerPages: MuiPage[] = [
   {
     pathname: '/products/mac-mixer/docs',
-    title: 'Mac Mixer',
+    title: 'Stokd Mixer',
     alpha: true,
     children: [
       { pathname: '/products/mac-mixer/docs/overview', title: 'Overview' },

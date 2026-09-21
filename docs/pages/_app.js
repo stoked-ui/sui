@@ -226,8 +226,13 @@ const productMap = {
     version: null,
   },
   'mac-mixer': {
-    metadata: 'Mac Mixer',
-    name: 'Mac Mixer',
+    metadata: 'Stokd Mixer',
+    name: 'Stokd Mixer',
+    version: null,
+  },
+  'stokd-mixer': {
+    metadata: 'Stokd Mixer',
+    name: 'Stokd Mixer',
     version: null,
   },
   'always-listening': {
@@ -236,8 +241,13 @@ const productMap = {
     version: null,
   },
   'stokd-cloud': {
-    metadata: 'Stokd Cloud',
-    name: 'Stokd Cloud',
+    metadata: 'Selfactor',
+    name: 'Selfactor',
+    version: null,
+  },
+  selfactor: {
+    metadata: 'Selfactor',
+    name: 'Selfactor',
     version: null,
   },
   'stoked-ui': {
@@ -290,8 +300,10 @@ function AppWrapper(props) {
       flux: fluxPages,
       'focus-capture': focusCapturePages,
       'mac-mixer': macMixerPages,
+      'stokd-mixer': macMixerPages,
       'always-listening': alwaysListeningPages,
       'stokd-cloud': stokdCloudPages,
+      selfactor: stokdCloudPages,
     };
     const pages = productPageMap[productId] || allPages;
     const { activePage, activePageParents } = findActivePage(pages, router.pathname);

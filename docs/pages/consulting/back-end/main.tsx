@@ -10,6 +10,7 @@ import { styled } from "@mui/material/styles";
 import Section from "docs/src/layouts/Section";
 import GradientText from "docs/src/components/typography/GradientText";
 import HeroContainer from "docs/src/layouts/HeroContainer";
+import ConsultingHeroStill from "docs/src/components/home/ConsultingHeroStill";
 
 const ServiceCard = styled(Card)(({ theme }) => ({
   height: '100%',
@@ -79,17 +80,13 @@ export default function Main() {
           </Box>
         }
         rightSx={{
-          p: 4,
-          ml: 2,
-          minWidth: 2000,
-          overflow: 'hidden',
-          '& > div': {
-            width: 760,
-            display: 'inline-flex',
-            verticalAlign: 'top',
-          },
+          p: { xs: 2, md: 3 },
+          ml: { md: 2 },
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
-        right={<React.Fragment />}
+        right={<ConsultingHeroStill discipline="back-end" />}
       />
       <Divider />
       {/* Services Section */}

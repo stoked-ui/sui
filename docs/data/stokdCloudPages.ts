@@ -3,7 +3,7 @@ import type { MuiPage } from '../src/MuiPage';
 const stokdCloudPages: MuiPage[] = [
   {
     pathname: '/products/stokd-cloud/docs',
-    title: 'Stokd Cloud',
+    title: 'Selfactor',
     dev: true,
     children: [
       { pathname: '/products/stokd-cloud/docs/overview', title: 'Overview' },

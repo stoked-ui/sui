@@ -40,15 +40,19 @@ const ROUTES: Routes = {
   // Focus Capture
   focusCapture: toAbsoluteSitePath('consulting', '/consulting/products/focus-capture/'),
   focusCaptureDocs: toAbsoluteSitePath('consulting', '/consulting/products/focus-capture/docs/overview/'),
-  // Mac Mixer
-  macMixer: toAbsoluteSitePath('consulting', '/consulting/products/mac-mixer/'),
+  // Stokd Mixer (mac-mixer remains a public alias)
+  macMixer: toAbsoluteSitePath('consulting', '/consulting/products/stokd-mixer/'),
+  stokdMixer: toAbsoluteSitePath('consulting', '/consulting/products/stokd-mixer/'),
   macMixerDocs: toAbsoluteSitePath('consulting', '/consulting/products/mac-mixer/docs/overview/'),
+  stokdMixerDocs: toAbsoluteSitePath('consulting', '/consulting/products/mac-mixer/docs/overview/'),
   // Always Listening
   alwaysListening: toAbsoluteSitePath('consulting', '/consulting/products/always-listening/'),
   alwaysListeningDocs: toAbsoluteSitePath('consulting', '/consulting/products/always-listening/docs/overview/'),
-  // Stokd Cloud
-  stokdCloud: toAbsoluteSitePath('consulting', '/consulting/products/stokd-cloud/'),
+  // Selfactor (stokd-cloud remains a public alias)
+  stokdCloud: toAbsoluteSitePath('consulting', '/consulting/products/selfactor/'),
+  selfactor: toAbsoluteSitePath('consulting', '/consulting/products/selfactor/'),
   stokdCloudDocs: toAbsoluteSitePath('consulting', '/consulting/products/stokd-cloud/docs/overview/'),
+  selfactorDocs: toAbsoluteSitePath('consulting', '/consulting/products/stokd-cloud/docs/overview/'),
   // Consulting
   home: '/products/file-explorer/',
   consulting: toAbsoluteSitePath('consulting', '/consulting/'),
