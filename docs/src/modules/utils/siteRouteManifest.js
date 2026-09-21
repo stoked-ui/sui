@@ -40,8 +40,8 @@ const CONSULTING_ROUTE_MANIFEST = [
   { id: 'consulting-licenses', publicPath: '/licenses', internalPath: '/consulting/licenses', access: 'authenticated' },
   { id: 'consulting-login', publicPath: '/login', internalPath: '/consulting/login', access: 'public' },
   { id: 'consulting-partner', publicPath: '/partners/[partnerName]', internalPath: '/consulting/partners/[partnerName]', access: 'authenticated' },
-  { id: 'consulting-product-redirect', publicPath: '/products/[product-slug]', internalPath: '/consulting/products/[product-slug]', access: 'admin' },
-  { id: 'consulting-products-redirect', publicPath: '/products', internalPath: '/consulting/products', access: 'admin' },
+  { id: 'consulting-product-redirect', publicPath: '/products/[product-slug]', internalPath: '/consulting/products/[product-slug]', access: 'public' },
+  { id: 'consulting-products-redirect', publicPath: '/products', internalPath: '/consulting/products', access: 'public' },
   { id: 'consulting-settings', publicPath: '/settings', internalPath: '/consulting/settings', access: 'authenticated' },
   { id: 'consulting-users', publicPath: '/users', internalPath: '/consulting/users', access: 'authenticated' },
 ];
