@@ -7,12 +7,20 @@ const EXPOSE_HEADERS = 'Content-Range, Accept-Ranges, Content-Encoding, Content-
 const VARY = 'Origin, Access-Control-Request-Headers, Access-Control-Request-Method';
 const OWNED_ORIGIN_MAP = Object.fromEntries(CORS_PRODUCTION_ORIGINS.map((origin) => [origin, 1]));
 
+// Public, read-only CDN folder listings (`?f=json` / `?f=yaml` are rewritten here).
+const PUBLIC_API_PREFIX = '/api/cdn/path/';
+
+function isPublicApiPath(uri: string) {
+  return uri.startsWith(PUBLIC_API_PREFIX);
+}
+
 function isApiPath(uri: string) {
-  return uri === '/api' || uri.startsWith('/api/');
+  return !isPublicApiPath(uri) && (uri === '/api' || uri.startsWith('/api/'));
 }
 
 function isPublicStaticPath(uri: string) {
   return (
+    isPublicApiPath(uri) ||
     uri === '/favicon.ico' ||
     uri === '/robots.txt' ||
     uri === '/sitemap.xml' ||
@@ -84,9 +92,9 @@ export function createEdgeCorsPreflightInjection({
   uriVar,
   requestHeadersVar = 'event.request.headers',
 }: PreflightInjectionVariables) {
-  return `if(${methodVar}==='OPTIONS'){var o=${requestHeadersVar}.origin?${requestHeadersVar}.origin.value:'';var a=${JSON.stringify(OWNED_ORIGIN_MAP)}[o]===1;var p=${uriVar}==='/api'||${uriVar}.indexOf('/api/')===0;var s=!p&&(${uriVar}==='/favicon.ico'||${uriVar}==='/robots.txt'||${uriVar}==='/sitemap.xml'||${uriVar}==='/manifest.json'||${uriVar}.indexOf('/_next/static/')===0||${uriVar}.indexOf('/static/')===0||${uriVar}.indexOf('/images/')===0||${uriVar}.indexOf('/clients/')===0||/\\.[a-z0-9]{2,8}$/i.test(${uriVar}));var h={vary:{value:${JSON.stringify(VARY)}}};if((p&&!a)||(!p&&!s))return{statusCode:403,statusDescription:'Forbidden',headers:h};var r=${requestHeadersVar}['access-control-request-headers'];h['access-control-allow-origin']={value:p?o:'*'};h['access-control-allow-methods']={value:p?${JSON.stringify(ALLOW_METHODS)}:${JSON.stringify(PUBLIC_ALLOW_METHODS)}};h['access-control-allow-headers']={value:r?r.value:${JSON.stringify(ALLOW_HEADERS)}};h['access-control-expose-headers']={value:${JSON.stringify(EXPOSE_HEADERS)}};h['access-control-max-age']={value:'86400'};if(p)h['access-control-allow-credentials']={value:'true'};return{statusCode:204,statusDescription:'No Content',headers:h};}`;
+  return `if(${methodVar}==='OPTIONS'){var o=${requestHeadersVar}.origin?${requestHeadersVar}.origin.value:'';var a=${JSON.stringify(OWNED_ORIGIN_MAP)}[o]===1;var q=${uriVar}.indexOf(${JSON.stringify(PUBLIC_API_PREFIX)})===0;var p=!q&&(${uriVar}==='/api'||${uriVar}.indexOf('/api/')===0);var s=q||!p&&(${uriVar}==='/favicon.ico'||${uriVar}==='/robots.txt'||${uriVar}==='/sitemap.xml'||${uriVar}==='/manifest.json'||${uriVar}.indexOf('/_next/static/')===0||${uriVar}.indexOf('/static/')===0||${uriVar}.indexOf('/images/')===0||${uriVar}.indexOf('/clients/')===0||/\\.[a-z0-9]{2,8}$/i.test(${uriVar}));var h={vary:{value:${JSON.stringify(VARY)}}};if((p&&!a)||(!p&&!s))return{statusCode:403,statusDescription:'Forbidden',headers:h};var r=${requestHeadersVar}['access-control-request-headers'];h['access-control-allow-origin']={value:p?o:'*'};h['access-control-allow-methods']={value:p?${JSON.stringify(ALLOW_METHODS)}:${JSON.stringify(PUBLIC_ALLOW_METHODS)}};h['access-control-allow-headers']={value:r?r.value:${JSON.stringify(ALLOW_HEADERS)}};h['access-control-expose-headers']={value:${JSON.stringify(EXPOSE_HEADERS)}};h['access-control-max-age']={value:'86400'};if(p)h['access-control-allow-credentials']={value:'true'};return{statusCode:204,statusDescription:'No Content',headers:h};}`;
 }
 
 export function createEdgeCorsResponseInjection() {
-  return `var u=event.request.uri||'/';var p=u==='/api'||u.indexOf('/api/')===0;var s=!p&&(u==='/favicon.ico'||u==='/robots.txt'||u==='/sitemap.xml'||u==='/manifest.json'||u.indexOf('/_next/static/')===0||u.indexOf('/static/')===0||u.indexOf('/images/')===0||u.indexOf('/clients/')===0||/\\.[a-z0-9]{2,8}$/i.test(u));var o=event.request.headers.origin?event.request.headers.origin.value:'';var a=${JSON.stringify(OWNED_ORIGIN_MAP)}[o]===1;var h=event.response.headers;h['access-control-allow-methods']={value:p?${JSON.stringify(ALLOW_METHODS)}:${JSON.stringify(PUBLIC_ALLOW_METHODS)}};h['access-control-allow-headers']={value:${JSON.stringify(ALLOW_HEADERS)}};h['access-control-expose-headers']={value:${JSON.stringify(EXPOSE_HEADERS)}};h.vary={value:${JSON.stringify(VARY)}};h['cross-origin-opener-policy']={value:'same-origin-allow-popups'};delete h['access-control-allow-origin'];delete h['access-control-allow-credentials'];if(p&&a){h['access-control-allow-origin']={value:o};h['access-control-allow-credentials']={value:'true'}}else if(s)h['access-control-allow-origin']={value:'*'};`;
+  return `var u=event.request.uri||'/';var q=u.indexOf(${JSON.stringify(PUBLIC_API_PREFIX)})===0;var p=!q&&(u==='/api'||u.indexOf('/api/')===0);var s=q||!p&&(u==='/favicon.ico'||u==='/robots.txt'||u==='/sitemap.xml'||u==='/manifest.json'||u.indexOf('/_next/static/')===0||u.indexOf('/static/')===0||u.indexOf('/images/')===0||u.indexOf('/clients/')===0||/\\.[a-z0-9]{2,8}$/i.test(u));var o=event.request.headers.origin?event.request.headers.origin.value:'';var a=${JSON.stringify(OWNED_ORIGIN_MAP)}[o]===1;var h=event.response.headers;h['access-control-allow-methods']={value:p?${JSON.stringify(ALLOW_METHODS)}:${JSON.stringify(PUBLIC_ALLOW_METHODS)}};h['access-control-allow-headers']={value:${JSON.stringify(ALLOW_HEADERS)}};h['access-control-expose-headers']={value:${JSON.stringify(EXPOSE_HEADERS)}};h.vary={value:${JSON.stringify(VARY)}};h['cross-origin-opener-policy']={value:'same-origin-allow-popups'};delete h['access-control-allow-origin'];delete h['access-control-allow-credentials'];if(p&&a){h['access-control-allow-origin']={value:o};h['access-control-allow-credentials']={value:'true'}}else if(s)h['access-control-allow-origin']={value:'*'};`;
 }

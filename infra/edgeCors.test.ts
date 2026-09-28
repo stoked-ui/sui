@@ -77,6 +77,49 @@ describe('credentialed edge CORS policy', () => {
     expect(headers.vary).to.contain('Origin');
   });
 
+  it('serves public CDN folder listings with noncredentialed wildcard CORS', () => {
+    const uri = '/api/cdn/path/json/realty/2602.hidalgo/pictures';
+    const origin = 'https://hidalgo.stokd.cloud';
+    const preflight = edgeCors.getEdgePreflightResponse(uri, origin);
+    const responseHeaders = edgeCors.getEdgeResponseHeaders(uri, origin);
+
+    expect(preflight.statusCode).to.equal(204);
+    expect(preflight.headers['access-control-allow-origin']).to.equal('*');
+    expect(preflight.headers['access-control-allow-credentials']).to.equal(undefined);
+    expect(responseHeaders['access-control-allow-origin']).to.equal('*');
+    expect(responseHeaders['access-control-allow-credentials']).to.equal(undefined);
+  });
+
+  it('applies the public CDN listing rule in the edge function injections', () => {
+    const origin = 'https://hidalgo.stokd.cloud';
+    const runResponse = (uri: string) => {
+      const event = {
+        request: { uri, headers: { origin: { value: origin } } },
+        response: { headers: {} as Record<string, { value: string }> },
+      };
+      // eslint-disable-next-line no-new-func
+      new Function('event', edgeCors.createEdgeCorsResponseInjection())(event);
+      return event.response.headers;
+    };
+    const runPreflight = (uri: string) =>
+      // eslint-disable-next-line no-new-func
+      new Function(
+        'event',
+        'method',
+        'uri',
+        `${edgeCors.createEdgeCorsPreflightInjection({ methodVar: 'method', uriVar: 'uri' })}return null;`,
+      )({ request: { headers: { origin: { value: origin } } } }, 'OPTIONS', uri);
+
+    const listing = runResponse('/api/cdn/path/json/realty/2602.hidalgo/pictures');
+    expect(listing['access-control-allow-origin']?.value).to.equal('*');
+    expect(listing['access-control-allow-credentials']).to.equal(undefined);
+    expect(runPreflight('/api/cdn/path/json/realty').statusCode).to.equal(204);
+
+    const contents = runResponse('/api/cdn/contents');
+    expect(contents['access-control-allow-origin']).to.equal(undefined);
+    expect(runPreflight('/api/cdn/contents').statusCode).to.equal(403);
+  });
+
   it('wires the shared policy into the site and both CDN site factories', () => {
     const siteSource = fs.readFileSync(path.resolve(process.cwd(), 'infra/site.ts'), 'utf8');
     const cdnSource = fs.readFileSync(path.resolve(process.cwd(), 'infra/cdn-site.ts'), 'utf8');
